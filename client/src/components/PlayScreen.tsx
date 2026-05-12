@@ -54,7 +54,15 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
         break;
       case "midnight":
         if (turn >= 5) {
-          onEnd("kira_win"); // 実際はキル数判定
+          // 5ターン終了時の判定
+          // キラが1人も殺していなければキラの負け（特殊敗北条件を優先）
+          const kiraKills = players.filter(p => !p.isAlive && p.role !== 'kira').length; 
+          
+          if (kiraKills === 0) {
+            onEnd("kira_lose");
+          } else {
+            onEnd("kira_win");
+          }
         } else {
           setTurn(turn + 1);
           setPhase("morning");

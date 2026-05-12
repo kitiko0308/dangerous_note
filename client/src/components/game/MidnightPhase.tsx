@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Player } from '../../types';
+import type { Player, Item } from '../../types';
 
 type Props = {
   players: Player[];
@@ -27,18 +27,58 @@ export default function MidnightPhase({ players, setPlayers, onNext }: Props) {
 
   // --- キラの行動 ---
   const handleKiraAction = () => {
-    // 毎晩のランダム本名取得（仮実装：自分以外の誰かの本名の1文字目を公開）
+    // 自分以外の生存者からランダムに1人選ぶ
     const targets = players.filter(p => p.id !== currentPlayer.id && p.isAlive);
+    if (targets.length === 0) return;
+    
     const target = targets[Math.floor(Math.random() * targets.length)];
     
-    setActionLog(`${target.nickname} の本名の一部を書き記した...`);
+    // その人の本名から未公開の文字を1つ選ぶ（表示するだけ、全体公開はしない）
+    const nameLength = target.realName.length;
+    const charIdx = Math.floor(Math.random() * nameLength);
     
-    // 実際はrevealedCharsを更新する処理が必要
+    // 〇山〇〇 の形式を作成
+    const maskedName = target.realName.split('').map((char, i) => 
+      i === charIdx ? char : "〇"
+    ).join('');
+    
+    setActionLog(`${target.nickname} の本名の一部は 「${maskedName}」 だと判明した。`);
   };
 
   // --- Lの行動 ---
-  const handleLAction = () => {
-    setActionLog(`今日のミニゲームの順位を調査した...`);
+  const handleLAction = (targetId: number) => {
+    const target = players.find(p => p.id === targetId);
+    if (!target) return;
+    
+    // 実際に保存された順位を表示
+    const rank = target.miniGameRank || "?";
+    setActionLog(`${target.nickname} のミニゲーム順位は ${rank}位 だった。`);
+  };
+
+  // --- アイテム使用 ---
+  const useItem = (item: Item, targetId?: number) => {
+    if (item === "death_note_eye") {
+      // 生存者からランダムに1人選んでフルネームを表示
+      const targets = players.filter(p => p.id !== currentPlayer.id && p.isAlive);
+      const target = targets[Math.floor(Math.random() * targets.length)];
+      setActionLog(`【死神の目】を使用。${target.nickname} の本名は 「${target.realName}」 だ！`);
+    } else if (item === "shortcake" && targetId !== undefined) {
+      // 指定したターゲットがキラか判定
+      const target = players.find(p => p.id === targetId);
+      if (target) {
+        const isKira = target.role === "kira";
+        setActionLog(`【ショートケーキ】を使用。${target.nickname} は ${isKira ? "キラだ！" : "キラではない。"}`);
+      }
+    }
+
+    // アイテムを消費
+    const newPlayers = players.map(p => {
+      if (p.id === currentPlayer.id) {
+        return { ...p, items: p.items.filter(i => i !== item) };
+      }
+      return p;
+    });
+    setPlayers(newPlayers);
   };
 
   return (
@@ -71,7 +111,7 @@ export default function MidnightPhase({ players, setPlayers, onNext }: Props) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <button onClick={handleKiraAction} style={actionBtnStyle}>本名を1文字盗む</button>
                     {currentPlayer.items.includes('death_note_eye') && (
-                      <button style={itemBtnStyle}>【アイテム】死神の目を使用</button>
+                      <button onClick={() => useItem('death_note_eye')} style={itemBtnStyle}>【アイテム】死神の目を使用</button>
                     )}
                     <button style={disabledBtnStyle}>殺害する（本名が必要）</button>
                   </div>
@@ -80,10 +120,25 @@ export default function MidnightPhase({ players, setPlayers, onNext }: Props) {
                 {/* Lのボタン */}
                 {currentPlayer.role === 'l' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <button onClick={handleLAction} style={actionBtnStyle}>ミニゲーム順位を確認</button>
-                    {currentPlayer.items.includes('shortcake') && (
-                      <button style={itemBtnStyle}>【アイテム】ショートケーキを使用</button>
-                    )}
+                    <p style={{ fontSize: '14px', marginBottom: '10px' }}>調査する相手を選んでください：</p>
+                    {players.filter(p => p.id !== currentPlayer.id && p.isAlive).map(p => (
+                      <div key={p.id} style={{ display: 'flex', gap: '5px' }}>
+                        <button 
+                          onClick={() => handleLAction(p.id)} 
+                          style={{ ...actionBtnStyle, flex: 1 }}
+                        >
+                          {p.nickname} の順位を調査
+                        </button>
+                        {currentPlayer.items.includes('shortcake') && (
+                          <button 
+                            onClick={() => useItem('shortcake', p.id)} 
+                            style={{ ...itemBtnStyle, fontSize: '12px' }}
+                          >
+                            キラ鑑定
+                          </button>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
 
