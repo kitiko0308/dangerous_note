@@ -1,11 +1,14 @@
 import { useState } from "react";
 import "./App.css";
 
-// コンポーネントと型のインポート
+// コンポーネントのインポート
 import TitleScreen from "./components/TitleScreen";
 import SetupScreen from "./components/SetupScreen";
+import RoleRevealScreen from "./components/RoleRevealScreen";
 import PlayScreen from "./components/PlayScreen";
 import ResultScreen from "./components/ResultScreen";
+
+// 型のインポート（import type を使用）
 import type { ScreenState, GameResult } from "./types";
 
 function App() {
@@ -24,7 +27,11 @@ function App() {
       )}
       
       {currentScreen === "setup" && (
-        <SetupScreen onNext={() => setCurrentScreen("play")} />
+        <SetupScreen onNext={() => setCurrentScreen("role_reveal")} />
+      )}
+
+      {currentScreen === "role_reveal" && (
+        <RoleRevealScreen onNext={() => setCurrentScreen("play")} />
       )}
       
       {currentScreen === "play" && (
@@ -43,5 +50,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;
