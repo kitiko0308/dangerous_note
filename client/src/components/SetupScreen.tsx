@@ -5,33 +5,91 @@ type Props = {
 };
 
 export default function SetupScreen({ onNext }: Props) {
-  // 5人分の名前入力を管理
-  const [playerInputs, setPlayerInputs] = useState(
+  // 現在何人目のプレイヤーを入力中か (0〜4)
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  
+  // 入力されたデータを保持するリスト
+  const [playerData, setPlayerData] = useState(
     Array(5).fill({ nickname: '', realName: '' })
   );
 
+  const handleInputChange = (field: 'nickname' | 'realName', value: string) => {
+    const newData = [...playerData];
+    newData[currentPlayerIndex] = {
+      ...newData[currentPlayerIndex],
+      [field]: value
+    };
+    setPlayerData(newData);
+  };
+
+  const handleNext = () => {
+    if (currentPlayerIndex < 4) {
+      // 次のプレイヤーへ
+      setCurrentPlayerIndex(currentPlayerIndex + 1);
+    } else {
+      // 5人全員終わったら次の画面へ
+      onNext();
+    }
+  };
+
   return (
-    <div style={{ padding: 40, color: 'white' }}>
-      <h2 style={{ textAlign: 'center' }}>プレイヤー設定 (5人固定)</h2>
-      <p style={{ textAlign: 'center', marginBottom: '30px' }}>ニックネームと本名を入力してください</p>
+    <div style={{ padding: 40, color: 'white', textAlign: 'center' }}>
+      <h2 style={{ marginBottom: '10px' }}>プレイヤー設定 ({currentPlayerIndex + 1} / 5人目)</h2>
+      <p style={{ color: '#aaa', marginBottom: '30px' }}>
+        他のプレイヤーに見られないように入力してください
+      </p>
       
-      <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-        {playerInputs.map((_, index) => (
-          <div key={index} style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#222', borderRadius: '8px' }}>
-            <h4>プレイヤー {index + 1}</h4>
-            <input type="text" placeholder="ニックネーム" style={{ marginRight: '10px', padding: '5px' }} />
-            <input type="text" placeholder="本名" style={{ padding: '5px' }} />
-          </div>
-        ))}
-      </div>
-      
-      <div style={{ textAlign: 'center', marginTop: '30px' }}>
+      <div style={{ maxWidth: '400px', margin: '0 auto', backgroundColor: '#222', padding: '30px', borderRadius: '12px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px', textAlign: 'left' }}>ニックネーム</label>
+          <input 
+            type="text" 
+            value={playerData[currentPlayerIndex].nickname}
+            onChange={(e) => handleInputChange('nickname', e.target.value)}
+            style={{ width: '100%', padding: '10px', fontSize: '16px' }} 
+            placeholder="例: たなか"
+          />
+        </div>
+
+        <div style={{ marginBottom: '30px' }}>
+          <label style={{ display: 'block', marginBottom: '10px', textAlign: 'left' }}>本名</label>
+          <input 
+            type="text" 
+            value={playerData[currentPlayerIndex].realName}
+            onChange={(e) => handleInputChange('realName', e.target.value)}
+            style={{ width: '100%', padding: '10px', fontSize: '16px' }} 
+            placeholder="例: 田中 太郎"
+          />
+        </div>
+
         <button 
-          onClick={onNext} 
-          style={{ padding: '15px 30px', fontSize: '20px', cursor: 'pointer', backgroundColor: '#8a0303', color: 'white', border: 'none', borderRadius: '5px' }}
+          onClick={handleNext} 
+          style={{ 
+            width: '100%', 
+            padding: '15px', 
+            fontSize: '18px', 
+            fontWeight: 'bold',
+            cursor: 'pointer', 
+            backgroundColor: '#8a0303', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '5px' 
+          }}
         >
-          次へ（役職の確認）
+          {currentPlayerIndex < 4 ? "次のプレイヤーへ" : "全員の入力を完了する"}
         </button>
+      </div>
+
+      {/* 誰の入力中かわかるようにドットを表示 */}
+      <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+        {[0, 1, 2, 3, 4].map(i => (
+          <div key={i} style={{ 
+            width: '12px', 
+            height: '12px', 
+            borderRadius: '50%', 
+            backgroundColor: i === currentPlayerIndex ? '#8a0303' : '#444' 
+          }} />
+        ))}
       </div>
     </div>
   );
