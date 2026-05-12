@@ -7,19 +7,24 @@ type Props = {
 };
 
 export default function ResultScreen({ result, onBack }: Props) {
-  let resultMessage = "ゲーム終了";
-  if (result === "villager_win") resultMessage = "🎉 村人（L陣営）の勝利！";
-  if (result === "kira_win") resultMessage = "💀 キラの勝利！";
-  if (result === "kira_lose") resultMessage = "🤡 キラの敗北...";
-
+  const isKiraWin = result === "kira_win";
+  
   return (
     <div style={{ padding: 40, color: 'white', textAlign: 'center' }}>
-      <h2 style={{ fontSize: '32px', color: '#ff4444' }}>結果発表</h2>
-      <h3 style={{ fontSize: '24px', margin: '30px 0' }}>{resultMessage}</h3>
+      <h2 style={{ fontSize: '24px', color: '#888' }}>GAME OVER</h2>
+      
+      <div style={{ margin: '60px 0' }}>
+        <h1 style={{ fontSize: '64px', color: isKiraWin ? '#ff4444' : '#44ff44', textShadow: '0 0 20px rgba(255,255,255,0.2)' }}>
+          {isKiraWin ? "キラの勝利" : "L陣営の勝利"}
+        </h1>
+        <p style={{ marginTop: '20px', fontSize: '18px', color: '#ccc' }}>
+          {isKiraWin ? "世界は新世界へと歩み始めた。" : "正義は勝つ。必ず。"}
+        </p>
+      </div>
       
       <button 
         onClick={onBack} 
-        style={{ padding: '15px 30px', cursor: 'pointer', backgroundColor: '#444', color: 'white', border: 'none' }}
+        style={{ padding: '15px 40px', cursor: 'pointer', backgroundColor: '#333', color: 'white', border: '1px solid #666', borderRadius: '5px' }}
       >
         タイトルへ戻る
       </button>

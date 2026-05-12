@@ -1,34 +1,64 @@
 import React, { useState } from 'react';
-import type { GamePhase, GameResult } from '../types';
+import type { Player, GamePhase, GameResult } from '../types';
 
-// フェーズごとのコンポーネントをインポート
 import MorningPhase from './game/MorningPhase';
 import MiniGamePhase from './game/MiniGamePhase';
 import NoonResultPhase from './game/NoonResultPhase';
 import VotingPhase from './game/VotingPhase';
-import NightPhase from './game/NightPhase';
+import ExileResultPhase from './game/ExileResultPhase';
+import MidnightPhase from './game/MidnightPhase';
 
 type Props = {
+  players: Player[];
+  setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
   onEnd: (result: GameResult) => void;
 };
 
-export default function PlayScreen({ onEnd }: Props) {
+export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
   const [turn, setTurn] = useState(1);
   const [phase, setPhase] = useState<GamePhase>("morning");
+  const [exiledPlayerId, setExiledPlayerId] = useState<number | null>(null);
+  
+  const [lastEvents, setLastEvents] = useState<string[]>(["ゲーム開始！最初の朝です。"]);
 
-  // フェーズの遷移管理
+  const handleVote = (id: number | null) => {
+    setExiledPlayerId(id);
+    
+    // もし追放された人がいたら、その人の生存フラグを折る
+    if (id !== null) {
+      const newPlayers = players.map(p => 
+        p.id === id ? { ...p, isAlive: false } : p
+      );
+      setPlayers(newPlayers);
+    }
+    
+    setPhase("exile_result");
+  };
+
   const handleNextPhase = () => {
     switch (phase) {
       case "morning": setPhase("mini_game"); break;
       case "mini_game": setPhase("noon_result"); break;
       case "noon_result": setPhase("voting"); break;
-      case "voting": setPhase("night"); break;
-      case "night":
+      case "voting": 
+        // handleVote() で遷移するためここは通らない
+        break;
+      case "exile_result":
+        // 追放された人がキラなら村人の勝ち
+        const exiledPlayer = exiledPlayerId !== null ? players.find(p => p.id === exiledPlayerId) : null;
+        if (exiledPlayer?.role === "kira") {
+          onEnd("villager_win");
+        } else {
+          setPhase("midnight"); 
+        }
+        break;
+      case "midnight":
         if (turn >= 5) {
-          onEnd("kira_win"); // 仮の勝敗
+          onEnd("kira_win"); // 実際はキル数判定
         } else {
           setTurn(turn + 1);
           setPhase("morning");
+          setLastEvents(["深夜、キラが誰かの本名の一部を書き記したようです..."]);
         }
         break;
     }
@@ -41,11 +71,24 @@ export default function PlayScreen({ onEnd }: Props) {
       </header>
 
       <main>
-        {phase === "morning" && <MorningPhase onNext={handleNextPhase} />}
-        {phase === "mini_game" && <MiniGamePhase onNext={handleNextPhase} />}
-        {phase === "noon_result" && <NoonResultPhase onNext={handleNextPhase} />}
-        {phase === "voting" && <VotingPhase onNext={handleNextPhase} />}
-        {phase === "night" && <NightPhase onNext={handleNextPhase} />}
+        {phase === "morning" && (
+          <MorningPhase events={lastEvents} onNext={handleNextPhase} />
+        )}
+        {phase === "mini_game" && (
+          <MiniGamePhase onNext={handleNextPhase} />
+        )}
+        {phase === "noon_result" && (
+          <NoonResultPhase players={players} setPlayers={setPlayers} onNext={handleNextPhase} />
+        )}
+        {phase === "voting" && (
+          <VotingPhase players={players} setPlayers={setPlayers} onVote={handleVote} />
+        )}
+        {phase === "exile_result" && (
+          <ExileResultPhase exiledPlayerId={exiledPlayerId} players={players} onNext={handleNextPhase} />
+        )}
+        {phase === "midnight" && (
+          <MidnightPhase players={players} setPlayers={setPlayers} onNext={handleNextPhase} />
+        )}
       </main>
     </div>
   );

@@ -1,34 +1,44 @@
 import React, { useState } from 'react';
+import type { Player, Role } from '../types';
 
 type Props = {
+  players: Player[];
+  setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
   onNext: () => void;
 };
 
-export default function SetupScreen({ onNext }: Props) {
+export default function SetupScreen({ players, setPlayers, onNext }: Props) {
   // 現在何人目のプレイヤーを入力中か (0〜4)
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  
-  // 入力されたデータを保持するリスト
-  const [playerData, setPlayerData] = useState(
-    Array(5).fill({ nickname: '', realName: '' })
-  );
 
   const handleInputChange = (field: 'nickname' | 'realName', value: string) => {
-    const newData = [...playerData];
+    const newData = [...players];
     newData[currentPlayerIndex] = {
       ...newData[currentPlayerIndex],
       [field]: value
     };
-    setPlayerData(newData);
+    setPlayers(newData);
+  };
+
+  const handleFinishSetup = () => {
+    // 役職をランダムに割り当てる (キラx1, Lx1, 村人x3)
+    const roles: Role[] = ["kira", "l", "villager", "villager", "villager"];
+    const shuffledRoles = [...roles].sort(() => Math.random() - 0.5);
+
+    const finalPlayers = players.map((p, i) => ({
+      ...p,
+      role: shuffledRoles[i]
+    }));
+
+    setPlayers(finalPlayers);
+    onNext();
   };
 
   const handleNext = () => {
     if (currentPlayerIndex < 4) {
-      // 次のプレイヤーへ
       setCurrentPlayerIndex(currentPlayerIndex + 1);
     } else {
-      // 5人全員終わったら次の画面へ
-      onNext();
+      handleFinishSetup();
     }
   };
 
@@ -44,7 +54,7 @@ export default function SetupScreen({ onNext }: Props) {
           <label style={{ display: 'block', marginBottom: '10px', textAlign: 'left' }}>ニックネーム</label>
           <input 
             type="text" 
-            value={playerData[currentPlayerIndex].nickname}
+            value={players[currentPlayerIndex].nickname}
             onChange={(e) => handleInputChange('nickname', e.target.value)}
             style={{ width: '100%', padding: '10px', fontSize: '16px' }} 
             placeholder="例: たなか"
@@ -55,7 +65,7 @@ export default function SetupScreen({ onNext }: Props) {
           <label style={{ display: 'block', marginBottom: '10px', textAlign: 'left' }}>本名</label>
           <input 
             type="text" 
-            value={playerData[currentPlayerIndex].realName}
+            value={players[currentPlayerIndex].realName}
             onChange={(e) => handleInputChange('realName', e.target.value)}
             style={{ width: '100%', padding: '10px', fontSize: '16px' }} 
             placeholder="例: 田中 太郎"

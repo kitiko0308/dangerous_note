@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
+import type { Player } from '../types';
 
 type Props = {
+  players: Player[];
   onNext: () => void;
 };
 
-export default function RoleRevealScreen({ onNext }: Props) {
+export default function RoleRevealScreen({ players, onNext }: Props) {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [isShowing, setIsShowing] = useState(false);
 
-  // 本来はPlayerデータから取得しますが、今は仮の役職を割り当て
-  const roles = ["キラ", "L", "村人", "村人", "村人"];
+  const currentPlayer = players[currentPlayerIndex];
+
+  // 役職名の日本語表示用
+  const roleNames = {
+    kira: "キラ",
+    l: "L",
+    villager: "村人"
+  };
 
   const handleNext = () => {
     if (currentPlayerIndex < 4) {
@@ -28,7 +36,7 @@ export default function RoleRevealScreen({ onNext }: Props) {
         {!isShowing ? (
           <>
             <p style={{ fontSize: '20px', marginBottom: '30px' }}>
-              プレイヤー {currentPlayerIndex + 1} さん<br />以外は見ないでください
+              <strong>{currentPlayer.nickname || `プレイヤー ${currentPlayer.id + 1}`}</strong> さん<br />以外は見ないでください
             </p>
             <button 
               onClick={() => setIsShowing(true)} 
@@ -39,9 +47,9 @@ export default function RoleRevealScreen({ onNext }: Props) {
           </>
         ) : (
           <>
-            <p style={{ fontSize: '18px', color: '#aaa' }}>あなたの役職は...</p>
-            <h1 style={{ fontSize: '64px', margin: '20px 0', color: roles[currentPlayerIndex] === "キラ" ? "#ff4444" : "#44ff44" }}>
-              {roles[currentPlayerIndex]}
+            <p style={{ fontSize: '18px', color: '#aaa' }}>{currentPlayer.nickname} さんの役職は...</p>
+            <h1 style={{ fontSize: '64px', margin: '20px 0', color: currentPlayer.role === "kira" ? "#ff4444" : "#44ff44" }}>
+              {roleNames[currentPlayer.role]}
             </h1>
             <p style={{ fontSize: '14px', color: '#888', marginBottom: '30px' }}>
               確認したらボタンを押して隠してください

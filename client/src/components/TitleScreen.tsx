@@ -3,12 +3,13 @@ import titleBook from "../assets/img/title_book.png";
 
 type Props = {
   onStart: () => void;
+  onShowRules: () => void;
 };
 
-export default function TitleScreen({ onStart }: Props) {
+export default function TitleScreen({ onStart, onShowRules }: Props) {
   const menuItems = [
     { label: "ゲームをはじめる", primary: true, onClick: onStart },
-    { label: "ルール説明", primary: false, onClick: () => alert("ルール画面（後で実装）") },
+    { label: "ルール説明", primary: false, onClick: onShowRules },
   ];
 
   return (
