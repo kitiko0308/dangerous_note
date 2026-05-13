@@ -80,9 +80,9 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
     const target = players.find(p => p.id === targetId);
     if (!target) return;
 
-    // プレイヤーの生存フラグを折り、キラによる殺害フラグを立てる
+    // 即座に生存フラグを折らず、キラによる殺害フラグ（予約）だけを立てる
     const newPlayers = players.map(p => 
-      p.id === targetId ? { ...p, isAlive: false, isKilledByKira: true } : p
+      p.id === targetId ? { ...p, isKilledByKira: true } : p
     );
     setPlayers(newPlayers);
     
@@ -192,14 +192,23 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
                         const combinedRevealed = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
                         const isFullyKnown = combinedRevealed.length >= p.realName.length;
                         const hasAlreadyKilled = usedActions.includes('kill');
+                        
+                        // 殺害可能条件：盗み済み ＋ (アイテム未所持 OR アイテム使用済み) ＋ 本名判明済み ＋ 未殺害
+                        const hasStolen = usedActions.includes('steal');
+                        const hasUsedRequiredItem = !currentPlayer.items.includes('death_note_eye') || usedActions.includes('death_note_eye');
+                        const canKillNow = hasStolen && hasUsedRequiredItem && isFullyKnown && !hasAlreadyKilled;
+
                         return (
                           <button 
                             key={p.id}
                             onClick={() => handleKillAction(p.id)}
-                            disabled={!isFullyKnown || hasAlreadyKilled}
-                            style={isFullyKnown && !hasAlreadyKilled ? killBtnStyle : disabledBtnStyle}
+                            disabled={!canKillNow}
+                            style={canKillNow ? killBtnStyle : disabledBtnStyle}
                           >
-                            {p.nickname} を殺害する {hasAlreadyKilled && "済"} {!isFullyKnown && !hasAlreadyKilled && "(本名不足)"}
+                            {p.nickname} を殺害する {hasAlreadyKilled && "済"} 
+                            {!hasAlreadyKilled && !hasStolen && "(まず盗んでください)"}
+                            {!hasAlreadyKilled && hasStolen && !hasUsedRequiredItem && "(アイテムを先に使ってください)"}
+                            {!hasAlreadyKilled && hasStolen && hasUsedRequiredItem && !isFullyKnown && "(本名不足)"}
                           </button>
                         );
                       })}

@@ -96,12 +96,16 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
           setLastEvents(morningMessages);
           setNightActionLogs([]); // ログをリセット
 
-          // 未使用アイテムをすべて消去する（そのターンでしか使えないルール）
-          const resetItemsPlayers = players.map(p => ({ ...p, items: [] }));
-          setPlayers(resetItemsPlayers);
+          // 未使用アイテムの消去 ＋ 深夜に殺されたプレイヤーを正式に死亡状態にする
+          const updatedPlayers = players.map(p => ({ 
+            ...p, 
+            items: [], 
+            isAlive: p.isKilledByKira ? false : p.isAlive 
+          }));
+          setPlayers(updatedPlayers);
 
-          // 勝利判定：キラ以外の生存者がいなくなったらキラ勝利（深夜の殺害後）
-          const otherSurvivorsAfterMidnight = resetItemsPlayers.filter(p => p.isAlive && p.role !== 'kira');
+          // 勝利判定：キラ以外の生存者がいなくなったらキラ勝利（深夜の殺害確定後）
+          const otherSurvivorsAfterMidnight = updatedPlayers.filter(p => p.isAlive && p.role !== 'kira');
           if (otherSurvivorsAfterMidnight.length === 0) {
             onEnd("kira_win");
             return;

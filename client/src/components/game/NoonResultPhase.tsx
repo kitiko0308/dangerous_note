@@ -16,8 +16,9 @@ export default function NoonResultPhase({ players, setPlayers, onNext }: Props) 
   useEffect(() => {
     if (isProcessed) return;
 
-    // 1. 仮の順位を生成 (本来はミニゲームのスコアを元にします)
-    const shuffled = [...players].sort(() => Math.random() - 0.5);
+    // 1. 生存者のみで仮の順位を生成 (本来はミニゲームのスコアを元にします)
+    const alivePlayers = players.filter(p => p.isAlive);
+    const shuffled = [...alivePlayers].sort(() => Math.random() - 0.5);
     const newRanking = shuffled;
     setRanking(newRanking);
 
