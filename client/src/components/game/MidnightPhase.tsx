@@ -4,10 +4,11 @@ import type { Player, Item } from '../../types';
 type Props = {
   players: Player[];
   setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
+  setNightActionLogs: React.Dispatch<React.SetStateAction<string[]>>;
   onNext: () => void;
 };
 
-export default function MidnightPhase({ players, setPlayers, onNext }: Props) {
+export default function MidnightPhase({ players, setPlayers, setNightActionLogs, onNext }: Props) {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [actionLog, setActionLog] = useState("");
@@ -33,16 +34,49 @@ export default function MidnightPhase({ players, setPlayers, onNext }: Props) {
     
     const target = targets[Math.floor(Math.random() * targets.length)];
     
-    // その人の本名から未公開の文字を1つ選ぶ（表示するだけ、全体公開はしない）
+    // その人の本名から未公開の文字を1つ選ぶ
     const nameLength = target.realName.length;
-    const charIdx = Math.floor(Math.random() * nameLength);
+    // 全員公開とキラ公開の両方に含まれていないインデックスを探す
+    const availableIndices = Array.from({ length: nameLength }, (_, i) => i)
+      .filter(i => !target.revealedChars.includes(i) && !target.kiraRevealedChars.includes(i));
+    
+    // もし全部バレてたらランダムに選ぶ
+    const charIdx = availableIndices.length > 0 
+      ? availableIndices[Math.floor(Math.random() * availableIndices.length)]
+      : Math.floor(Math.random() * nameLength);
     
     // 〇山〇〇 の形式を作成
     const maskedName = target.realName.split('').map((char, i) => 
       i === charIdx ? char : "〇"
     ).join('');
     
+    // キラ専用の知識として保存
+    const newPlayers = players.map(p => {
+      if (p.id === target.id) {
+        return { ...p, kiraRevealedChars: [...new Set([...p.kiraRevealedChars, charIdx])] };
+      }
+      return p;
+    });
+    setPlayers(newPlayers);
+
     setActionLog(`${target.nickname} の本名の一部は 「${maskedName}」 だと判明した。`);
+  };
+
+  // --- キラの殺害アクション ---
+  const handleKillAction = (targetId: number) => {
+    const target = players.find(p => p.id === targetId);
+    if (!target) return;
+
+    // プレイヤーの生存フラグを折る
+    const newPlayers = players.map(p => 
+      p.id === targetId ? { ...p, isAlive: false } : p
+    );
+    setPlayers(newPlayers);
+    
+    // 朝に表示するログを記録
+    setNightActionLogs(prev => [...prev, `恐ろしい事件が発生しました。${target.nickname} さんが心臓麻痺で亡くなりました。`]);
+    
+    setActionLog(`${target.nickname} を始末した...。`);
   };
 
   // --- Lの行動 ---
@@ -61,6 +95,17 @@ export default function MidnightPhase({ players, setPlayers, onNext }: Props) {
       // 生存者からランダムに1人選んでフルネームを表示
       const targets = players.filter(p => p.id !== currentPlayer.id && p.isAlive);
       const target = targets[Math.floor(Math.random() * targets.length)];
+      
+      // キラ専用の知識として全文字を保存
+      const allIndices = target.realName.split('').map((_, i) => i);
+      const newPlayers = players.map(p => {
+        if (p.id === target.id) {
+          return { ...p, kiraRevealedChars: allIndices };
+        }
+        return p;
+      });
+      setPlayers(newPlayers);
+      
       setActionLog(`【死神の目】を使用。${target.nickname} の本名は 「${target.realName}」 だ！`);
     } else if (item === "shortcake" && targetId !== undefined) {
       // 指定したターゲットがキラか判定
@@ -113,7 +158,43 @@ export default function MidnightPhase({ players, setPlayers, onNext }: Props) {
                     {currentPlayer.items.includes('death_note_eye') && (
                       <button onClick={() => useItem('death_note_eye')} style={itemBtnStyle}>【アイテム】死神の目を使用</button>
                     )}
-                    <button style={disabledBtnStyle}>殺害する（本名が必要）</button>
+                    
+                    <div style={{ marginTop: '10px' }}>
+                      <p style={{ fontSize: '12px', color: '#888', marginBottom: '5px' }}>本名が全て分かれば殺害可能：</p>
+                      {players.filter(p => p.id !== currentPlayer.id && p.isAlive).map(p => {
+                        const combinedRevealed = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
+                        const isFullyKnown = combinedRevealed.length >= p.realName.length;
+                        return (
+                          <button 
+                            key={p.id}
+                            onClick={() => handleKillAction(p.id)}
+                            disabled={!isFullyKnown}
+                            style={isFullyKnown ? killBtnStyle : disabledBtnStyle}
+                          >
+                            {p.nickname} を殺害する {!isFullyKnown && "(本名不足)"}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* キラ専用：本名判明状況一覧 */}
+                    <div style={{ marginTop: '20px', borderTop: '1px solid #444', paddingTop: '15px' }}>
+                      <p style={{ fontSize: '12px', color: '#888', marginBottom: '10px' }}>現在の本名把握状況 (公開+秘密):</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        {players.filter(p => p.id !== currentPlayer.id && p.isAlive).map(p => {
+                          const combinedRevealed = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
+                          const combinedName = (p.realName || "").split('').map((char, i) => 
+                            combinedRevealed.includes(i) ? char : "〇"
+                          ).join('');
+                          return (
+                            <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', backgroundColor: '#000', padding: '5px 10px', borderRadius: '4px' }}>
+                              <span>{p.nickname}</span>
+                              <span style={{ color: '#ffaaaa', fontFamily: 'monospace' }}>{combinedName}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -181,11 +262,25 @@ const itemBtnStyle = {
   fontWeight: 'bold'
 };
 
+const killBtnStyle = {
+  padding: '10px',
+  backgroundColor: '#ff0000',
+  color: 'white',
+  border: 'none',
+  cursor: 'pointer',
+  borderRadius: '5px',
+  fontWeight: 'bold',
+  width: '100%',
+  marginBottom: '5px'
+};
+
 const disabledBtnStyle = {
-  padding: '12px',
+  padding: '10px',
   backgroundColor: '#222',
   color: '#555',
   border: '1px solid #333',
   cursor: 'not-allowed',
-  borderRadius: '5px'
+  borderRadius: '5px',
+  width: '100%',
+  marginBottom: '5px'
 };

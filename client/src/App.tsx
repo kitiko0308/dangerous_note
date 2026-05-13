@@ -26,6 +26,7 @@ function App() {
       isAlive: true,
       items: [],
       revealedChars: [],
+      kiraRevealedChars: [],
     }))
   );
 

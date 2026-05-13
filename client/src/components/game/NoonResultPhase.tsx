@@ -90,6 +90,24 @@ export default function NoonResultPhase({ players, setPlayers, onNext }: Props) 
             </div>
           </div>
 
+          {/* 全員の現在の公開状態を表示（チームメンバーのUI実装の参考用） */}
+          <div style={{ backgroundColor: '#1a2a1a', padding: '15px', borderRadius: '8px', marginBottom: '30px', textAlign: 'left' }}>
+            <h3 style={{ fontSize: '16px', color: '#88ff88', marginBottom: '15px', textAlign: 'center' }}>👥 現在のプレイヤー情報（全員に見えています）</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+              {players.filter(p => p.isAlive).map(p => {
+                const maskedName = p.realName.split('').map((char, i) => 
+                  p.revealedChars.includes(i) ? char : "〇"
+                ).join('');
+                return (
+                  <div key={p.id} style={{ backgroundColor: '#222', padding: '10px', borderRadius: '5px', minWidth: '120px', textAlign: 'center', border: '1px solid #444' }}>
+                    <div style={{ fontWeight: 'bold', color: 'white' }}>{p.nickname}</div>
+                    <div style={{ fontSize: '12px', color: '#ffaaaa', marginTop: '5px' }}>{maskedName}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <button 
             onClick={onNext}
             style={{ padding: '15px 40px', backgroundColor: '#44ff44', color: 'black', border: 'none', cursor: 'pointer', borderRadius: '5px', fontWeight: 'bold' }}

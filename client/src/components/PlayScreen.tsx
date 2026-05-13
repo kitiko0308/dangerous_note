@@ -19,7 +19,8 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
   const [phase, setPhase] = useState<GamePhase>("morning");
   const [exiledPlayerId, setExiledPlayerId] = useState<number | null>(null);
   
-  const [lastEvents, setLastEvents] = useState<string[]>(["ゲーム開始！最初の朝です。"]);
+  const [lastEvents, setLastEvents] = useState<string[]>(["ゲーム開始！最初のターンです。"]);
+  const [nightActionLogs, setNightActionLogs] = useState<string[]>([]);
 
   const handleVote = (id: number | null) => {
     setExiledPlayerId(id);
@@ -54,19 +55,15 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
         break;
       case "midnight":
         if (turn >= 5) {
-          // 5ターン終了時の判定
-          // キラが1人も殺していなければキラの負け（特殊敗北条件を優先）
+          // 判定ロジック...
           const kiraKills = players.filter(p => !p.isAlive && p.role !== 'kira').length; 
-          
-          if (kiraKills === 0) {
-            onEnd("kira_lose");
-          } else {
-            onEnd("kira_win");
-          }
+          if (kiraKills === 0) onEnd("kira_lose");
+          else onEnd("kira_win");
         } else {
           setTurn(turn + 1);
-          setPhase("morning");
-          setLastEvents(["深夜、キラが誰かの本名の一部を書き記したようです..."]);
+          setPhase("morning"); // 深夜の次は「朝」
+          setLastEvents(nightActionLogs.length > 0 ? nightActionLogs : ["静かな夜が明けました。"]);
+          setNightActionLogs([]); // ログをリセット
         }
         break;
     }
@@ -95,7 +92,7 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
           <ExileResultPhase exiledPlayerId={exiledPlayerId} players={players} onNext={handleNextPhase} />
         )}
         {phase === "midnight" && (
-          <MidnightPhase players={players} setPlayers={setPlayers} onNext={handleNextPhase} />
+          <MidnightPhase players={players} setPlayers={setPlayers} setNightActionLogs={setNightActionLogs} onNext={handleNextPhase} />
         )}
       </main>
     </div>

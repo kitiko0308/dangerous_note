@@ -12,7 +12,8 @@ export type Player = {
   role: Role;
   isAlive: boolean;
   items: Item[];
-  revealedChars: number[]; // 本名の何文字目がバレているか（インデックスの配列）
+  revealedChars: number[]; // 本名の何文字目がバレているか（全員に公開）
+  kiraRevealedChars: number[]; // キラだけが知っている文字（キラ専用）
   miniGameRank?: number;
 };
 

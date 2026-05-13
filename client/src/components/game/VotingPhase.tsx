@@ -14,16 +14,35 @@ export default function VotingPhase({ players, setPlayers, onVote }: Props) {
       
       <div style={{ marginBottom: '20px' }}>
         <p>【担当2】投票UIを実装してください。</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '20px' }}>
-          {players.filter(p => p.isAlive).map(p => (
-            <button 
-              key={p.id} 
-              onClick={() => onVote(p.id)}
-              style={{ padding: '10px 20px', cursor: 'pointer' }}
-            >
-              {p.nickname}
-            </button>
-          ))}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'center', marginBottom: '20px' }}>
+          {players.filter(p => p.isAlive).map(p => {
+            // 公開されている本名を生成（例：〇山〇〇）
+            const maskedName = p.realName.split('').map((char, i) => 
+              p.revealedChars.includes(i) ? char : "〇"
+            ).join('');
+
+            return (
+              <button 
+                key={p.id} 
+                onClick={() => onVote(p.id)}
+                style={{ 
+                  padding: '10px 20px', 
+                  cursor: 'pointer', 
+                  backgroundColor: '#333', 
+                  color: 'white', 
+                  border: '1px solid #666',
+                  borderRadius: '5px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{p.nickname}</span>
+                <span style={{ fontSize: '12px', color: '#ffaaaa' }}>本名: {maskedName}</span>
+              </button>
+            );
+          })}
         </div>
 
         <div style={{ borderTop: '1px solid #666', paddingTop: '20px' }}>
