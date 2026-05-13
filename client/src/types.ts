@@ -14,6 +14,7 @@ export type Player = {
   items: Item[];
   revealedChars: number[]; // 本名の何文字目がバレているか（全員に公開）
   kiraRevealedChars: number[]; // キラだけが知っている文字（キラ専用）
+  isKilledByKira?: boolean; // キラによって殺害されたか
   miniGameRank?: number;
 };
 

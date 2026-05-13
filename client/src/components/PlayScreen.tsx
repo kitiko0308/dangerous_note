@@ -18,6 +18,7 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
   const [turn, setTurn] = useState(1);
   const [phase, setPhase] = useState<GamePhase>("morning");
   const [exiledPlayerId, setExiledPlayerId] = useState<number | null>(null);
+  const [lastExiledPlayerName, setLastExiledPlayerName] = useState<string | null>(null);
   
   const [lastEvents, setLastEvents] = useState<string[]>(["ゲーム開始！最初のターンです。"]);
   const [nightActionLogs, setNightActionLogs] = useState<string[]>([]);
@@ -25,15 +26,36 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
   const handleVote = (id: number | null) => {
     setExiledPlayerId(id);
     
-    // もし追放された人がいたら、その人の生存フラグを折る
+    // もし追放された人がいたら、その人の生存フラグを折り、名前を記録する
     if (id !== null) {
+      const exiledP = players.find(p => p.id === id);
+      setLastExiledPlayerName(exiledP?.nickname || null);
+
       const newPlayers = players.map(p => 
         p.id === id ? { ...p, isAlive: false } : p
       );
       setPlayers(newPlayers);
+    } else {
+      setLastExiledPlayerName(null);
     }
     
     setPhase("exile_result");
+
+    // 勝利判定：キラが追放されたら村人勝利
+    if (id !== null) {
+      const exiledP = players.find(p => p.id === id);
+      if (exiledP?.role === 'kira') {
+        onEnd("kira_lose");
+        return;
+      }
+    }
+
+    // 勝利判定：キラ以外の生存者がいなくなったらキラ勝利
+    const otherSurvivors = players.filter(p => p.isAlive && p.role !== 'kira' && p.id !== id);
+    if (otherSurvivors.length === 0) {
+      onEnd("kira_win");
+      return;
+    }
   };
 
   const handleNextPhase = () => {
@@ -55,15 +77,35 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
         break;
       case "midnight":
         if (turn >= 5) {
-          // 判定ロジック...
-          const kiraKills = players.filter(p => !p.isAlive && p.role !== 'kira').length; 
-          if (kiraKills === 0) onEnd("kira_lose");
+          // 判定ロジック：キラが自分の手（深夜アクション）で1人でも殺したか？
+          const kiraKillsCount = players.filter(p => p.isKilledByKira).length; 
+          if (kiraKillsCount === 0) onEnd("kira_lose");
           else onEnd("kira_win");
         } else {
           setTurn(turn + 1);
           setPhase("morning"); // 深夜の次は「朝」
-          setLastEvents(nightActionLogs.length > 0 ? nightActionLogs : ["静かな夜が明けました。"]);
+          
+          // 朝に表示するメッセージを組み立てる
+          const morningMessages: string[] = [];
+          if (nightActionLogs.length > 0) {
+            morningMessages.push(...nightActionLogs);
+          } else {
+            morningMessages.push("昨夜は誰も殺害されず、平和な夜が明けました。");
+          }
+
+          setLastEvents(morningMessages);
           setNightActionLogs([]); // ログをリセット
+
+          // 未使用アイテムをすべて消去する（そのターンでしか使えないルール）
+          const resetItemsPlayers = players.map(p => ({ ...p, items: [] }));
+          setPlayers(resetItemsPlayers);
+
+          // 勝利判定：キラ以外の生存者がいなくなったらキラ勝利（深夜の殺害後）
+          const otherSurvivorsAfterMidnight = resetItemsPlayers.filter(p => p.isAlive && p.role !== 'kira');
+          if (otherSurvivorsAfterMidnight.length === 0) {
+            onEnd("kira_win");
+            return;
+          }
         }
         break;
     }

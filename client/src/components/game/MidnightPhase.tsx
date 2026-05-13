@@ -9,18 +9,30 @@ type Props = {
 };
 
 export default function MidnightPhase({ players, setPlayers, setNightActionLogs, onNext }: Props) {
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(() => {
+    // 最初の生存者のインデックスを見つける
+    const firstAlive = players.findIndex(p => p.isAlive);
+    return firstAlive !== -1 ? firstAlive : 0;
+  });
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [actionLog, setActionLog] = useState("");
+  const [actionLogs, setActionLogs] = useState<string[]>([]);
+  const [usedActions, setUsedActions] = useState<string[]>([]); // 使用済みアクションの記録
 
   const currentPlayer = players[currentPlayerIndex];
 
   // 次のプレイヤーへ（全員終わったらonNext）
   const handleNextPlayer = () => {
-    if (currentPlayerIndex < 4) {
-      setCurrentPlayerIndex(currentPlayerIndex + 1);
+    // 次の生存者を探す
+    let nextIndex = currentPlayerIndex + 1;
+    while (nextIndex < players.length && !players[nextIndex].isAlive) {
+      nextIndex++;
+    }
+
+    if (nextIndex < players.length) {
+      setCurrentPlayerIndex(nextIndex);
       setIsConfirmed(false);
-      setActionLog("");
+      setActionLogs([]);
+      setUsedActions([]);
     } else {
       onNext();
     }
@@ -59,7 +71,8 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
     });
     setPlayers(newPlayers);
 
-    setActionLog(`${target.nickname} の本名の一部は 「${maskedName}」 だと判明した。`);
+    setActionLogs(prev => [...prev, `${target.nickname} の本名の一部は 「${maskedName}」 だと判明した。`]);
+    setUsedActions(prev => [...prev, 'steal']);
   };
 
   // --- キラの殺害アクション ---
@@ -67,16 +80,17 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
     const target = players.find(p => p.id === targetId);
     if (!target) return;
 
-    // プレイヤーの生存フラグを折る
+    // プレイヤーの生存フラグを折り、キラによる殺害フラグを立てる
     const newPlayers = players.map(p => 
-      p.id === targetId ? { ...p, isAlive: false } : p
+      p.id === targetId ? { ...p, isAlive: false, isKilledByKira: true } : p
     );
     setPlayers(newPlayers);
     
     // 朝に表示するログを記録
     setNightActionLogs(prev => [...prev, `恐ろしい事件が発生しました。${target.nickname} さんが心臓麻痺で亡くなりました。`]);
     
-    setActionLog(`${target.nickname} を始末した...。`);
+    setActionLogs(prev => [...prev, `${target.nickname} を始末した...。`]);
+    setUsedActions(prev => [...prev, 'kill']);
   };
 
   // --- Lの行動 ---
@@ -86,44 +100,45 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
     
     // 実際に保存された順位を表示
     const rank = target.miniGameRank || "?";
-    setActionLog(`${target.nickname} のミニゲーム順位は ${rank}位 だった。`);
+    setActionLogs(prev => [...prev, `${target.nickname} のミニゲーム順位は ${rank}位 だった。`]);
+    setUsedActions(prev => [...prev, 'rank_check']);
   };
 
   // --- アイテム使用 ---
   const useItem = (item: Item, targetId?: number) => {
+    let effectiveTargetId = targetId;
+
+    // 死神の目の場合はランダムにターゲットを決定
     if (item === "death_note_eye") {
-      // 生存者からランダムに1人選んでフルネームを表示
       const targets = players.filter(p => p.id !== currentPlayer.id && p.isAlive);
+      if (targets.length === 0) return;
       const target = targets[Math.floor(Math.random() * targets.length)];
-      
-      // キラ専用の知識として全文字を保存
-      const allIndices = target.realName.split('').map((_, i) => i);
-      const newPlayers = players.map(p => {
-        if (p.id === target.id) {
-          return { ...p, kiraRevealedChars: allIndices };
-        }
-        return p;
-      });
-      setPlayers(newPlayers);
-      
-      setActionLog(`【死神の目】を使用。${target.nickname} の本名は 「${target.realName}」 だ！`);
-    } else if (item === "shortcake" && targetId !== undefined) {
+      effectiveTargetId = target.id;
+      setActionLogs(prev => [...prev, `【死神の目】を使用。${target.nickname} の本名は 「${target.realName}」 だ！`]);
+    } else if (item === "shortcake" && effectiveTargetId !== undefined) {
       // 指定したターゲットがキラか判定
-      const target = players.find(p => p.id === targetId);
+      const target = players.find(p => p.id === effectiveTargetId);
       if (target) {
         const isKira = target.role === "kira";
-        setActionLog(`【ショートケーキ】を使用。${target.nickname} は ${isKira ? "キラだ！" : "キラではない。"}`);
+        setActionLogs(prev => [...prev, `【ショートケーキ】を使用。${target.nickname} は ${isKira ? "キラだ！" : "キラではない。"}`]);
       }
     }
 
-    // アイテムを消費
+    // アイテム消費と効果を同時に適用する
     const newPlayers = players.map(p => {
-      if (p.id === currentPlayer.id) {
-        return { ...p, items: p.items.filter(i => i !== item) };
+      let updated = { ...p };
+      // 効果の適用（死神の目：全文字判明）
+      if (item === "death_note_eye" && p.id === effectiveTargetId) {
+        updated.kiraRevealedChars = p.realName.split('').map((_, i) => i);
       }
-      return p;
+      // アイテムの消費（自分）
+      if (p.id === currentPlayer.id) {
+        updated.items = p.items.filter(i => i !== item);
+      }
+      return updated;
     });
     setPlayers(newPlayers);
+    setUsedActions(prev => [...prev, item]);
   };
 
   return (
@@ -146,17 +161,29 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
         <div style={{ textAlign: 'center', width: '100%', maxWidth: '400px' }}>
           <p style={{ color: '#aaa', marginBottom: '10px' }}>あなたの役職: {currentPlayer.role === 'kira' ? 'キラ' : currentPlayer.role === 'l' ? 'L' : '村人'}</p>
           
-          <div style={{ backgroundColor: '#1a1a2a', padding: '20px', borderRadius: '8px', marginBottom: '20px', minHeight: '150px' }}>
-            {actionLog ? (
-              <p style={{ fontSize: '18px', color: '#ff4444' }}>{actionLog}</p>
-            ) : (
-              <div>
+          <div style={{ backgroundColor: '#1a1a2a', padding: '20px', borderRadius: '8px', marginBottom: '20px', minHeight: '150px', textAlign: 'left' }}>
+            {actionLogs.length > 0 && (
+              <div style={{ marginBottom: '20px', borderBottom: '1px solid #333', paddingBottom: '10px' }}>
+                {actionLogs.map((log, i) => (
+                  <p key={i} style={{ fontSize: '16px', color: '#ff4444', margin: '5px 0' }}>✓ {log}</p>
+                ))}
+              </div>
+            )}
+
+            <div>
                 {/* キラのボタン */}
                 {currentPlayer.role === 'kira' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <button onClick={handleKiraAction} style={actionBtnStyle}>本名を1文字盗む</button>
-                    {currentPlayer.items.includes('death_note_eye') && (
-                      <button onClick={() => useItem('death_note_eye')} style={itemBtnStyle}>【アイテム】死神の目を使用</button>
+                    <button 
+                      onClick={handleKiraAction} 
+                      disabled={usedActions.includes('steal')}
+                      style={usedActions.includes('steal') ? disabledBtnStyle : actionBtnStyle}
+                    >
+                      本名を1文字盗む {usedActions.includes('steal') && "済"}
+                    </button>
+                    
+                    {currentPlayer.items.includes('death_note_eye') && !usedActions.includes('death_note_eye') && (
+                      <button onClick={() => useItem('death_note_eye')} style={itemBtnStyle}>【アイテム】死神の目を使用 (今夜のみ有効！)</button>
                     )}
                     
                     <div style={{ marginTop: '10px' }}>
@@ -164,14 +191,15 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
                       {players.filter(p => p.id !== currentPlayer.id && p.isAlive).map(p => {
                         const combinedRevealed = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
                         const isFullyKnown = combinedRevealed.length >= p.realName.length;
+                        const hasAlreadyKilled = usedActions.includes('kill');
                         return (
                           <button 
                             key={p.id}
                             onClick={() => handleKillAction(p.id)}
-                            disabled={!isFullyKnown}
-                            style={isFullyKnown ? killBtnStyle : disabledBtnStyle}
+                            disabled={!isFullyKnown || hasAlreadyKilled}
+                            style={isFullyKnown && !hasAlreadyKilled ? killBtnStyle : disabledBtnStyle}
                           >
-                            {p.nickname} を殺害する {!isFullyKnown && "(本名不足)"}
+                            {p.nickname} を殺害する {hasAlreadyKilled && "済"} {!isFullyKnown && !hasAlreadyKilled && "(本名不足)"}
                           </button>
                         );
                       })}
@@ -201,24 +229,31 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
                 {/* Lのボタン */}
                 {currentPlayer.role === 'l' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <p style={{ fontSize: '14px', marginBottom: '10px' }}>調査する相手を選んでください：</p>
-                    {players.filter(p => p.id !== currentPlayer.id && p.isAlive).map(p => (
-                      <div key={p.id} style={{ display: 'flex', gap: '5px' }}>
-                        <button 
-                          onClick={() => handleLAction(p.id)} 
-                          style={{ ...actionBtnStyle, flex: 1 }}
-                        >
-                          {p.nickname} の順位を調査
-                        </button>
-                        {currentPlayer.items.includes('shortcake') && (
+                    {currentPlayer.items.includes('shortcake') && !usedActions.includes('shortcake') && (
+                      <div style={{ marginBottom: '15px' }}>
+                        <p style={{ fontSize: '12px', color: '#ffaaaa', marginBottom: '5px' }}>⚠️ アイテム使用 (今夜使い切る必要があります):</p>
+                        {players.filter(p => p.id !== currentPlayer.id && p.isAlive).map(p => (
                           <button 
+                            key={p.id}
                             onClick={() => useItem('shortcake', p.id)} 
-                            style={{ ...itemBtnStyle, fontSize: '12px' }}
+                            style={{ ...itemBtnStyle, width: '100%', marginBottom: '5px', fontSize: '14px' }}
                           >
-                            キラ鑑定
+                            {p.nickname} を鑑定
                           </button>
-                        )}
+                        ))}
                       </div>
+                    )}
+
+                    <p style={{ fontSize: '14px', marginBottom: '10px', color: '#aaa' }}>調査する相手を選んでください：</p>
+                    {players.filter(p => p.id !== currentPlayer.id && p.isAlive).map(p => (
+                      <button 
+                        key={p.id} 
+                        onClick={() => handleLAction(p.id)} 
+                        disabled={usedActions.includes('rank_check')}
+                        style={usedActions.includes('rank_check') ? disabledBtnStyle : actionBtnStyle}
+                      >
+                        {p.nickname} の順位を調査 {usedActions.includes('rank_check') && "済"}
+                      </button>
                     ))}
                   </div>
                 )}
@@ -228,14 +263,21 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
                   <p>特にできることはありません。静かに夜を過ごしましょう。</p>
                 )}
               </div>
-            )}
           </div>
 
           <button 
             onClick={handleNextPlayer}
-            style={{ padding: '15px 40px', backgroundColor: '#444', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '5px', width: '100%' }}
+            style={{ 
+              padding: '15px 40px', 
+              backgroundColor: '#444', 
+              color: 'white', 
+              border: 'none', 
+              cursor: 'pointer', 
+              borderRadius: '5px', 
+              width: '100%' 
+            }}
           >
-            {currentPlayerIndex < 4 ? "次のプレイヤーへ交代" : "夜明けを迎える"}
+            {currentPlayerIndex < 4 ? "行動を終了して次のプレイヤーへ" : "行動を終了して夜明けを迎える"}
           </button>
         </div>
       )}

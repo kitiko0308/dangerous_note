@@ -27,6 +27,7 @@ function App() {
       items: [],
       revealedChars: [],
       kiraRevealedChars: [],
+      isKilledByKira: false,
     }))
   );
 
@@ -74,6 +75,7 @@ function App() {
       {currentScreen === "result" && (
         <ResultScreen 
           result={gameResult} 
+          players={players}
           onBack={() => {
             setGameResult(null);
             setCurrentScreen("title");
