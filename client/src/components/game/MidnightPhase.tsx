@@ -40,11 +40,21 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
 
   // --- キラの行動 ---
   const handleKiraAction = () => {
-    // 自分以外の生存者からランダムに1人選ぶ
-    const targets = players.filter(p => p.id !== currentPlayer.id && p.isAlive);
-    if (targets.length === 0) return;
+    // 自分以外の生存者で、かつ本名がまだ完全に判明していない人を選ぶ
+    const targets = players.filter(p => {
+      if (p.id === currentPlayer.id || !p.isAlive) return false;
+      const combined = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
+      return combined.length < p.realName.length;
+    });
+
+    // もし全員判明していたら、自分以外の生存者全員を候補にする（念のため）
+    const finalTargets = targets.length > 0 
+      ? targets 
+      : players.filter(p => p.id !== currentPlayer.id && p.isAlive);
+
+    if (finalTargets.length === 0) return;
     
-    const target = targets[Math.floor(Math.random() * targets.length)];
+    const target = finalTargets[Math.floor(Math.random() * finalTargets.length)];
     
     // その人の本名から未公開の文字を1つ選ぶ
     const nameLength = target.realName.length;
@@ -110,9 +120,19 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
 
     // 死神の目の場合はランダムにターゲットを決定
     if (item === "death_note_eye") {
-      const targets = players.filter(p => p.id !== currentPlayer.id && p.isAlive);
-      if (targets.length === 0) return;
-      const target = targets[Math.floor(Math.random() * targets.length)];
+      // 本名が未知の生存者を優先
+      const targets = players.filter(p => {
+        if (p.id === currentPlayer.id || !p.isAlive) return false;
+        const combined = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
+        return combined.length < p.realName.length;
+      });
+
+      const finalTargets = targets.length > 0 
+        ? targets 
+        : players.filter(p => p.id !== currentPlayer.id && p.isAlive);
+
+      if (finalTargets.length === 0) return;
+      const target = finalTargets[Math.floor(Math.random() * finalTargets.length)];
       effectiveTargetId = target.id;
       setActionLogs(prev => [...prev, `【死神の目】を使用。${target.nickname} の本名は 「${target.realName}」 だ！`]);
     } else if (item === "shortcake" && effectiveTargetId !== undefined) {
@@ -141,9 +161,13 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
     setUsedActions(prev => [...prev, item]);
   };
 
+  const alivePlayers = players.filter(p => p.isAlive);
+  const currentSurvivorNumber = alivePlayers.findIndex(p => p.id === currentPlayer.id) + 1;
+  const totalSurvivors = alivePlayers.length;
+
   return (
     <div style={{ backgroundColor: '#0a0a1a', padding: 30, borderRadius: '12px', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-      <h3 style={{ color: '#888', marginBottom: '40px' }}>🌑 深夜 ({currentPlayerIndex + 1} / 5人目)</h3>
+      <h3 style={{ color: '#888', marginBottom: '40px' }}>🌑 深夜 ({currentSurvivorNumber} / {totalSurvivors}人目)</h3>
 
       {!isConfirmed ? (
         <div style={{ textAlign: 'center' }}>
@@ -193,10 +217,8 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
                         const isFullyKnown = combinedRevealed.length >= p.realName.length;
                         const hasAlreadyKilled = usedActions.includes('kill');
                         
-                        // 殺害可能条件：盗み済み ＋ (アイテム未所持 OR アイテム使用済み) ＋ 本名判明済み ＋ 未殺害
-                        const hasStolen = usedActions.includes('steal');
-                        const hasUsedRequiredItem = !currentPlayer.items.includes('death_note_eye') || usedActions.includes('death_note_eye');
-                        const canKillNow = hasStolen && hasUsedRequiredItem && isFullyKnown && !hasAlreadyKilled;
+                        // 殺害可能条件：本名判明済み ＋ 未殺害
+                        const canKillNow = isFullyKnown && !hasAlreadyKilled;
 
                         return (
                           <button 
@@ -206,9 +228,7 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
                             style={canKillNow ? killBtnStyle : disabledBtnStyle}
                           >
                             {p.nickname} を殺害する {hasAlreadyKilled && "済"} 
-                            {!hasAlreadyKilled && !hasStolen && "(まず盗んでください)"}
-                            {!hasAlreadyKilled && hasStolen && !hasUsedRequiredItem && "(アイテムを先に使ってください)"}
-                            {!hasAlreadyKilled && hasStolen && hasUsedRequiredItem && !isFullyKnown && "(本名不足)"}
+                            {!hasAlreadyKilled && !isFullyKnown && "(本名が不明です)"}
                           </button>
                         );
                       })}
@@ -286,7 +306,7 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
               width: '100%' 
             }}
           >
-            {currentPlayerIndex < 4 ? "行動を終了して次のプレイヤーへ" : "行動を終了して夜明けを迎える"}
+            {currentSurvivorNumber < totalSurvivors ? "行動を終了して次のプレイヤーへ" : "行動を終了して夜明けを迎える"}
           </button>
         </div>
       )}
