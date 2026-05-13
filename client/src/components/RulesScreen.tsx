@@ -6,38 +6,29 @@ type Props = {
 
 export default function RulesScreen({ onBack }: Props) {
   return (
-    <div style={{ padding: '40px 20px', color: 'white', maxWidth: '800px', margin: '0 auto', textAlign: 'left', lineHeight: '1.6' }}>
-      <h2 style={{ textAlign: 'center', borderBottom: '2px solid #8a0303', paddingBottom: '10px' }}>ルール説明</h2>
+    <div style={{ padding: '60px 20px', color: 'white', maxWidth: '600px', margin: '0 auto', textAlign: 'center', lineHeight: '2' }}>
+      <h2 style={{ fontSize: '32px', borderBottom: '2px solid #8a0303', paddingBottom: '20px', marginBottom: '40px', fontFamily: 'serif' }}>HOW TO PLAY</h2>
       
-      <section style={{ marginTop: '20px' }}>
-        <h3>💎 勝利条件</h3>
-        <ul>
-          <li><strong>村人側:</strong> 5ターン以内にキラを追放する。</li>
-          <li><strong>キラ側:</strong> 5ターン逃げ切る。</li>
-          <li><strong>キラの敗北:</strong> 5ターン以内に一度も殺害を行わなかった場合。</li>
-        </ul>
-      </section>
+      <div style={{ fontSize: '18px', marginBottom: '40px' }}>
+        <p><strong>🍎 キラ側:</strong> 正体がバレないように全員を消し去れ。</p>
+        <p><strong>🔍 L陣営:</strong> 会議で本物のキラを見つけ出し、追放せよ。</p>
+      </div>
 
-      <section style={{ marginTop: '20px' }}>
-        <h3>🎭 役職の能力</h3>
-        <p><strong>【キラ】</strong></p>
-        <ul>
-          <li>深夜フェーズ：ランダムに誰かの本名を1文字知る。</li>
-          <li>ミニゲーム1位：アイテム「死神の目」を入手（その夜、誰かの本名を完全に知る）。</li>
+      <div style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '30px', borderRadius: '15px', textAlign: 'left' }}>
+        <h3 style={{ textAlign: 'center', color: '#8a0303' }}>ゲームの流れ</h3>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          <li style={{ marginBottom: '15px' }}><strong>1. ミニゲーム:</strong> 全力で遊ぶ。1位は強く、最下位はピンチに。</li>
+          <li style={{ marginBottom: '15px' }}><strong>2. 追放会議:</strong> 怪しい人を1人選んで追放する。</li>
+          <li style={{ marginBottom: '15px' }}><strong>3. 深夜の行動:</strong> キラが暗躍する。朝、誰かが消えているかも…。</li>
         </ul>
-        <p><strong>【L】</strong></p>
-        <ul>
-          <li>深夜フェーズ：指名した相手のミニゲーム順位を知る。</li>
-          <li>ミニゲーム1位：アイテム「ショートケーキ」を入手（指名した相手がキラか判定）。</li>
-        </ul>
-      </section>
+      </div>
 
-      <div style={{ textAlign: 'center', marginTop: '40px' }}>
+      <div style={{ textAlign: 'center', marginTop: '60px' }}>
         <button 
           onClick={onBack}
-          style={{ padding: '15px 40px', backgroundColor: '#444', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '5px' }}
+          style={{ padding: '15px 60px', backgroundColor: '#8a0303', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '5px', fontWeight: 'bold' }}
         >
-          タイトルへ戻る
+          わかった
         </button>
       </div>
     </div>
