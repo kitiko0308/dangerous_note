@@ -5,9 +5,10 @@ type Props = {
   players: Player[];
   setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
   onNext: () => void;
+  rankingIds: number[]; // 追加：ミニゲームから渡された順位
 };
 
-export default function MiniGameResultPhase({ players, setPlayers, onNext }: Props) {
+export default function MiniGameResultPhase({ players, setPlayers, onNext, rankingIds }: Props) {
   const [isProcessed, setIsProcessed] = useState(false);
   const [ranking, setRanking] = useState<Player[]>([]);
   const [eventLogs, setEventLogs] = useState<string[]>([]);
@@ -16,16 +17,20 @@ export default function MiniGameResultPhase({ players, setPlayers, onNext }: Pro
   useEffect(() => {
     if (isProcessed) return;
 
-    // 1. 生存者のみで仮の順位を生成 (本来はミニゲームのスコアを元にします)
-    const alivePlayers = players.filter(p => p.isAlive);
+    // 1. 順位データを元にプレイヤー配列を並び替える
+    let newRanking: Player[] = [];
     
-    if (alivePlayers.length === 0) {
-      setIsProcessed(true);
-      return;
+    if (rankingIds && rankingIds.length > 0) {
+      // 渡されたID順にプレイヤーを並べる
+      newRanking = rankingIds
+        .map(id => players.find(p => p.id === id))
+        .filter((p): p is Player => p !== undefined);
+    } else {
+      // 安全策として、もしデータがなければランダムにする（従来通り）
+      const alivePlayers = players.filter(p => p.isAlive);
+      newRanking = [...alivePlayers].sort(() => Math.random() - 0.5);
     }
-
-    const shuffled = [...alivePlayers].sort(() => Math.random() - 0.5);
-    const newRanking = shuffled;
+    
     setRanking(newRanking);
 
     // 2. 結果に応じたデータ更新
