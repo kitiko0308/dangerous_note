@@ -1,49 +1,90 @@
+import { useState } from "react";
 import "./App.css";
-import titleBook from "./assets/img/title_book.png";
+
+// コンポーネントのインポート
+import LandingPage from "./pages/landing/LandingPage";
+import RulesPage from "./pages/rules/RulesPage";
+import PlayerSetuppage from "./pages/game-setup/PlayerSetuppage";
+import RoleRevealPage from "./pages/game-setup/RoleRevealPage";
+import GamePage from "./pages/game/GamePage";
+import ResultPage from "./pages/result/ResultPage";
+
+// 型のインポート
+import type { ScreenState, GameResult, Player } from "./types";
 
 function App() {
-  const menuItems = [
-    { label: "ゲームをはじめる", primary: true },
-    { label: "ルール説明", primary: false },
-  ];
+  const [currentScreen, setCurrentScreen] = useState<ScreenState>("title");
+  const [gameResult, setGameResult] = useState<GameResult>(null);
+
+  // 全プレイヤーのデータを管理
+  const [players, setPlayers] = useState<Player[]>(
+    Array.from({ length: 5 }, (_, i) => ({
+      id: i,
+      nickname: "",
+      realName: "",
+      role: "villager",
+      isAlive: true,
+      items: [],
+      revealedChars: [],
+      kiraRevealedChars: [],
+      isKilledByKira: false,
+    }))
+  );
+
+  const handleGameEnd = (result: GameResult) => {
+    setGameResult(result);
+    setCurrentScreen("result");
+  };
 
   return (
-    <div
-      className="title-screen"
-      style={{ backgroundImage: `url(${titleBook})` }}
-    >
-      <div className="title-screen__grain" aria-hidden="true" />
-      <div className="title-screen__vignette" aria-hidden="true" />
+    <div className="app-container">
+      {currentScreen === "title" && (
+        <LandingPage 
+          onStart={() => setCurrentScreen("setup")} 
+          onShowRules={() => setCurrentScreen("rules")}
+        />
+      )}
 
-      <main className="title-content">
-        <h1 className="title-logo">
-          <span>DANGEROUS</span>
-          <span>NOTE</span>
-        </h1>
+      {currentScreen === "rules" && (
+        <RulesPage onBack={() => setCurrentScreen("title")} />
+      )}
+      
+      {currentScreen === "setup" && (
+        <PlayerSetuppage 
+          players={players} 
+          setPlayers={setPlayers}
+          onNext={() => setCurrentScreen("role_reveal")} 
+        />
+      )}
 
-        <p className="title-sub">デンジャラスノート</p>
-        <p className="title-tagline">
-          人を疑い、<strong>真実</strong>を見抜け。
-        </p>
-
-        <nav className="title-menu" aria-label="タイトルメニュー">
-          {menuItems.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              className={
-                item.primary
-                  ? "title-menu__button title-menu__button--primary"
-                  : "title-menu__button"
-              }
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </main>
+      {currentScreen === "role_reveal" && (
+        <RoleRevealPage 
+          players={players}
+          onNext={() => setCurrentScreen("play")} 
+        />
+      )}
+      
+      {currentScreen === "play" && (
+        <GamePage 
+          players={players}
+          setPlayers={setPlayers}
+          onEnd={handleGameEnd} 
+        />
+      )}
+      
+      {currentScreen === "result" && (
+        <ResultPage 
+          result={gameResult} 
+          players={players}
+          onBack={() => {
+            setGameResult(null);
+            setCurrentScreen("title");
+          }} 
+        />
+      )}
     </div>
   );
 }
+
 
 export default App;
