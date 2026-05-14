@@ -3,16 +3,20 @@ import type { Player } from '../../../types';
 
 type Props = {
   players: Player[];
-  onFinish: () => void; // ゲーム終了時に親コンポーネントに知らせるための関数
+  onFinish: (rankingIds: number[]) => void;
 };
 
 export default function SampleGame({ players, onFinish }: Props) {
-  // 生きているプレイヤーだけを抽出する
   const alivePlayers = players.filter(p => p.isAlive);
+
+  const handleDummyFinish = () => {
+    const dummyRanking = alivePlayers.map(p => p.id);
+    onFinish(dummyRanking);
+  };
 
   return (
     <div style={{ backgroundColor: '#2a4a2a', padding: 30, borderRadius: '8px', textAlign: 'center' }}>
-      <h3>🎮 ミニゲーム：サンプルゲーム</h3>
+      <h3>🎮 ミニゲーム：サンプルゲーム4</h3>
       
       <div style={{ margin: '20px 0', padding: '10px', backgroundColor: '#111', borderRadius: '5px' }}>
         <p style={{ color: '#aaa', marginBottom: '10px' }}>【今回の参加者】</p>
@@ -26,12 +30,11 @@ export default function SampleGame({ players, onFinish }: Props) {
       </div>
 
       <p style={{ marginTop: '10px', color: '#aaa' }}>
-        【担当2】ここに生存者 ({alivePlayers.length}人) だけで行うミニゲームの実装を書いてください。
+        【担当2】ここにミニゲーム4の実装を書いてください。
       </p>
       
-      {/* 開発用の一時的な終了ボタン（あとでゲームクリア時の処理に置き換えてください） */}
       <button 
-        onClick={onFinish} 
+        onClick={handleDummyFinish} 
         style={{ 
           marginTop: '20px', 
           padding: '10px 20px',
