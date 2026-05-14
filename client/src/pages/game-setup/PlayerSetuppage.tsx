@@ -42,6 +42,8 @@ export default function PlayerSetuppage({ players, setPlayers, onNext }: Props) 
     }
   };
 
+  const isInputValid = players[currentPlayerIndex].nickname.trim() !== '' && players[currentPlayerIndex].realName.trim() !== '';
+
   return (
     <div style={{ padding: 40, color: 'white', textAlign: 'center' }}>
       <h2 style={{ marginBottom: '10px' }}>プレイヤー設定 ({currentPlayerIndex + 1} / 5人目)</h2>
@@ -74,14 +76,15 @@ export default function PlayerSetuppage({ players, setPlayers, onNext }: Props) 
 
         <button 
           onClick={handleNext} 
+          disabled={!isInputValid}
           style={{ 
             width: '100%', 
             padding: '15px', 
             fontSize: '18px', 
             fontWeight: 'bold',
-            cursor: 'pointer', 
-            backgroundColor: '#8a0303', 
-            color: 'white', 
+            cursor: isInputValid ? 'pointer' : 'not-allowed', 
+            backgroundColor: isInputValid ? '#8a0303' : '#444', 
+            color: isInputValid ? 'white' : '#888', 
             border: 'none', 
             borderRadius: '5px' 
           }}
