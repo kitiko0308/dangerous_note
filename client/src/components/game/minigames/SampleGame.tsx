@@ -22,6 +22,7 @@ export default function SampleGame({ players, onFinish }: Props) {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showEndMessage, setShowEndMessage] = useState(false);
   const endTimerRef = useRef<number | null>(null);
+  const [isPressed, setIsPressed] = useState(false);
 
   const currentPlayer = alivePlayers[currentTurnIndex];
 
@@ -109,6 +110,14 @@ export default function SampleGame({ players, onFinish }: Props) {
     return () => window.clearTimeout(id);
   }, [countdown]);
 
+  // NOTE: リーダーのルール指摘に対応
+  // alivePlayers は useMemo(..., [players]) の結果で、親コンポーネントが
+  // 毎レンダー新しい配列を渡す実装だと参照が変わります。
+  // その場合、この useEffect が意図せず発火して途中のゲーム進行が
+  // リセットされてしまう恐れがあります。
+  //
+  // 対策：配列参照ではなく「参加者のID列」をキーに使い、顔ぶれが
+  // 実際に変わったときだけリセットされるようにします。
   useEffect(() => {
     setCurrentTurnIndex(0);
     setTimeLeft(10);
@@ -125,13 +134,24 @@ export default function SampleGame({ players, onFinish }: Props) {
         endTimerRef.current = null;
       }
     };
-  }, [alivePlayers]);
+    // depend on stable key of alivePlayers (IDs concatenated)
+  }, [alivePlayers.map((p) => p.id).join(",")]);
 
   const handleDummyFinish = () => {
-    if (!currentPlayer || isFinished) {
+    // Only allow manual finish while the measurement is actively running.
+    // Prevents double-submission when '終了!' is showing or during countdown.
+    if (
+      !currentPlayer ||
+      isFinished ||
+      !isRunning ||
+      countdown !== null ||
+      showEndMessage
+    ) {
       return;
     }
 
+    // stop the running timer and record result
+    setIsRunning(false);
     finishCurrentTurn();
   };
 
@@ -264,19 +284,56 @@ export default function SampleGame({ players, onFinish }: Props) {
             ) : (
               <button
                 onClick={handleTap}
-                disabled={timeLeft <= 0 || isFinished}
+                disabled={
+                  !isRunning ||
+                  timeLeft <= 0 ||
+                  isFinished ||
+                  countdown !== null ||
+                  showEndMessage ||
+                  !currentPlayer
+                }
+                onPointerDown={() => setIsPressed(true)}
+                onPointerUp={() => setIsPressed(false)}
+                onPointerCancel={() => setIsPressed(false)}
+                onPointerLeave={() => setIsPressed(false)}
                 style={{
                   marginTop: "16px",
-                  padding: "16px 28px",
+                  width: 120,
+                  height: 120,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
                   cursor:
-                    timeLeft <= 0 || isFinished ? "not-allowed" : "pointer",
+                    !isRunning ||
+                    timeLeft <= 0 ||
+                    isFinished ||
+                    countdown !== null ||
+                    showEndMessage ||
+                    !currentPlayer
+                      ? "not-allowed"
+                      : "pointer",
                   backgroundColor:
-                    timeLeft <= 0 || isFinished ? "#666" : "#ff6b6b",
+                    !isRunning ||
+                    timeLeft <= 0 ||
+                    isFinished ||
+                    countdown !== null ||
+                    showEndMessage ||
+                    !currentPlayer
+                      ? "#666"
+                      : "#ff6b6b",
                   color: "white",
                   border: "none",
                   borderRadius: "999px",
-                  fontSize: "18px",
-                  fontWeight: 700,
+                  fontSize: 20,
+                  fontWeight: 800,
+                  boxShadow: isPressed
+                    ? "inset 0 6px 12px rgba(0,0,0,0.35)"
+                    : "0 10px 24px rgba(0,0,0,0.2)",
+                  transform: isPressed ? "scale(0.92)" : "scale(1)",
+                  transition:
+                    "transform 120ms ease, box-shadow 120ms ease, background-color 120ms",
+                  touchAction: "manipulation",
                 }}
               >
                 連打！
@@ -310,11 +367,32 @@ export default function SampleGame({ players, onFinish }: Props) {
 
       <button
         onClick={handleDummyFinish}
+        disabled={
+          !isRunning ||
+          isFinished ||
+          countdown !== null ||
+          showEndMessage ||
+          !currentPlayer
+        }
         style={{
           marginTop: "20px",
           padding: "10px 20px",
-          cursor: "pointer",
-          backgroundColor: "#4CAF50",
+          cursor:
+            !isRunning ||
+            isFinished ||
+            countdown !== null ||
+            showEndMessage ||
+            !currentPlayer
+              ? "not-allowed"
+              : "pointer",
+          backgroundColor:
+            !isRunning ||
+            isFinished ||
+            countdown !== null ||
+            showEndMessage ||
+            !currentPlayer
+              ? "#888"
+              : "#4CAF50",
           color: "white",
           border: "none",
           borderRadius: "5px",
