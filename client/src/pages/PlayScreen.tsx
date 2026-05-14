@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import type { Player, GamePhase, GameResult } from '../types';
 
-import MorningPhase from './game/MorningPhase';
-import MiniGamePhase from './game/MiniGamePhase';
-import NoonResultPhase from './game/NoonResultPhase';
-import VotingPhase from './game/VotingPhase';
-import ExileResultPhase from './game/ExileResultPhase';
-import MidnightPhase from './game/MidnightPhase';
+import MorningPhase from '../components/game/MorningPhase';
+import MiniGamePhase from '../components/game/MiniGamePhase';
+import NoonResultPhase from '../components/game/NoonResultPhase';
+import VotingPhase from '../components/game/VotingPhase';
+import ExileResultPhase from '../components/game/ExileResultPhase';
+import MidnightPhase from '../components/game/MidnightPhase';
 
 type Props = {
   players: Player[];

@@ -2,12 +2,12 @@ import { useState } from "react";
 import "./App.css";
 
 // コンポーネントのインポート
-import TitleScreen from "./components/TitleScreen";
-import RulesScreen from "./components/RulesScreen";
-import SetupScreen from "./components/SetupScreen";
-import RoleRevealScreen from "./components/RoleRevealScreen";
-import PlayScreen from "./components/PlayScreen";
-import ResultScreen from "./components/ResultScreen";
+import TitleScreen from "./pages/TitleScreen";
+import RulesScreen from "./pages/RulesScreen";
+import SetupScreen from "./pages/SetupScreen";
+import RoleRevealScreen from "./pages/RoleRevealScreen";
+import PlayScreen from "./pages/PlayScreen";
+import ResultScreen from "./pages/ResultScreen";
 
 // 型のインポート
 import type { ScreenState, GameResult, Player } from "./types";
