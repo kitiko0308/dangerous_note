@@ -109,7 +109,7 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
     if (!target) return;
     
     // 実際に保存された順位を表示
-    const rank = target.miniGameRank || "?";
+    const rank = target.miniGameRank ?? "?";
     setActionLogs(prev => [...prev, `${target.nickname} のミニゲーム順位は ${rank}位 だった。`]);
     setUsedActions(prev => [...prev, 'rank_check']);
   };
