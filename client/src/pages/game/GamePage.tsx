@@ -3,7 +3,7 @@ import type { Player, GamePhase, GameResult } from '../../types';
 
 import MorningPhase from '../../components/game/MorningPhase';
 import MiniGamePhase from '../../components/game/MiniGamePhase';
-import NoonResultPhase from '../../components/game/NoonResultPhase';
+import MiniGameResultPhase from '../../components/game/MiniGameResultPhase';
 import VotingPhase from '../../components/game/VotingPhase';
 import ExileResultPhase from '../../components/game/ExileResultPhase';
 import MidnightPhase from '../../components/game/MidnightPhase';
@@ -61,8 +61,8 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   const handleNextPhase = () => {
     switch (phase) {
       case "morning": setPhase("mini_game"); break;
-      case "mini_game": setPhase("noon_result"); break;
-      case "noon_result": setPhase("voting"); break;
+      case "mini_game": setPhase("minigame_result"); break;
+      case "minigame_result": setPhase("voting"); break;
       case "voting": 
         // handleVote() で遷移するためここは通らない
         break;
@@ -152,8 +152,8 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
         {phase === "mini_game" && (
           <MiniGamePhase players={players} onNext={handleNextPhase} />
         )}
-        {phase === "noon_result" && (
-          <NoonResultPhase players={players} setPlayers={setPlayers} onNext={handleNextPhase} />
+        {phase === "minigame_result" && (
+          <MiniGameResultPhase players={players} setPlayers={setPlayers} onNext={handleNextPhase} />
         )}
         {phase === "voting" && (
           <VotingPhase players={players} setPlayers={setPlayers} onVote={handleVote} />

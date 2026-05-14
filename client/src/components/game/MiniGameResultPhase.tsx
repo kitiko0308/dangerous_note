@@ -7,7 +7,7 @@ type Props = {
   onNext: () => void;
 };
 
-export default function NoonResultPhase({ players, setPlayers, onNext }: Props) {
+export default function MiniGameResultPhase({ players, setPlayers, onNext }: Props) {
   const [isProcessed, setIsProcessed] = useState(false);
   const [ranking, setRanking] = useState<Player[]>([]);
   const [eventLogs, setEventLogs] = useState<string[]>([]);

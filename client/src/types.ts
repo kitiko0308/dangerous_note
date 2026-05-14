@@ -23,7 +23,7 @@ export type ScreenState = "title" | "rules" | "setup" | "role_reveal" | "play" |
 
 // ゲーム内フェーズの型
 // 投票結果（exile_result）を追加
-export type GamePhase = "morning" | "mini_game" | "noon_result" | "voting" | "exile_result" | "midnight";
+export type GamePhase = "morning" | "mini_game" | "minigame_result" | "voting" | "exile_result" | "midnight";
 
 // 勝敗結果の型
 export type GameResult = "villager_win" | "kira_win" | "kira_lose" | null;
