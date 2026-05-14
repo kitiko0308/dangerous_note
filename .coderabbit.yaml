@@ -1,0 +1,12 @@
+language: "ja"
+early_access: false
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  poem: false
+
+tone_instructions: >
+  すべてのレビューコメント、要約、提案を日本語で出力してください。
