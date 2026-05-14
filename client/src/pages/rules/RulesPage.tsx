@@ -70,6 +70,11 @@ export default function RulesPage({ onBack }: Props) {
     setDragX(currentX - touchStartX.current);
   };
 
+  const resetDragState = () => {
+    setDragX(0);
+    touchStartX.current = null;
+  };
+
   const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
     if (touchStartX.current === null) return;
 
@@ -82,8 +87,11 @@ export default function RulesPage({ onBack }: Props) {
       goNext();
     }
 
-    setDragX(0);
-    touchStartX.current = null;
+    resetDragState();
+  };
+
+  const handleTouchCancel = () => {
+    resetDragState();
   };
 
   const limitedDrag =
@@ -97,6 +105,7 @@ export default function RulesPage({ onBack }: Props) {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
     >
       <style>{`
         @keyframes fadeSlideInRight {
