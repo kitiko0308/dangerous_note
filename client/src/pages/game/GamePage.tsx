@@ -68,7 +68,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
       case "voting": 
         // handleVote() で遷移するためここは通らない
         break;
-      case "exile_result":
+      case "exile_result": {
         // 追放された人がキラなら村人の勝ち
         const exiledPlayer = exiledPlayerId !== null ? players.find(p => p.id === exiledPlayerId) : null;
         if (exiledPlayer?.role === "kira") {
@@ -77,6 +77,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
           setPhase("midnight"); 
         }
         break;
+      }
       case "midnight":
         if (turn >= 5) {
           // 判定ロジック：キラが自分の手（深夜アクション）で1人でも殺したか？
