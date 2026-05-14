@@ -1,15 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
+import SampleGame from './minigames/SampleGame';
+import type { Player } from '../../types';
 
 type Props = {
+  players: Player[];
   onNext: () => void;
 };
 
-export default function MiniGamePhase({ onNext }: Props) {
+export default function MiniGamePhase({ players, onNext }: Props) {
+  const [selectedGame, setSelectedGame] = useState<string>("sample");
+
   return (
-    <div style={{ backgroundColor: '#2a4a2a', padding: 30, borderRadius: '8px' }}>
-      <h3>🎮 ミニゲームフェーズ</h3>
-      <p>【担当2】ミニゲーム本体（今は一旦1つ）をここに実装します。</p>
-      <button onClick={onNext} style={{ marginTop: '20px' }}>ゲーム終了・結果発表へ</button>
+    <div>
+      <h2 style={{ marginBottom: '20px', textAlign: 'center' }}>🎲 ミニゲームフェーズ</h2>
+      
+      {selectedGame === "sample" && (
+        <SampleGame players={players} onFinish={onNext} />
+      )}
     </div>
   );
 }

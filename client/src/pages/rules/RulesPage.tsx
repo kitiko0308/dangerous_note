@@ -1,10 +1,10 @@
-import React from 'react';
+
 
 type Props = {
   onBack: () => void;
 };
 
-export default function RulesScreen({ onBack }: Props) {
+export default function RulesPage({ onBack }: Props) {
   return (
     <div style={{ padding: '60px 20px', color: 'white', maxWidth: '600px', margin: '0 auto', textAlign: 'center', lineHeight: '2' }}>
       <h2 style={{ fontSize: '32px', borderBottom: '2px solid #8a0303', paddingBottom: '20px', marginBottom: '40px', fontFamily: 'serif' }}>HOW TO PLAY</h2>

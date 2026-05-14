@@ -2,12 +2,12 @@ import { useState } from "react";
 import "./App.css";
 
 // コンポーネントのインポート
-import TitleScreen from "./pages/TitleScreen";
-import RulesScreen from "./pages/RulesScreen";
-import SetupScreen from "./pages/SetupScreen";
-import RoleRevealScreen from "./pages/RoleRevealScreen";
-import PlayScreen from "./pages/PlayScreen";
-import ResultScreen from "./pages/ResultScreen";
+import LandingPage from "./pages/landing/LandingPage";
+import RulesPage from "./pages/rules/RulesPage";
+import PlayerSetuppage from "./pages/game-setup/PlayerSetuppage";
+import RoleRevealPage from "./pages/game-setup/RoleRevealPage";
+import GamePage from "./pages/game/GamePage";
+import ResultPage from "./pages/result/ResultPage";
 
 // 型のインポート
 import type { ScreenState, GameResult, Player } from "./types";
@@ -39,18 +39,18 @@ function App() {
   return (
     <div className="app-container">
       {currentScreen === "title" && (
-        <TitleScreen 
+        <LandingPage 
           onStart={() => setCurrentScreen("setup")} 
           onShowRules={() => setCurrentScreen("rules")}
         />
       )}
 
       {currentScreen === "rules" && (
-        <RulesScreen onBack={() => setCurrentScreen("title")} />
+        <RulesPage onBack={() => setCurrentScreen("title")} />
       )}
       
       {currentScreen === "setup" && (
-        <SetupScreen 
+        <PlayerSetuppage 
           players={players} 
           setPlayers={setPlayers}
           onNext={() => setCurrentScreen("role_reveal")} 
@@ -58,14 +58,14 @@ function App() {
       )}
 
       {currentScreen === "role_reveal" && (
-        <RoleRevealScreen 
+        <RoleRevealPage 
           players={players}
           onNext={() => setCurrentScreen("play")} 
         />
       )}
       
       {currentScreen === "play" && (
-        <PlayScreen 
+        <GamePage 
           players={players}
           setPlayers={setPlayers}
           onEnd={handleGameEnd} 
@@ -73,7 +73,7 @@ function App() {
       )}
       
       {currentScreen === "result" && (
-        <ResultScreen 
+        <ResultPage 
           result={gameResult} 
           players={players}
           onBack={() => {

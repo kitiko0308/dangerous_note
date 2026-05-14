@@ -1,4 +1,4 @@
-import type { GameResult, Player } from '../types';
+import type { GameResult, Player } from '../../types';
 
 type Props = {
   result: GameResult;
@@ -6,7 +6,7 @@ type Props = {
   onBack: () => void;
 };
 
-export default function ResultScreen({ result, players, onBack }: Props) {
+export default function ResultPage({ result, players, onBack }: Props) {
   const isKiraWin = result === "kira_win";
   
   return (

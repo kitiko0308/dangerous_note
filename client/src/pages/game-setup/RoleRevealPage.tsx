@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import type { Player } from '../types';
+import { useState } from 'react';
+import type { Player } from '../../types';
 
 type Props = {
   players: Player[];
   onNext: () => void;
 };
 
-export default function RoleRevealScreen({ players, onNext }: Props) {
+export default function RoleRevealPage({ players, onNext }: Props) {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [isShowing, setIsShowing] = useState(false);
 

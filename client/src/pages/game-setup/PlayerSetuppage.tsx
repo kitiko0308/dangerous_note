@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Player, Role } from '../types';
+import type { Player, Role } from '../../types';
 
 type Props = {
   players: Player[];
@@ -7,7 +7,7 @@ type Props = {
   onNext: () => void;
 };
 
-export default function SetupScreen({ players, setPlayers, onNext }: Props) {
+export default function PlayerSetuppage({ players, setPlayers, onNext }: Props) {
   // 現在何人目のプレイヤーを入力中か (0〜4)
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
 

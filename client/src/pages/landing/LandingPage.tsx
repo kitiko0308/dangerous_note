@@ -1,12 +1,12 @@
-import React from 'react';
-import titleBook from "../assets/img/title_book.png";
+
+import titleBook from "../../assets/img/title_book.png";
 
 type Props = {
   onStart: () => void;
   onShowRules: () => void;
 };
 
-export default function TitleScreen({ onStart, onShowRules }: Props) {
+export default function LandingPage({ onStart, onShowRules }: Props) {
   const menuItems = [
     { label: "ゲームをはじめる", primary: true, onClick: onStart },
     { label: "ルール説明", primary: false, onClick: onShowRules },

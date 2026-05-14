@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import type { Player, GamePhase, GameResult } from '../types';
+import type { Player, GamePhase, GameResult } from '../../types';
 
-import MorningPhase from '../components/game/MorningPhase';
-import MiniGamePhase from '../components/game/MiniGamePhase';
-import NoonResultPhase from '../components/game/NoonResultPhase';
-import VotingPhase from '../components/game/VotingPhase';
-import ExileResultPhase from '../components/game/ExileResultPhase';
-import MidnightPhase from '../components/game/MidnightPhase';
+import MorningPhase from '../../components/game/MorningPhase';
+import MiniGamePhase from '../../components/game/MiniGamePhase';
+import NoonResultPhase from '../../components/game/NoonResultPhase';
+import VotingPhase from '../../components/game/VotingPhase';
+import ExileResultPhase from '../../components/game/ExileResultPhase';
+import MidnightPhase from '../../components/game/MidnightPhase';
 
 type Props = {
   players: Player[];
@@ -14,11 +14,11 @@ type Props = {
   onEnd: (result: GameResult) => void;
 };
 
-export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
+export default function GamePage({ players, setPlayers, onEnd }: Props) {
   const [turn, setTurn] = useState(1);
   const [phase, setPhase] = useState<GamePhase>("morning");
   const [exiledPlayerId, setExiledPlayerId] = useState<number | null>(null);
-  const [lastExiledPlayerName, setLastExiledPlayerName] = useState<string | null>(null);
+  const [_lastExiledPlayerName, setLastExiledPlayerName] = useState<string | null>(null);
   
   const [lastEvents, setLastEvents] = useState<string[]>(["ゲーム開始！最初のターンです。"]);
   const [nightActionLogs, setNightActionLogs] = useState<string[]>([]);
@@ -117,8 +117,32 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
 
   return (
     <div style={{ padding: 20, color: 'white', maxWidth: '800px', margin: '0 auto' }}>
-      <header style={{ borderBottom: '1px solid #555', paddingBottom: 10, marginBottom: 20, textAlign: 'center' }}>
-        <h2>第 {turn} ターン / 5ターン中</h2>
+      <header style={{ borderBottom: '1px solid #555', paddingBottom: 20, marginBottom: 20, textAlign: 'center' }}>
+        <h2 style={{ marginBottom: 15 }}>第 {turn} ターン / 5ターン中</h2>
+        
+        {/* 生存者リスト（ゲーム中ずっと表示される共通UI） */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {players.map(p => (
+            <div 
+              key={p.id} 
+              style={{ 
+                padding: '5px 12px', 
+                backgroundColor: p.isAlive ? '#2a2a2a' : '#111', 
+                color: p.isAlive ? 'white' : '#555',
+                border: p.isAlive ? '1px solid #555' : '1px solid #222',
+                borderRadius: '20px',
+                fontSize: '14px',
+                textDecoration: p.isAlive ? 'none' : 'line-through',
+                opacity: p.isAlive ? 1 : 0.6,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+            >
+              {p.nickname} {!p.isAlive && <span style={{ fontSize: '12px' }}>💀</span>}
+            </div>
+          ))}
+        </div>
       </header>
 
       <main>
@@ -126,7 +150,7 @@ export default function PlayScreen({ players, setPlayers, onEnd }: Props) {
           <MorningPhase events={lastEvents} onNext={handleNextPhase} />
         )}
         {phase === "mini_game" && (
-          <MiniGamePhase onNext={handleNextPhase} />
+          <MiniGamePhase players={players} onNext={handleNextPhase} />
         )}
         {phase === "noon_result" && (
           <NoonResultPhase players={players} setPlayers={setPlayers} onNext={handleNextPhase} />
