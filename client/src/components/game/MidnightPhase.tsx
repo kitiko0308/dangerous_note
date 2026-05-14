@@ -43,7 +43,7 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
     // 自分以外の生存者で、かつ本名がまだ完全に判明していない人を選ぶ
     const targets = players.filter(p => {
       if (p.id === currentPlayer.id || !p.isAlive) return false;
-      const combined = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
+      const combined = [...new Set([...p.revealedChars, ...p.kiraRevealedChars])];
       return combined.length < p.realName.length;
     });
 
@@ -123,7 +123,7 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
       // 本名が未知の生存者を優先
       const targets = players.filter(p => {
         if (p.id === currentPlayer.id || !p.isAlive) return false;
-        const combined = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
+        const combined = [...new Set([...p.revealedChars, ...p.kiraRevealedChars])];
         return combined.length < p.realName.length;
       });
 
@@ -213,7 +213,7 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
                     <div style={{ marginTop: '10px' }}>
                       <p style={{ fontSize: '12px', color: '#888', marginBottom: '5px' }}>本名が全て分かれば殺害可能：</p>
                       {players.filter(p => p.id !== currentPlayer.id && p.isAlive).map(p => {
-                        const combinedRevealed = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
+                        const combinedRevealed = [...new Set([...p.revealedChars, ...p.kiraRevealedChars])];
                         const isFullyKnown = combinedRevealed.length >= p.realName.length;
                         const hasAlreadyKilled = usedActions.includes('kill');
                         
@@ -239,7 +239,7 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
                       <p style={{ fontSize: '12px', color: '#888', marginBottom: '10px' }}>現在の本名把握状況 (公開+秘密):</p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                         {players.filter(p => p.id !== currentPlayer.id && p.isAlive).map(p => {
-                          const combinedRevealed = [...new Set([...(p.revealedChars || []), ...(p.kiraRevealedChars || [])])];
+                          const combinedRevealed = [...new Set([...p.revealedChars, ...p.kiraRevealedChars])];
                           const combinedName = (p.realName || "").split('').map((char, i) => 
                             combinedRevealed.includes(i) ? char : "〇"
                           ).join('');
