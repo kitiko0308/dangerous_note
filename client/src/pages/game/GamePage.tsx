@@ -26,15 +26,17 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   const handleVote = (id: number | null) => {
     setExiledPlayerId(id);
     
+    let updatedPlayers = players;
+
     // もし追放された人がいたら、その人の生存フラグを折り、名前を記録する
     if (id !== null) {
       const exiledP = players.find(p => p.id === id);
       setLastExiledPlayerName(exiledP?.nickname || null);
 
-      const newPlayers = players.map(p => 
+      updatedPlayers = players.map(p => 
         p.id === id ? { ...p, isAlive: false } : p
       );
-      setPlayers(newPlayers);
+      setPlayers(updatedPlayers);
     } else {
       setLastExiledPlayerName(null);
     }
@@ -43,7 +45,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
 
     // 勝利判定：キラが追放されたら村人勝利
     if (id !== null) {
-      const exiledP = players.find(p => p.id === id);
+      const exiledP = updatedPlayers.find(p => p.id === id);
       if (exiledP?.role === 'kira') {
         onEnd("kira_lose");
         return;
@@ -51,7 +53,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
     }
 
     // 勝利判定：キラ以外の生存者がいなくなったらキラ勝利
-    const otherSurvivors = players.filter(p => p.isAlive && p.role !== 'kira' && p.id !== id);
+    const otherSurvivors = updatedPlayers.filter(p => p.isAlive && p.role !== 'kira');
     if (otherSurvivors.length === 0) {
       onEnd("kira_win");
       return;
