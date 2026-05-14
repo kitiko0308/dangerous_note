@@ -18,6 +18,12 @@ export default function MiniGameResultPhase({ players, setPlayers, onNext }: Pro
 
     // 1. 生存者のみで仮の順位を生成 (本来はミニゲームのスコアを元にします)
     const alivePlayers = players.filter(p => p.isAlive);
+    
+    if (alivePlayers.length === 0) {
+      setIsProcessed(true);
+      return;
+    }
+
     const shuffled = [...alivePlayers].sort(() => Math.random() - 0.5);
     const newRanking = shuffled;
     setRanking(newRanking);
