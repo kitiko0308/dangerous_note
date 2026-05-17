@@ -7,7 +7,7 @@ type Props = {
   onVote: (playerId: number | null) => void; // 追放する人のID、またはnull（追放なし）
 };
 
-export default function VotingPhase({ players, setPlayers, onVote }: Props) {
+export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }: Props) {
   return (
     <div style={{ backgroundColor: '#4a2a2a', padding: 30, borderRadius: '8px' }}>
       <h3>🗳️ 投票フェーズ</h3>

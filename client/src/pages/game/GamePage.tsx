@@ -22,6 +22,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   
   const [lastEvents, setLastEvents] = useState<string[]>(["ゲーム開始！最初のターンです。"]);
   const [nightActionLogs, setNightActionLogs] = useState<string[]>([]);
+  const [miniGameRanking, setMiniGameRanking] = useState<number[]>([]);
 
   const handleVote = (id: number | null) => {
     setExiledPlayerId(id);
@@ -60,7 +61,10 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
     }
   };
 
-  const handleNextPhase = () => {
+  const handleNextPhase = (miniGameResults?: number[]) => {
+    if (miniGameResults) {
+      setMiniGameRanking(miniGameResults);
+    }
     switch (phase) {
       case "morning": setPhase("mini_game"); break;
       case "mini_game": setPhase("minigame_result"); break;
@@ -156,7 +160,12 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
           <MiniGamePhase players={players} onNext={handleNextPhase} />
         )}
         {phase === "minigame_result" && (
-          <MiniGameResultPhase players={players} setPlayers={setPlayers} onNext={handleNextPhase} />
+          <MiniGameResultPhase 
+            players={players} 
+            setPlayers={setPlayers} 
+            onNext={() => handleNextPhase()} 
+            rankingIds={miniGameRanking}
+          />
         )}
         {phase === "voting" && (
           <VotingPhase players={players} setPlayers={setPlayers} onVote={handleVote} />
