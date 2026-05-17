@@ -1,5 +1,3 @@
-import React from 'react';
-
 type Props = {
   events: string[];
   onNext: () => void;

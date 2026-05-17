@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import SampleGame from './minigames/SampleGame';
 import type { Player } from '../../types';
 
@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default function MiniGamePhase({ players, onNext }: Props) {
-  const [selectedGame, setSelectedGame] = useState<string>("sample");
+  const [selectedGame, _setSelectedGame] = useState<string>("sample");
 
   return (
     <div>

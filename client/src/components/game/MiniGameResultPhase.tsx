@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { Player, Item } from '../../types';
+import type { Player, Item as _Item } from '../../types';
 
 type Props = {
   players: Player[];
@@ -10,7 +10,7 @@ type Props = {
 
 export default function MiniGameResultPhase({ players, setPlayers, onNext, rankingIds }: Props) {
   const [isProcessed, setIsProcessed] = useState(false);
-  const [ranking, setRanking] = useState<Player[]>([]);
+  const [_ranking, setRanking] = useState<Player[]>([]);
   const [eventLogs, setEventLogs] = useState<string[]>([]);
 
   // このフェーズに入った時に一度だけ実行される「裏の処理」
