@@ -21,8 +21,8 @@ export default function SampleGame({ players, onFinish }: Props) {
   const [isRunning, setIsRunning] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showEndMessage, setShowEndMessage] = useState(false);
-  const endTimerRef = useRef<number | null>(null);
   const [isPressed, setIsPressed] = useState(false);
+  const endTimerRef = useRef<number | null>(null);
 
   const currentPlayer = alivePlayers[currentTurnIndex];
 
@@ -175,14 +175,16 @@ export default function SampleGame({ players, onFinish }: Props) {
     setCountdown(3);
   };
 
-  const rankingPreview = [...turnResults]
-    .sort((a, b) => b.taps - a.taps || a.id - b.id)
-    .map((result) => `${result.nickname}(${result.taps}回)`);
+  const finishBtnDisabled =
+    !isRunning || isFinished || countdown !== null || showEndMessage || !currentPlayer;
+
+  const tapButtonDisabled =
+    !isRunning || timeLeft <= 0 || isFinished || countdown !== null || showEndMessage || !currentPlayer;
 
   return (
     <div
       style={{
-        backgroundColor: "#2a4a2a",
+        backgroundColor: "#13232b",
         padding: 30,
         borderRadius: "8px",
         textAlign: "center",
@@ -231,15 +233,11 @@ export default function SampleGame({ players, onFinish }: Props) {
       >
         {currentPlayer ? (
           <>
-            <p
-              style={{
-                margin: 0,
-                color: "#f5d565",
-                fontSize: "18px",
-                fontWeight: 700,
-              }}
-            >
-              {currentPlayer.nickname} のターン
+            <p style={{ margin: 0, color: "#f5d565", fontWeight: 700 }}>
+              <span style={{ fontFamily: "Garamond, 'Times New Roman', serif", fontSize: 20 }}>
+                {currentPlayer.nickname}
+              </span>
+              <span style={{ marginLeft: 8, fontSize: 16, color: "#ebd79a" }}>のターン</span>
             </p>
             <p style={{ margin: "8px 0 0", color: "#ddd" }}>
               次は {alivePlayers[currentTurnIndex + 1]?.nickname ?? "なし"}{" "}
@@ -248,7 +246,7 @@ export default function SampleGame({ players, onFinish }: Props) {
             <p style={{ margin: "12px 0 0", color: "#aaa" }}>
               残り時間: {timeLeft}秒 / 連打数: {tapCount}
             </p>
-            <p style={{ margin: "12px 0 0", color: "#aaa" }}>
+            <p className="title-tagline" style={{ margin: "12px 0 0" }}>
               10秒の間に連打して、1人ずつ記録するゲームです。
             </p>
 
@@ -268,30 +266,16 @@ export default function SampleGame({ players, onFinish }: Props) {
             ) : !isRunning ? (
               <button
                 onClick={handleReady}
-                style={{
-                  marginTop: "16px",
-                  padding: "10px 20px",
-                  cursor: "pointer",
-                  backgroundColor: "#1976d2",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  fontSize: "16px",
-                }}
+                className="title-menu__button title-menu__button--primary"
+                style={{ marginTop: "16px" }}
               >
                 準備OK
               </button>
             ) : (
               <button
                 onClick={handleTap}
-                disabled={
-                  !isRunning ||
-                  timeLeft <= 0 ||
-                  isFinished ||
-                  countdown !== null ||
-                  showEndMessage ||
-                  !currentPlayer
-                }
+                className="title-menu__button title-menu__button--primary"
+                disabled={tapButtonDisabled}
                 onPointerDown={() => setIsPressed(true)}
                 onPointerUp={() => setIsPressed(false)}
                 onPointerCancel={() => setIsPressed(false)}
@@ -304,36 +288,18 @@ export default function SampleGame({ players, onFinish }: Props) {
                   alignItems: "center",
                   justifyContent: "center",
                   padding: 0,
-                  cursor:
-                    !isRunning ||
-                    timeLeft <= 0 ||
-                    isFinished ||
-                    countdown !== null ||
-                    showEndMessage ||
-                    !currentPlayer
-                      ? "not-allowed"
-                      : "pointer",
-                  backgroundColor:
-                    !isRunning ||
-                    timeLeft <= 0 ||
-                    isFinished ||
-                    countdown !== null ||
-                    showEndMessage ||
-                    !currentPlayer
-                      ? "#666"
-                      : "#ff6b6b",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "999px",
                   fontSize: 20,
                   fontWeight: 800,
+                  borderRadius: 999,
+                  transform: isPressed ? "scale(0.92)" : "scale(1)",
                   boxShadow: isPressed
                     ? "inset 0 6px 12px rgba(0,0,0,0.35)"
                     : "0 10px 24px rgba(0,0,0,0.2)",
-                  transform: isPressed ? "scale(0.92)" : "scale(1)",
                   transition:
                     "transform 120ms ease, box-shadow 120ms ease, background-color 120ms",
                   touchAction: "manipulation",
+                  opacity: tapButtonDisabled ? 0.72 : 1,
+                  cursor: tapButtonDisabled ? "not-allowed" : "pointer",
                 }}
               >
                 連打！
@@ -353,11 +319,36 @@ export default function SampleGame({ players, onFinish }: Props) {
           textAlign: "left",
         }}
       >
-        <p style={{ margin: 0, color: "#aaa" }}>【進行状況】</p>
+        <p style={{ margin: 0, color: "#aaa" }}>【測定済み】</p>
         {turnResults.length > 0 ? (
-          <p style={{ margin: "8px 0 0", color: "#fff" }}>
-            {rankingPreview.join(" / ")}
-          </p>
+          <div style={{ marginTop: 8, color: "#fff" }}>
+            <div
+              style={{
+                marginTop: 6,
+                display: "flex",
+                gap: 8,
+                flexWrap: "wrap",
+              }}
+            >
+              {turnResults.map((r) => (
+                <span
+                  key={r.id}
+                  style={{
+                    padding: "4px 8px",
+                    backgroundColor: "#333",
+                    borderRadius: 12,
+                    color: "#fff",
+                    fontSize: 14,
+                  }}
+                >
+                  {r.nickname}
+                  <span style={{ marginLeft: 4, fontSize: 12, opacity: 0.75 }}>
+                    ({r.taps}回)
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
         ) : (
           <p style={{ margin: "8px 0 0", color: "#666" }}>
             まだ記録はありません。
@@ -367,35 +358,18 @@ export default function SampleGame({ players, onFinish }: Props) {
 
       <button
         onClick={handleDummyFinish}
-        disabled={
-          !isRunning ||
-          isFinished ||
-          countdown !== null ||
-          showEndMessage ||
-          !currentPlayer
-        }
+        className="title-menu__button"
+        disabled={finishBtnDisabled}
         style={{
-          marginTop: "20px",
-          padding: "10px 20px",
-          cursor:
-            !isRunning ||
-            isFinished ||
-            countdown !== null ||
-            showEndMessage ||
-            !currentPlayer
-              ? "not-allowed"
-              : "pointer",
-          backgroundColor:
-            !isRunning ||
-            isFinished ||
-            countdown !== null ||
-            showEndMessage ||
-            !currentPlayer
-              ? "#888"
-              : "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
+          marginTop: "12px",
+          padding: "8px 12px",
+          fontSize: 14,
+          borderRadius: 6,
+          backgroundColor: finishBtnDisabled ? "#4f4f4f" : "#666",
+          color: finishBtnDisabled ? "#b9b1a7" : "#e8e1d5",
+          opacity: finishBtnDisabled ? 0.72 : 1,
+          cursor: finishBtnDisabled ? "not-allowed" : "pointer",
+          borderColor: "rgba(201, 199, 196, 0.34)",
         }}
       >
         {isFinished ? "結果送信済み" : "このターンを終了して次へ"}
