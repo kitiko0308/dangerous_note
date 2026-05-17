@@ -22,13 +22,26 @@ export default function SampleGame({ players, onFinish }: Props) {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showEndMessage, setShowEndMessage] = useState(false);
   const endTimerRef = useRef<number | null>(null);
-  const [isPressed, setIsPressed] = useState(false);
 
   const currentPlayer = alivePlayers[currentTurnIndex];
 
   // Apply Landing-like styles to nearby headers rendered outside this component
   // (we modify DOM at runtime so we don't have to edit other files).
   useEffect(() => {
+    const h2Snapshots: Array<{
+      element: HTMLHeadingElement;
+      textContent: string;
+      fontFamily: string;
+      fontSize: string;
+      letterSpacing: string;
+      color: string;
+      textAlign: string;
+    }> = [];
+    const greenSnapshots: Array<{
+      element: HTMLElement;
+      backgroundColor: string;
+    }> = [];
+
     // style mini game phase header
     try {
       const allH2 = Array.from(document.querySelectorAll("h2"));
@@ -40,6 +53,15 @@ export default function SampleGame({ players, onFinish }: Props) {
           text = el.textContent || "";
         }
         if (text.includes("ミニゲームフェーズ")) {
+          h2Snapshots.push({
+            element: el,
+            textContent: el.textContent ?? "",
+            fontFamily: el.style.fontFamily,
+            fontSize: el.style.fontSize,
+            letterSpacing: el.style.letterSpacing,
+            color: el.style.color,
+            textAlign: el.style.textAlign,
+          });
           el.style.fontFamily = "Garamond, 'Times New Roman', serif";
           el.style.fontSize = "20px";
           el.style.letterSpacing = "0.06em";
@@ -47,6 +69,15 @@ export default function SampleGame({ players, onFinish }: Props) {
           el.style.textAlign = "center";
         }
         if (/第\s*\d+\s*ターン/.test(text)) {
+          h2Snapshots.push({
+            element: el,
+            textContent: el.textContent ?? "",
+            fontFamily: el.style.fontFamily,
+            fontSize: el.style.fontSize,
+            letterSpacing: el.style.letterSpacing,
+            color: el.style.color,
+            textAlign: el.style.textAlign,
+          });
           el.style.fontFamily = "Yu Gothic UI, 'Yu Gothic', sans-serif";
           el.style.fontSize = "16px";
           el.style.color = "#e8e0d4";
@@ -60,12 +91,31 @@ export default function SampleGame({ players, onFinish }: Props) {
         const bg = window.getComputedStyle(el).backgroundColor || "";
         // replace vivid green with a warmer, Landing-like accent if element seems green
         if (bg.includes("rgb") && bg.includes("0, 128, 0") || bg.includes("green") || bg.includes("#4CAF50")) {
+          greenSnapshots.push({
+            element: el as HTMLElement,
+            backgroundColor: (el as HTMLElement).style.backgroundColor,
+          });
           (el as HTMLElement).style.backgroundColor = "#1976d2"; // Landing blue-red accent
         }
       });
     } catch (e) {
       // ignore DOM errors
     }
+
+    return () => {
+      h2Snapshots.forEach(({ element, textContent, fontFamily, fontSize, letterSpacing, color, textAlign }) => {
+        element.textContent = textContent;
+        element.style.fontFamily = fontFamily;
+        element.style.fontSize = fontSize;
+        element.style.letterSpacing = letterSpacing;
+        element.style.color = color;
+        element.style.textAlign = textAlign;
+      });
+
+      greenSnapshots.forEach(({ element, backgroundColor }) => {
+        element.style.backgroundColor = backgroundColor;
+      });
+    };
   }, []);
 
   const startNextTurn = (nextIndex: number) => {
@@ -217,10 +267,6 @@ export default function SampleGame({ players, onFinish }: Props) {
     setCountdown(3);
   };
 
-  const rankingPreview = [...turnResults]
-    .sort((a, b) => b.taps - a.taps || a.id - b.id)
-    .map((result) => `${result.nickname}(${result.taps}回)`);
-
   const finishBtnDisabled =
     !isRunning || isFinished || countdown !== null || showEndMessage || !currentPlayer;
 
@@ -326,10 +372,6 @@ export default function SampleGame({ players, onFinish }: Props) {
                   showEndMessage ||
                   !currentPlayer
                 }
-                onPointerDown={() => setIsPressed(true)}
-                onPointerUp={() => setIsPressed(false)}
-                onPointerCancel={() => setIsPressed(false)}
-                onPointerLeave={() => setIsPressed(false)}
                 style={{
                   marginTop: "16px",
                   width: 120,
@@ -404,9 +446,9 @@ export default function SampleGame({ players, onFinish }: Props) {
           padding: "8px 12px",
           fontSize: 14,
           borderRadius: 6,
-          // unify to the same grey used in the ready state
-          backgroundColor: "#666",
-          color: "#e8e1d5",
+          backgroundColor: finishBtnDisabled ? "#4f4f4f" : "#666",
+          color: finishBtnDisabled ? "#b9b1a7" : "#e8e1d5",
+          opacity: finishBtnDisabled ? 0.72 : 1,
           cursor: finishBtnDisabled ? "not-allowed" : "pointer",
           borderColor: "rgba(201, 199, 196, 0.34)",
         }}
