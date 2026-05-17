@@ -15,7 +15,7 @@ export default function SampleGame({ players, onFinish }: Props) {
 
   return (
     <div style={{ backgroundColor: '#2a4a2a', padding: 30, borderRadius: '8px', textAlign: 'center' }}>
-      <h3>🎮 ミニゲーム：サンプルゲーム2</h3>
+      <h3>🎮 ミニゲーム：サンプルゲーム</h3>
       
       <div style={{ margin: '20px 0', padding: '10px', backgroundColor: '#111', borderRadius: '5px' }}>
         <p style={{ color: '#aaa', marginBottom: '10px' }}>【今回の参加者】</p>
