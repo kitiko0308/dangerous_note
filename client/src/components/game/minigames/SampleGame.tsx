@@ -21,102 +21,10 @@ export default function SampleGame({ players, onFinish }: Props) {
   const [isRunning, setIsRunning] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showEndMessage, setShowEndMessage] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
   const endTimerRef = useRef<number | null>(null);
 
   const currentPlayer = alivePlayers[currentTurnIndex];
-
-  // Apply Landing-like styles to nearby headers rendered outside this component
-  // (we modify DOM at runtime so we don't have to edit other files).
-  useEffect(() => {
-    const h2Snapshots: Array<{
-      element: HTMLHeadingElement;
-      textContent: string;
-      fontFamily: string;
-      fontSize: string;
-      letterSpacing: string;
-      color: string;
-      textAlign: string;
-    }> = [];
-    const greenSnapshots: Array<{
-      element: HTMLElement;
-      backgroundColor: string;
-    }> = [];
-
-    // style mini game phase header
-    try {
-      const allH2 = Array.from(document.querySelectorAll("h2"));
-      allH2.forEach((el) => {
-        let text = el.textContent || "";
-        // remove dice emoji if present
-        if (text.includes("🎲")) {
-          el.textContent = text.replace(/🎲/g, "").trim();
-          text = el.textContent || "";
-        }
-        if (text.includes("ミニゲームフェーズ")) {
-          h2Snapshots.push({
-            element: el,
-            textContent: el.textContent ?? "",
-            fontFamily: el.style.fontFamily,
-            fontSize: el.style.fontSize,
-            letterSpacing: el.style.letterSpacing,
-            color: el.style.color,
-            textAlign: el.style.textAlign,
-          });
-          el.style.fontFamily = "Garamond, 'Times New Roman', serif";
-          el.style.fontSize = "20px";
-          el.style.letterSpacing = "0.06em";
-          el.style.color = "#ebe4d8";
-          el.style.textAlign = "center";
-        }
-        if (/第\s*\d+\s*ターン/.test(text)) {
-          h2Snapshots.push({
-            element: el,
-            textContent: el.textContent ?? "",
-            fontFamily: el.style.fontFamily,
-            fontSize: el.style.fontSize,
-            letterSpacing: el.style.letterSpacing,
-            color: el.style.color,
-            textAlign: el.style.textAlign,
-          });
-          el.style.fontFamily = "Yu Gothic UI, 'Yu Gothic', sans-serif";
-          el.style.fontSize = "16px";
-          el.style.color = "#e8e0d4";
-          el.style.textAlign = "center";
-        }
-      });
-
-      // adjust any small green indicator under mini game phase (if exists)
-      const greenEls = Array.from(document.querySelectorAll(".phase-indicator, .phase-bar, .green"));
-      greenEls.forEach((el) => {
-        const bg = window.getComputedStyle(el).backgroundColor || "";
-        // replace vivid green with a warmer, Landing-like accent if element seems green
-        if (bg.includes("rgb") && bg.includes("0, 128, 0") || bg.includes("green") || bg.includes("#4CAF50")) {
-          greenSnapshots.push({
-            element: el as HTMLElement,
-            backgroundColor: (el as HTMLElement).style.backgroundColor,
-          });
-          (el as HTMLElement).style.backgroundColor = "#1976d2"; // Landing blue-red accent
-        }
-      });
-    } catch (e) {
-      // ignore DOM errors
-    }
-
-    return () => {
-      h2Snapshots.forEach(({ element, textContent, fontFamily, fontSize, letterSpacing, color, textAlign }) => {
-        element.textContent = textContent;
-        element.style.fontFamily = fontFamily;
-        element.style.fontSize = fontSize;
-        element.style.letterSpacing = letterSpacing;
-        element.style.color = color;
-        element.style.textAlign = textAlign;
-      });
-
-      greenSnapshots.forEach(({ element, backgroundColor }) => {
-        element.style.backgroundColor = backgroundColor;
-      });
-    };
-  }, []);
 
   const startNextTurn = (nextIndex: number) => {
     setCurrentTurnIndex(nextIndex);
@@ -270,6 +178,9 @@ export default function SampleGame({ players, onFinish }: Props) {
   const finishBtnDisabled =
     !isRunning || isFinished || countdown !== null || showEndMessage || !currentPlayer;
 
+  const tapButtonDisabled =
+    !isRunning || timeLeft <= 0 || isFinished || countdown !== null || showEndMessage || !currentPlayer;
+
   return (
     <div
       style={{
@@ -364,14 +275,11 @@ export default function SampleGame({ players, onFinish }: Props) {
               <button
                 onClick={handleTap}
                 className="title-menu__button title-menu__button--primary"
-                disabled={
-                  !isRunning ||
-                  timeLeft <= 0 ||
-                  isFinished ||
-                  countdown !== null ||
-                  showEndMessage ||
-                  !currentPlayer
-                }
+                disabled={tapButtonDisabled}
+                onPointerDown={() => setIsPressed(true)}
+                onPointerUp={() => setIsPressed(false)}
+                onPointerCancel={() => setIsPressed(false)}
+                onPointerLeave={() => setIsPressed(false)}
                 style={{
                   marginTop: "16px",
                   width: 120,
@@ -383,6 +291,15 @@ export default function SampleGame({ players, onFinish }: Props) {
                   fontSize: 20,
                   fontWeight: 800,
                   borderRadius: 999,
+                  transform: isPressed ? "scale(0.92)" : "scale(1)",
+                  boxShadow: isPressed
+                    ? "inset 0 6px 12px rgba(0,0,0,0.35)"
+                    : "0 10px 24px rgba(0,0,0,0.2)",
+                  transition:
+                    "transform 120ms ease, box-shadow 120ms ease, background-color 120ms",
+                  touchAction: "manipulation",
+                  opacity: tapButtonDisabled ? 0.72 : 1,
+                  cursor: tapButtonDisabled ? "not-allowed" : "pointer",
                 }}
               >
                 連打！
@@ -405,7 +322,6 @@ export default function SampleGame({ players, onFinish }: Props) {
         <p style={{ margin: 0, color: "#aaa" }}>【測定済み】</p>
         {turnResults.length > 0 ? (
           <div style={{ marginTop: 8, color: "#fff" }}>
-            <p style={{ margin: 0 }}></p>
             <div
               style={{
                 marginTop: 6,
@@ -426,6 +342,9 @@ export default function SampleGame({ players, onFinish }: Props) {
                   }}
                 >
                   {r.nickname}
+                  <span style={{ marginLeft: 4, fontSize: 12, opacity: 0.75 }}>
+                    ({r.taps}回)
+                  </span>
                 </span>
               ))}
             </div>
