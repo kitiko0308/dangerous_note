@@ -22,7 +22,7 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
     if (!w) return 'villager';
     const lw = String(w).toLowerCase();
     if (lw.includes('kira') || lw === 'キラ') return 'kira';
-    if (lw.includes('villager') || lw.includes('市民') || lw === 'l' || lw === 'l') return 'villager';
+    if (lw.includes('villager') || lw.includes('市民') || lw === 'l') return 'villager';
     return 'villager';
   };
   const winnerKey = normalizeWinner(rawWinner as string | undefined);
@@ -32,7 +32,7 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
     turn: resolvedTurn,
     survivors: players?.filter(p => p.isAlive).length ?? 0,
     executed: players?.filter(p => !p.isAlive).length ?? 0,
-    destroyedKira: result === 'kira_win',
+    destroyedKira: result === 'villager_win' || result === 'kira_lose',
     players: players?.map(p => ({
       name: p.realName || 'Unknown', nickname: p.nickname || '-',
       role: p.role === 'kira' ? 'キラ' : p.role === 'l' ? 'L' : '市民', alive: p.isAlive,
