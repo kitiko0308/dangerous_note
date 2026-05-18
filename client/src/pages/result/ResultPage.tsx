@@ -44,12 +44,13 @@ export default function ResultPage({ resultData, result, players, onBack }: Prop
 
   // 市民陣営勝利時：生存状況に応じて表示キャラを決定
   // L単独生存 → L表示 / 市民のみ生存 → 市民表示 / 両方生存 → ランダム
-  const [showCitizen] = React.useState(() => {
+  // 初期化時のみ評価する useState ではなく、依存値が変化したら再評価される派生値にする
+  const showCitizen = React.useMemo(() => {
     if (kira) return false;
     if (lAlive && citizensAlive.length === 0) return false;   // Lだけ生存
     if (!lAlive && citizensAlive.length > 0) return true;     // 市民だけ生存
     return Math.random() < 0.5;                               // 両方生存→ランダム
-  });
+  }, [kira, lAlive, citizensAlive.length]);
   // テーマカラー：キラ→赤、L→青、市民→緑
   const ac = kira ? '#dc2626' : (showCitizen ? '#22c55e' : '#3b82f6');
   const ac2 = kira ? '#ef4444' : (showCitizen ? '#4ade80' : '#60a5fa');
@@ -86,6 +87,8 @@ export default function ResultPage({ resultData, result, players, onBack }: Prop
   const portraitTitleSize = charLabel === '市民' ? 36 : 48;
   const portraitNickLabelSize = 10;
   const portraitNickValueSize = kira ? 18 : showCitizen ? 16 : 18;
+
+  const hasOnBack = typeof onBack === 'function';
 
   return (
     <div style={{ minHeight: '100vh', background: '#060606', color: '#e5e5e5', position: 'relative', overflow: 'hidden', fontFamily: '"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif' }}>
@@ -258,7 +261,18 @@ export default function ResultPage({ resultData, result, players, onBack }: Prop
 
             {/* ボタン */}
             <div style={{ width:'100%',maxWidth:610 }}>
-              <button className="r-back-btn" onClick={onBack} style={{ '--glow': btnGlowColor, width:'100%',padding:'14px 8px',border:`1px solid ${ac}44`,background:`${ac}10`,color:'#fff',fontSize:14,letterSpacing:'.2em',cursor:'pointer',fontFamily:'inherit' } as React.CSSProperties}>
+              <button
+                className="r-back-btn"
+                onClick={hasOnBack ? onBack : undefined}
+                disabled={!hasOnBack}
+                aria-disabled={!hasOnBack}
+                style={{
+                  '--glow': hasOnBack ? btnGlowColor : 'transparent',
+                  width: '100%', padding: '14px 8px', border: `1px solid ${ac}44`,
+                  background: `${ac}10`, color: '#fff', fontSize: 14, letterSpacing: '.2em',
+                  cursor: hasOnBack ? 'pointer' : 'not-allowed', opacity: hasOnBack ? 1 : 0.6, fontFamily: 'inherit'
+                } as React.CSSProperties}
+              >
                 タイトルへ戻る
               </button>
             </div>
