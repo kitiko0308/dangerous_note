@@ -16,20 +16,30 @@ type Props = { resultData?: ResultData; result?: GameResult; players?: Player[];
 /* ===== メインコンポーネント ===== */
 export default function ResultPage({ resultData, result, players, onBack, turn }: Props) {
   const resolvedTurn = resultData?.turn ?? turn ?? 0;
+  // Normalize winner into canonical keys ('kira' | 'villager') for internal logic
+  const rawWinner = (resultData && resultData.winner) || result || undefined;
+  const normalizeWinner = (w?: string): 'kira' | 'villager' => {
+    if (!w) return 'villager';
+    const lw = String(w).toLowerCase();
+    if (lw.includes('kira') || lw === 'キラ') return 'kira';
+    if (lw.includes('villager') || lw.includes('市民') || lw === 'l' || lw === 'l') return 'villager';
+    return 'villager';
+  };
+  const winnerKey = normalizeWinner(rawWinner as string | undefined);
 
   const data: ResultData = resultData || {
-    winner: result === 'kira_win' ? 'キラ' : 'L',
+    winner: winnerKey,
     turn: resolvedTurn,
     survivors: players?.filter(p => p.isAlive).length ?? 0,
     executed: players?.filter(p => !p.isAlive).length ?? 0,
-    destroyedKira: result !== 'kira_win',
+    destroyedKira: result === 'kira_win',
     players: players?.map(p => ({
       name: p.realName || 'Unknown', nickname: p.nickname || '-',
       role: p.role === 'kira' ? 'キラ' : p.role === 'l' ? 'L' : '市民', alive: p.isAlive,
     })) || [],
   };
 
-  const kira = data.winner === 'キラ' || data.winner === 'Kira' || data.winner === 'kira_win';
+  const kira = data.winner === 'kira';
 
   // 各役職の生存状況を取得
   const lPlayer = data.players.find(p => p.role === 'L');
@@ -39,13 +49,14 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
   const citizensAlive = citizenPlayers.filter(p => p.alive);
 
   // 市民陣営勝利時：生存状況に応じて表示キャラを決定
-  // L単独生存 → L表示 / 市民のみ生存 → 市民表示 / 両方生存 → ランダム
-  // ランダムは描画ごとに変わらないよう data の状態から決定される安定的なハッシュで判定する
+  // L単独生存 → L表示 / 市民のみ生存 → 市民表示 / 両方生存 → 決定論的に分岐
+  // 決定はゲーム状態（勝者、生存者、ターン）に基づくハッシュで安定化する
   const showCitizen = React.useMemo(() => {
     if (kira) return false;
     if (lAlive && citizensAlive.length === 0) return false;   // Lだけ生存
     if (!lAlive && citizensAlive.length > 0) return true;     // 市民だけ生存
-    const seedStr = `${data.winner}:${lAlive}:${citizensAlive.map(p=>p.nickname||p.name).join(',')}:${data.turn}`;
+    // deterministic hash from visible game state
+    const seedStr = `${data.winner}:${lAlive}:${citizensAlive.map(p => p.nickname || p.name).join(',')}:${data.turn}`;
     let h = 0;
     for (let i = 0; i < seedStr.length; i++) {
       h = ((h << 5) - h) + seedStr.charCodeAt(i);
@@ -91,6 +102,29 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
   const portraitNickValueSize = kira ? 18 : showCitizen ? 16 : 18;
 
   const hasOnBack = typeof onBack === 'function';
+
+  // 内部の Portrait コンポーネント（ファイル外は変更しない制約のためローカル定義）
+  const PortraitInner: React.FC<{ isMobile?: boolean }> = ({ isMobile }) => (
+    <div style={{ position: isMobile ? 'relative' : 'relative', overflow: 'hidden', background: '#080808', border: '1px solid rgba(255,255,255,.05)', height: isMobile ? 360 : '100%' }}>
+      <img src={portrait} alt={charLabel} style={{ position: 'absolute', top: showCitizen ? '-1%' : '-2%', left: showCitizen ? (isMobile ? '-11%' : '-13%') : (isMobile ? '-12%' : '-14%'), width: showCitizen ? (isMobile ? '122%' : '126%') : (isMobile ? '124%' : '128%'), height: showCitizen ? (isMobile ? '122%' : '126%') : (isMobile ? '124%' : '128%'), objectFit: 'contain', objectPosition: 'center top' }} />
+      <div style={{ position: 'absolute', inset: 0, background: isMobile ? 'linear-gradient(to top, #000 0%, rgba(0,0,0,.66) 24%, rgba(0,0,0,.18) 48%, transparent 72%)' : 'linear-gradient(to top, #000 0%, rgba(0,0,0,.7) 25%, rgba(0,0,0,.2) 50%, transparent 70%)' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, textAlign: 'center', paddingBottom: isMobile ? 14 : 16, zIndex: 2 }}>
+        <div style={{ fontSize: isMobile ? portraitTitleSize + 2 : portraitTitleSize, fontWeight: 900, textShadow: `0 0 24px ${ac}aa, 0 2px 8px rgba(0,0,0,.9)`, marginBottom: 4, lineHeight: 1 }}>{charLabel}</div>
+        <div style={{ fontSize: portraitNickLabelSize, letterSpacing: '.3em', color: '#9ca3af', marginBottom: 2 }}>ニックネーム</div>
+        {kira ? (
+          <div style={{ fontSize: portraitNickValueSize, letterSpacing: '.1em', color: '#fff', fontWeight: 500 }}>{kiraPlayer?.nickname || 'キラ'}</div>
+        ) : showCitizen ? (
+          <div style={{ fontSize: portraitNickValueSize - 1, letterSpacing: '.1em', color: '#fff', fontWeight: 500, lineHeight: 1.6 }}>
+            {citizenPlayers.map((cp, i) => (
+              <span key={cp.name}>{cp.nickname}{i < citizenPlayers.length - 1 ? '、' : ''}</span>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: portraitNickValueSize, letterSpacing: '.1em', color: '#fff', fontWeight: 500 }}>{lPlayer?.nickname || 'L'}</div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ minHeight: '100vh', background: '#060606', color: '#e5e5e5', position: 'relative', overflow: 'hidden', fontFamily: '"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif' }}>
@@ -159,26 +193,7 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
                   [`border${h==='left'?'Left':'Right'}`]:'1px solid rgba(255,255,255,.3)' }}/>;
               })}
               <div style={{ flex:1,position:'relative',overflow:'hidden',background:'#080808',border:'1px solid rgba(255,255,255,.05)' }}>
-                {/* キャラ画像：上半身を表示 */}
-                <img src={portrait} alt={charLabel} style={{ position:'absolute',top:showCitizen ? '-1%' : '-2%',left:showCitizen ? '-13%' : '-14%',width:showCitizen ? '126%' : '128%',height:showCitizen ? '126%' : '128%',objectFit:'contain',objectPosition:'center top' }}/>
-                {/* 下部グラデーション */}
-                <div style={{ position:'absolute',inset:0,background:'linear-gradient(to top, #000 0%, rgba(0,0,0,.7) 25%, rgba(0,0,0,.2) 50%, transparent 70%)' }}/>
-                {/* キャラ情報 */}
-                <div style={{ position:'absolute',bottom:0,left:0,right:0,textAlign:'center',paddingBottom:16,zIndex:2 }}>
-                  <div style={{ fontSize: portraitTitleSize,fontWeight:900,textShadow:`0 0 24px ${ac}aa, 0 2px 8px rgba(0,0,0,.9)`,marginBottom:4,lineHeight:1 }}>{charLabel}</div>
-                  <div style={{ fontSize:portraitNickLabelSize,letterSpacing:'.3em',color:'#9ca3af',marginBottom:2 }}>ニックネーム</div>
-                  {kira ? (
-                    <div style={{ fontSize:portraitNickValueSize,letterSpacing:'.1em',color:'#fff',fontWeight:500 }}>{kiraPlayer?.nickname || 'キラ'}</div>
-                  ) : showCitizen ? (
-                    <div style={{ fontSize:portraitNickValueSize - 1,letterSpacing:'.1em',color:'#fff',fontWeight:500,lineHeight:1.6 }}>
-                      {citizenPlayers.map((cp, i) => (
-                        <span key={cp.name}>{cp.nickname}{i < citizenPlayers.length - 1 ? '、' : ''}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={{ fontSize:portraitNickValueSize,letterSpacing:'.1em',color:'#fff',fontWeight:500 }}>{lPlayer?.nickname || 'L'}</div>
-                  )}
-                </div>
+                <PortraitInner />
               </div>
             </div>
           </div>
@@ -198,24 +213,8 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
             </div>
 
             <div className="r-mobile-portrait" style={{ display:'none',width:'100%',maxWidth:610,border:'1px solid rgba(255,255,255,.12)',background:'rgba(0,0,0,.76)',padding:6,marginBottom:16,boxShadow:`0 0 30px ${ac}24`,position:'relative' }}>
-              <div style={{ position:'relative',overflow:'hidden',background:'#080808',border:'1px solid rgba(255,255,255,.05)',height:360 }}>
-                <img src={portrait} alt={charLabel} style={{ position:'absolute',top:showCitizen ? '-1%' : '-2%',left:showCitizen ? '-11%' : '-12%',width:showCitizen ? '122%' : '124%',height:showCitizen ? '122%' : '124%',objectFit:'contain',objectPosition:'center top' }}/>
-                <div style={{ position:'absolute',inset:0,background:'linear-gradient(to top, #000 0%, rgba(0,0,0,.66) 24%, rgba(0,0,0,.18) 48%, transparent 72%)' }}/>
-                <div style={{ position:'absolute',bottom:0,left:0,right:0,textAlign:'center',paddingBottom:14,zIndex:2 }}>
-                  <div style={{ fontSize:portraitTitleSize + 2,fontWeight:900,textShadow:`0 0 24px ${ac}aa, 0 2px 8px rgba(0,0,0,.9)`,marginBottom:4,lineHeight:1 }}>{charLabel}</div>
-                  <div style={{ fontSize:portraitNickLabelSize,letterSpacing:'.3em',color:'#9ca3af',marginBottom:2 }}>ニックネーム</div>
-                  {kira ? (
-                    <div style={{ fontSize:portraitNickValueSize,letterSpacing:'.1em',color:'#fff',fontWeight:500 }}>{kiraPlayer?.nickname || 'キラ'}</div>
-                  ) : showCitizen ? (
-                    <div style={{ fontSize:portraitNickValueSize - 1,letterSpacing:'.1em',color:'#fff',fontWeight:500,lineHeight:1.6 }}>
-                      {citizenPlayers.map((cp, i) => (
-                        <span key={i}>{cp.nickname}{i < citizenPlayers.length - 1 ? '、' : ''}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={{ fontSize:portraitNickValueSize,letterSpacing:'.1em',color:'#fff',fontWeight:500 }}>{lPlayer?.nickname || 'L'}</div>
-                  )}
-                </div>
+              <div style={{ position:'relative' }}>
+                <PortraitInner isMobile />
               </div>
             </div>
 
