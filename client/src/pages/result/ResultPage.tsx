@@ -11,26 +11,22 @@ export type ResultData = {
   winner: string; turn: number; survivors: number; executed: number;
   destroyedKira: boolean; players: PlayerData[];
 };
-type Props = { resultData?: ResultData; result?: GameResult; players?: Player[]; onBack?: () => void };
+type Props = { resultData?: ResultData; result?: GameResult; players?: Player[]; onBack?: () => void; turn?: number };
 
 /* ===== メインコンポーネント ===== */
-export default function ResultPage({ resultData, result, players, onBack }: Props) {
+export default function ResultPage({ resultData, result, players, onBack, turn }: Props) {
+  const resolvedTurn = resultData?.turn ?? turn ?? 0;
+
   const data: ResultData = resultData || {
     winner: result === 'kira_win' ? 'キラ' : 'L',
-    turn: 4,
-    survivors: players?.filter(p => p.isAlive).length ?? 4,
-    executed: players?.filter(p => !p.isAlive).length ?? 1,
+    turn: resolvedTurn,
+    survivors: players?.filter(p => p.isAlive).length ?? 0,
+    executed: players?.filter(p => !p.isAlive).length ?? 0,
     destroyedKira: result !== 'kira_win',
     players: players?.map(p => ({
       name: p.realName || 'Unknown', nickname: p.nickname || '-',
       role: p.role === 'kira' ? 'キラ' : p.role === 'l' ? 'L' : '市民', alive: p.isAlive,
-    })) || [
-      { name: 'S', nickname: 'ss', role: 'L', alive: true },
-      { name: 'd', nickname: 'dd', role: '市民', alive: true },
-      { name: 'f', nickname: 'ff', role: '市民', alive: true },
-      { name: 'g', nickname: 'gg', role: '市民', alive: true },
-      { name: 'a', nickname: 'aa', role: 'キラ', alive: false },
-    ],
+    })) || [],
   };
 
   const kira = data.winner === 'キラ' || data.winner === 'Kira' || data.winner === 'kira_win';
@@ -44,13 +40,19 @@ export default function ResultPage({ resultData, result, players, onBack }: Prop
 
   // 市民陣営勝利時：生存状況に応じて表示キャラを決定
   // L単独生存 → L表示 / 市民のみ生存 → 市民表示 / 両方生存 → ランダム
-  // 初期化時のみ評価する useState ではなく、依存値が変化したら再評価される派生値にする
+  // ランダムは描画ごとに変わらないよう data の状態から決定される安定的なハッシュで判定する
   const showCitizen = React.useMemo(() => {
     if (kira) return false;
     if (lAlive && citizensAlive.length === 0) return false;   // Lだけ生存
     if (!lAlive && citizensAlive.length > 0) return true;     // 市民だけ生存
-    return Math.random() < 0.5;                               // 両方生存→ランダム
-  }, [kira, lAlive, citizensAlive.length]);
+    const seedStr = `${data.winner}:${lAlive}:${citizensAlive.map(p=>p.nickname||p.name).join(',')}:${data.turn}`;
+    let h = 0;
+    for (let i = 0; i < seedStr.length; i++) {
+      h = ((h << 5) - h) + seedStr.charCodeAt(i);
+      h |= 0;
+    }
+    return Math.abs(h) % 2 === 0;
+  }, [kira, lAlive, citizensAlive, data.winner, data.turn]);
   // テーマカラー：キラ→赤、L→青、市民→緑
   const ac = kira ? '#dc2626' : (showCitizen ? '#22c55e' : '#3b82f6');
   const ac2 = kira ? '#ef4444' : (showCitizen ? '#4ade80' : '#60a5fa');
@@ -170,7 +172,7 @@ export default function ResultPage({ resultData, result, players, onBack }: Prop
                   ) : showCitizen ? (
                     <div style={{ fontSize:portraitNickValueSize - 1,letterSpacing:'.1em',color:'#fff',fontWeight:500,lineHeight:1.6 }}>
                       {citizenPlayers.map((cp, i) => (
-                        <span key={i}>{cp.nickname}{i < citizenPlayers.length - 1 ? '、' : ''}</span>
+                        <span key={cp.name}>{cp.nickname}{i < citizenPlayers.length - 1 ? '、' : ''}</span>
                       ))}
                     </div>
                   ) : (
@@ -221,7 +223,7 @@ export default function ResultPage({ resultData, result, players, onBack }: Prop
             <div style={{ width:'100%',maxWidth:610,border:'1px solid rgba(255,255,255,.1)',background:'rgba(0,0,0,.6)',backdropFilter:'blur(8px)',padding:'20px 24px',marginBottom:16,position:'relative',boxShadow:`0 0 18px ${ac}14` }}>
               <h2 style={{ textAlign:'center',fontSize:14,letterSpacing:'.2em',color:'#9ca3af',borderBottom:'1px solid rgba(255,255,255,.08)',paddingBottom:12,marginTop:0,marginBottom:10 }}>最終記録</h2>
               {stats.map((s,i)=>(
-                <div key={i} style={{ display:'flex',justifyContent:'space-between',alignItems:'baseline',padding:'8px 0',borderBottom:i<stats.length-1?'1px solid rgba(255,255,255,.06)':'none' }}>
+                <div key={s.l} style={{ display:'flex',justifyContent:'space-between',alignItems:'baseline',padding:'8px 0',borderBottom:i<stats.length-1?'1px solid rgba(255,255,255,.06)':'none' }}>
                   <span style={{ color:'#9ca3af',fontSize:14,letterSpacing:'.15em' }}>{s.l}</span>
                   <span style={{ fontSize:15,fontWeight:600,letterSpacing:'.1em',color:s.c||'#e5e5e5' }}>{s.v}</span>
                 </div>
@@ -232,10 +234,10 @@ export default function ResultPage({ resultData, result, players, onBack }: Prop
             <div style={{ width:'100%',maxWidth:610,border:'1px solid rgba(255,255,255,.1)',background:'rgba(0,0,0,.6)',backdropFilter:'blur(8px)',padding:'20px 20px',marginBottom:16,position:'relative',boxShadow:`0 0 18px ${ac}10` }}>
               <h2 style={{ textAlign:'center',fontSize:14,letterSpacing:'.2em',color:'#9ca3af',borderBottom:'1px solid rgba(255,255,255,.08)',paddingBottom:12,marginTop:0,marginBottom:10 }}>プレイヤー一覧</h2>
               <div className="r-scr" style={{ maxHeight:300,overflowY:'auto',display:'flex',flexDirection:'column',gap:10 }}>
-                {data.players.map((p,i)=>{
+                {data.players.map((p)=>{
                   const rc = roleColor(p.role);
                   return (
-                    <div key={i} style={{ display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 15px',borderRadius:12,background:p.alive?'rgba(255,255,255,.03)':'rgba(127,29,29,.15)',border:`1px solid ${p.alive?'rgba(255,255,255,.05)':'rgba(127,29,29,.2)'}`,boxShadow:'0 0 16px rgba(220,38,38,.12)' }}>
+                    <div key={p.name} style={{ display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 15px',borderRadius:12,background:p.alive?'rgba(255,255,255,.03)':'rgba(127,29,29,.15)',border:`1px solid ${p.alive?'rgba(255,255,255,.05)':'rgba(127,29,29,.2)'}`,boxShadow:'0 0 16px rgba(220,38,38,.12)' }}>
                       <div>
                         <div style={{ display:'flex',alignItems:'baseline',gap:8 }}>
                           <span style={{ fontWeight:700,fontSize:15,color:'#e5e5e5' }}>{p.name}</span>
