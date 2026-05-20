@@ -16,7 +16,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
   const roleNames = {
     kira: "キラ",
     l: "L",
-    villager: "村人"
+    villager: "市民"
   };
 
   const handleNext = () => {
