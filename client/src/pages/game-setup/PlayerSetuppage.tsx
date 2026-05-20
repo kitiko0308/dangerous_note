@@ -21,7 +21,15 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
   };
 
   const handleFinishSetup = () => {
-    const roles: Role[] = ['kira', 'l', 'villager', 'villager', 'villager'];
+    if (players.length < 3) {
+      return;
+    }
+
+    const roles: Role[] = [
+      'kira',
+      'l',
+      ...Array(Math.max(players.length - 2, 0)).fill('villager'),
+    ];
     const shuffledRoles = [...roles].sort(() => Math.random() - 0.5);
 
     const finalPlayers = players.map((p, i) => ({
@@ -51,19 +59,6 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
         onClick={onBack}
         aria-label="タイトルに戻る"
         className="panel-back-button"
-        style={{
-          position: 'absolute',
-          top: 18,
-          left: 18,
-          padding: '8px 12px',
-          borderRadius: 8,
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: 'rgba(0,0,0,0.35)',
-          color: 'var(--text-main)',
-          cursor: 'pointer',
-          zIndex: 5,
-          fontFamily: 'Yu Mincho, Hiragino Mincho ProN, serif',
-        }}
       >
         タイトルに戻る
       </button>
