@@ -20,8 +20,8 @@ export default function RoleRevealPage({ players, onNext }: Props) {
   };
 
   const handleNext = () => {
-    if (currentPlayerIndex < 4) {
-      setCurrentPlayerIndex(currentPlayerIndex + 1);
+    if (currentPlayerIndex < players.length - 1) {
+      setCurrentPlayerIndex((s) => s + 1);
       setIsShowing(false);
     } else {
       onNext();
@@ -29,51 +29,50 @@ export default function RoleRevealPage({ players, onNext }: Props) {
   };
 
   return (
-    <div style={{ padding: 40, color: 'white', textAlign: 'center' }}>
-      <h2 style={{ marginBottom: '30px' }}>役職の確認 ({currentPlayerIndex + 1} / 5人目)</h2>
+    <div className="title-screen">
+      <div className="title-screen__grain" aria-hidden="true" />
+      <div className="title-screen__vignette" aria-hidden="true" />
 
-      <div style={{ maxWidth: '400px', margin: '0 auto', backgroundColor: '#222', padding: '40px', borderRadius: '12px', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        {!isShowing ? (
-          <>
-            <p style={{ fontSize: '20px', marginBottom: '30px' }}>
-              <strong>{currentPlayer.nickname || `プレイヤー ${currentPlayer.id + 1}`}</strong> さん<br />以外は見ないでください
-            </p>
-            <button 
-              onClick={() => setIsShowing(true)} 
-              style={{ padding: '15px 30px', fontSize: '18px', cursor: 'pointer', backgroundColor: '#8a0303', color: 'white', border: 'none', borderRadius: '5px' }}
-            >
-              役職を確認する
-            </button>
-          </>
-        ) : (
-          <>
-            <p style={{ fontSize: '18px', color: '#aaa' }}>{currentPlayer.nickname} さんの役職は...</p>
-            <h1 style={{ fontSize: '64px', margin: '20px 0', color: currentPlayer.role === "kira" ? "#ff4444" : "#44ff44" }}>
-              {roleNames[currentPlayer.role]}
-            </h1>
-            <p style={{ fontSize: '14px', color: '#888', marginBottom: '30px' }}>
-              確認したらボタンを押して隠してください
-            </p>
-            <button 
-              onClick={handleNext} 
-              style={{ padding: '15px 30px', fontSize: '18px', cursor: 'pointer', backgroundColor: '#444', color: 'white', border: 'none', borderRadius: '5px' }}
-            >
-              {currentPlayerIndex < 4 ? "隠して次のプレイヤーへ" : "全員確認完了！ゲーム開始"}
-            </button>
-          </>
-        )}
-      </div>
+      <main className="title-content">
+        <div style={{ width: '100%', display: 'grid', placeItems: 'center', gap: '1rem' }}>
+          <h2 className="title-logo" style={{ fontSize: '2.2rem' }}>
+            役職の確認
+          </h2>
+          <p className="title-sub">{currentPlayerIndex + 1} / {players.length} 人目の確認</p>
 
-      <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-        {[0, 1, 2, 3, 4].map(i => (
-          <div key={i} style={{ 
-            width: '10px', 
-            height: '10px', 
-            borderRadius: '50%', 
-            backgroundColor: i === currentPlayerIndex ? '#8a0303' : '#444' 
-          }} />
-        ))}
-      </div>
+          <div className="dn-panel" style={{ maxWidth: 520, width: '92%', minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            {!isShowing ? (
+              <>
+                <p style={{ fontSize: 20, marginBottom: 24 }}>
+                  <strong>{currentPlayer.nickname || `プレイヤー ${currentPlayer.id + 1}`}</strong> さん<br />以外は見ないでください
+                </p>
+                <button className="dn-button dn-button-primary" onClick={() => setIsShowing(true)}>
+                  役職を確認する
+                </button>
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: 18, color: 'var(--text-dim)' }}>{currentPlayer.nickname} さんの役職は...</p>
+                <h1 style={{ fontSize: 56, margin: '18px 0', color: currentPlayer.role === 'kira' ? 'var(--kira-red)' : 'var(--l-blue)' }}>
+                  {roleNames[currentPlayer.role]}
+                </h1>
+                <p style={{ fontSize: 14, color: 'var(--text-dim)', marginBottom: 20 }}>
+                  確認したらボタンを押して隠してください
+                </p>
+                <button className="dn-button" onClick={handleNext}>
+                  {currentPlayerIndex < players.length - 1 ? '隠して次のプレイヤーへ' : '全員確認完了！ゲーム開始'}
+                </button>
+              </>
+            )}
+          </div>
+
+          <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center', gap: 10 }}>
+            {players.map((_, i) => (
+              <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: i === currentPlayerIndex ? 'var(--kira-red)' : 'var(--border-color)' }} />
+            ))}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
