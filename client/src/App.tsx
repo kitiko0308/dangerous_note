@@ -54,6 +54,7 @@ function App() {
           players={players} 
           setPlayers={setPlayers}
           onNext={() => setCurrentScreen("role_reveal")} 
+          onBack={() => setCurrentScreen("title")}
         />
       )}
 
