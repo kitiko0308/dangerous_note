@@ -47,6 +47,20 @@
   box-shadow: 0 0 15px rgba(138, 3, 3, 0.3);
 }
 
+/* Back button on title-alike screens */
+.panel-back-button {
+  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.panel-back-button:hover {
+  border-color: rgba(255,255,255,0.22);
+  transform: translateY(-1px);
+}
+.panel-back-button:active {
+  transform: translateY(1px);
+  border-color: rgba(255,255,255,0.44);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+}
+
 /* 既存のスタイル */
 .title-screen {
   position: relative;
