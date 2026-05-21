@@ -50,6 +50,9 @@ export default function RoleRevealPage({ players, onNext }: Props) {
   const isL = isShowing && displayRole === 'l';
   const isKira = isShowing && displayRole === 'kira';
   const accentColor = roleAccentColors[displayRole];
+  const roleIntroText = currentPlayer.role === 'villager' && displayRole !== 'villager'
+    ? '彼は...'
+    : `${currentPlayer.nickname} さんの役職は...`;
 
   if (isVillager || isL || isKira) {
     return (
@@ -97,7 +100,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
             <div style={{ flex: 1, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* 役職確認パネル */}
               <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
-                <p style={{ fontSize: 14, color: '#9ca3af', margin: '0 0 12px', letterSpacing: '.15em' }}>{currentPlayer.nickname} さんの役職は...</p>
+                <p style={{ fontSize: 14, color: '#9ca3af', margin: '0 0 12px', letterSpacing: '.15em' }}>{roleIntroText}</p>
                 <h1 style={{ fontSize: 48, margin: '10px 0', color: accentColor, fontWeight: 900 }}>{roleNames[displayRole]}</h1>
                 {isKira && (
                   <p style={{ fontSize: 14, color: '#fca5a5', margin: '6px 0 0', fontWeight: 700 }}>名前を書かれた人間は死ぬ。</p>
