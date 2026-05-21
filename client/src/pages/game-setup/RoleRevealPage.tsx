@@ -49,7 +49,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
             <h2 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>
               役職の確認
             </h2>
-            <p className="title-sub"><span style={{ color: '#3b82f6' }}>{currentPlayerIndex + 1}</span> / {players.length} 人目の確認</p>
+            <p className="title-sub"><span style={{ color: '#dc2626' }}>{currentPlayerIndex + 1}</span> / {players.length} 人目の確認</p>
           </div>
 
           {/* 左画像 + 右パネルレイアウト */}
