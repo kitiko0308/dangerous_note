@@ -130,7 +130,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
 
               {/* ボタン */}
               <button className="dn-button" onClick={handleNext} style={{ marginTop: '0.5rem', padding: '12px 24px', fontSize: 14, letterSpacing: '.15em' }}>
-                {currentPlayerIndex < players.length - 1 ? '隠して次のプレイヤーへ' : '全員確認完了！ゲーム開始'}
+                {currentPlayerIndex < players.length - 1 ? '隠して次のプレイヤーへ' : (currentPlayer.role === 'kira' ? '狩りを始める' : '裁きを始める')}
               </button>
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   確認したらボタンを押して隠してください
                 </p>
                 <button className="dn-button" onClick={handleNext}>
-                  {currentPlayerIndex < players.length - 1 ? '隠して次のプレイヤーへ' : '全員確認完了！ゲーム開始'}
+                  {currentPlayerIndex < players.length - 1 ? '隠して次のプレイヤーへ' : (currentPlayer.role === 'kira' ? '狩りを始める' : '裁きを始める')}
                 </button>
               </>
             )}
