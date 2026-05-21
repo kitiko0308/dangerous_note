@@ -107,7 +107,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                     <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
                     <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　毎晩、プレイヤー1人の「順位」を調査できる。（その日のミニゲームの順位がわかる）</p>
                     <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　昼のミニゲームで1位になったとき、アイテム【ショートケーキ】を入手できる。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　【ショートケーキ】を使用すると、任意のプレイヤー1人を指名し、その人がキラかどうかを知ることができる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　【ショートケーキ】を使用すると、任意のプレイヤー1人を指名し、その人がキラかどうかを知ることができる。</p>
                   </div>
                 </>
               ) : (
