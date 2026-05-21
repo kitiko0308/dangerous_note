@@ -37,7 +37,11 @@ export default function RoleRevealPage({ players, onNext }: Props) {
 
   const handleNext = () => {
     if (currentPlayerIndex < players.length - 1) {
-      setCurrentPlayerIndex((s) => s + 1);
+      const nextIdx = currentPlayerIndex + 1;
+      setCurrentPlayerIndex(nextIdx);
+      // 先に previewRole を次プレイヤーの役職にしておくことで
+      // Next Player 押下時のタブ選択ラグを防ぐ
+      setPreviewRole(players[nextIdx].role);
       setIsShowing(false);
     } else {
       onNext();
