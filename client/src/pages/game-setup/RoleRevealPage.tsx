@@ -81,16 +81,16 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   {/* キラの勝利条件パネル (先に表示) */}
                   <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                     <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　5ターン以内に追放されなければ勝利する。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#dc2626' }}>追放されなければ</span>勝利する。</p>
                     <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　ただし、5ターン以内に誰も殺せなかった場合は敗北する。</p>
                   </div>
 
                   {/* キラの能力パネル (勝利条件の下) */}
                   <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                     <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　毎晩、ランダムで1人の本名の一文字を知ることができる。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　ミニゲームで1位になった場合、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　<span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を使用すると、その夜にランダムで1人の本名を知ることができる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#dc2626' }}>毎晩</span>、ランダムで1人の本名の<span style={{ color: '#dc2626' }}>一文字を知る</span>ことができる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　ミニゲームで<span style={{ color: '#dc2626' }}>1位</span>になった場合、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　<span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を使用すると、その夜にランダムで1人の<span style={{ color: '#dc2626' }}>本名を知る</span>ことができる。</p>
                   </div>
                 </>
               ) : isL ? (
@@ -98,16 +98,16 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   {/* L の勝利条件パネル (先に表示) */}
                   <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                     <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　5ターン以内にキラを追放する。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#3b82f6' }}>キラを追放</span>する。</p>
                     <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。</p>
                   </div>
 
                   {/* L の能力パネル (勝利条件の下) */}
                   <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                     <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　毎晩、プレイヤー1人の「順位」を調査できる。（その日のミニゲームの順位がわかる）</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　昼のミニゲームで1位になったとき、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>ショートケーキ</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　<span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>ショートケーキ</span><span style={{ color: '#ffffff' }}>　】</span></span> を使用すると、任意のプレイヤー1人を指名し、その人がキラかどうかを知ることができる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#3b82f6' }}>毎晩</span>、プレイヤー1人の<span style={{ color: '#3b82f6' }}>「順位」を調査</span>できる。（その日のミニゲームの順位がわかる）</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　昼のミニゲームで<span style={{ color: '#3b82f6' }}>1位</span>になったとき、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>ショートケーキ</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　<span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>ショートケーキ</span><span style={{ color: '#ffffff' }}>　】</span></span> を使用すると、任意のプレイヤー1人を指名し、その人が<span style={{ color: '#3b82f6' }}>キラか</span><span style={{ color: '#3b82f6' }}>どうかを知る</span>ことができる。</p>
                   </div>
                 </>
               ) : (
@@ -115,13 +115,13 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   {/* 市民の勝利条件パネル */}
                   <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                     <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　5ターン以内にキラを追放する。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#22c55e' }}>キラを追放</span>する。</p>
                   </div>
 
                   {/* 市民の能力パネル */}
                   <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                     <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　特殊能力は持たない。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　特殊能力は<span style={{ color: '#22c55e' }}>持たない</span>。</p>
                     <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　夜の行動では「休む」を選択する。</p>
                     <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　話し合いと投票でキラ（敵）を追放へ導く。</p>
                   </div>
@@ -129,7 +129,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
               )}
 
               {/* ボタン */}
-              <button className="dn-button" onClick={handleNext} style={{ marginTop: '0.5rem', padding: '12px 24px', fontSize: 14, letterSpacing: '.15em' }}>
+              <button className="dn-button role-reveal-action-button" onClick={handleNext} style={{ marginTop: '0.5rem', padding: '12px 24px', fontSize: 14, letterSpacing: '.15em' }}>
                 {currentPlayerIndex < players.length - 1 ? 'Next Player' : (currentPlayer.role === 'kira' ? <><span style={{ color: accentColor }}>狩り</span>を始める</> : <><span style={{ color: accentColor }}>裁き</span>を始める</>)}
               </button>
             </div>
@@ -184,7 +184,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                 <p style={{ fontSize: 14, color: 'var(--text-dim)', marginBottom: 20 }}>
                   確認したらボタンを押して隠してください
                 </p>
-                <button className="dn-button" onClick={handleNext}>
+                <button className="dn-button role-reveal-action-button" onClick={handleNext}>
                   {currentPlayerIndex < players.length - 1 ? 'Next Player' : (currentPlayer.role === 'kira' ? <><span style={{ color: accentColor }}>狩り</span>を始める</> : <><span style={{ color: accentColor }}>裁き</span>を始める</>)}
                 </button>
               </>
