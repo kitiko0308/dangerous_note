@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import kiraImg from '../../assets/img/kira_hito.png';
 import lImg from '../../assets/img/L_hito.png';
 import siminnImg from '../../assets/img/siminn_hito.png';
@@ -12,15 +12,12 @@ type Props = {
 export default function RoleRevealPage({ players, onNext }: Props) {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [isShowing, setIsShowing] = useState(false);
-  const [previewRole, setPreviewRole] = useState<Player['role']>('villager');
+  const [previewRole, setPreviewRole] = useState<Player['role']>(() => players[0]?.role ?? 'villager');
 
   const currentPlayer = players[currentPlayerIndex];
 
-  useEffect(() => {
-    if (isShowing) {
-      setPreviewRole(currentPlayer.role);
-    }
-  }, [currentPlayer.role, isShowing]);
+  // previewRole は初期化で players[0] の役職に合わせるため、
+  // isShowing の変化で同期させる useEffect は不要です。
 
   // 役職名の日本語表示用
   const roleNames = {
@@ -48,16 +45,18 @@ export default function RoleRevealPage({ players, onNext }: Props) {
     }
   };
 
-  // 市民、L、キラの場合は、左側画像+右側パネルレイアウト
+  // isShowing の有無による表示切替:
+  // - isShowing=true のときは左側画像 + 右側パネルの詳細レイアウト（タブで previewRole を切替）
+  // - isShowing=false のときは簡易な確認レイアウトを表示
   const displayRole = isShowing ? previewRole : currentPlayer.role;
   const isVillager = isShowing && displayRole === 'villager';
   const isL = isShowing && displayRole === 'l';
   const isKira = isShowing && displayRole === 'kira';
   const accentColor = roleAccentColors[displayRole];
   const tabRoles = (() => {
-    const base = (['kira', 'l', 'villager'] as const);
-    if (currentPlayer && base.includes(currentPlayer.role as any)) {
-      return [currentPlayer.role as typeof base[number], ...base.filter((r) => r !== currentPlayer.role)];
+    const base: Player['role'][] = ['kira', 'l', 'villager'];
+    if (currentPlayer && base.includes(currentPlayer.role)) {
+      return [currentPlayer.role, ...base.filter((r) => r !== currentPlayer.role)];
     }
     return base;
   })();
@@ -195,7 +194,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
     );
   }
 
-  // 市民以外の場合は、既存のレイアウト
+  // isShowing が false の場合に表示される既存の簡易レイアウト
   return (
     <div className="title-screen">
       <div className="title-screen__grain" aria-hidden="true" />
