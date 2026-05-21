@@ -65,6 +65,15 @@ export default function RoleRevealPage({ players, onNext }: Props) {
               <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                 <p style={{ fontSize: 14, color: '#9ca3af', margin: '0 0 12px', letterSpacing: '.15em' }}>{currentPlayer.nickname} さんの役職は...</p>
                 <h1 style={{ fontSize: 48, margin: '10px 0', color: accentColor, fontWeight: 900 }}>{isKira ? 'キラ' : isL ? 'L' : '市民'}</h1>
+                {isKira && (
+                  <p style={{ fontSize: 14, color: '#fca5a5', margin: '6px 0 0', fontWeight: 700 }}>名前を書かれた人間は死ぬ。</p>
+                )}
+                {isL && (
+                  <p style={{ fontSize: 14, color: '#93c5fd', margin: '6px 0 0', fontWeight: 700 }}>真実は、調査すればするほど浮かび上がる。</p>
+                )}
+                {isVillager && (
+                  <p style={{ fontSize: 14, color: '#86efac', margin: '6px 0 0', fontWeight: 700 }}>あなたの一票が、村を救う。</p>
+                )}
               </div>
 
               {isKira ? (
