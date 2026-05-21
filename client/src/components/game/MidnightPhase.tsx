@@ -183,7 +183,7 @@ export default function MidnightPhase({ players, setPlayers, setNightActionLogs,
         </div>
       ) : (
         <div style={{ textAlign: 'center', width: '100%', maxWidth: '400px' }}>
-          <p style={{ color: '#aaa', marginBottom: '10px' }}>あなたの役職: {currentPlayer.role === 'kira' ? 'キラ' : currentPlayer.role === 'l' ? 'L' : '村人'}</p>
+          <p style={{ color: '#aaa', marginBottom: '10px' }}>あなたの役職: {currentPlayer.role === 'kira' ? 'キラ' : currentPlayer.role === 'l' ? 'L' : '市民'}</p>
           
           <div style={{ backgroundColor: '#1a1a2a', padding: '20px', borderRadius: '8px', marginBottom: '20px', minHeight: '150px', textAlign: 'left' }}>
             {actionLogs.length > 0 && (
