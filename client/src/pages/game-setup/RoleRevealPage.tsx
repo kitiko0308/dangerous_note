@@ -45,7 +45,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
   };
 
   // 市民、L、キラの場合は、左側画像+右側パネルレイアウト
-  const displayRole = currentPlayer.role === 'villager' ? previewRole : currentPlayer.role;
+  const displayRole = isShowing ? previewRole : currentPlayer.role;
   const isVillager = isShowing && displayRole === 'villager';
   const isL = isShowing && displayRole === 'l';
   const isKira = isShowing && displayRole === 'kira';
