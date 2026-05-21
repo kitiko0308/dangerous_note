@@ -116,6 +116,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                     <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
                     <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#22c55e' }}>キラを追放</span>する。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。</p>
                   </div>
 
                   {/* 市民の能力パネル */}
