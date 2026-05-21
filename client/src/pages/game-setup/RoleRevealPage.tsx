@@ -31,6 +31,114 @@ export default function RoleRevealPage({ players, onNext }: Props) {
     }
   };
 
+  // 市民、L、キラの場合は、左側画像+右側パネルレイアウト
+  const isVillager = isShowing && currentPlayer.role === 'villager';
+  const isL = isShowing && currentPlayer.role === 'l';
+  const isKira = isShowing && currentPlayer.role === 'kira';
+  const accentColor = currentPlayer.role === 'kira' ? '#dc2626' : currentPlayer.role === 'l' ? '#3b82f6' : '#22c55e';
+
+  if (isVillager || isL || isKira) {
+    return (
+      <div className="title-screen">
+        <div className="title-screen__grain" aria-hidden="true" />
+        <div className="title-screen__vignette" aria-hidden="true" />
+
+        <main style={{ position: 'relative', zIndex: 3, minHeight: '100svh', display: 'flex', flexDirection: 'column', padding: '2.6rem 1.4rem 1.8rem', paddingTop: '4rem' }}>
+          {/* ヘッダー */}
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <h2 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>
+              役職の確認
+            </h2>
+            <p className="title-sub">{currentPlayerIndex + 1} / {players.length} 人目の確認</p>
+          </div>
+
+          {/* 左画像 + 右パネルレイアウト */}
+          <div style={{ display: 'flex', alignItems: 'stretch', gap: '1.5rem', maxWidth: '1000px', margin: '0 auto', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {/* 左: 画像 */}
+            <div style={{ flexShrink: 0, width: '280px', minHeight: '400px' }}>
+              <img src={isKira ? kiraImg : isL ? lImg : siminnImg} alt={isKira ? "キラ" : isL ? "L" : "市民"} className={isKira ? "role-kira-art-side" : isL ? "role-l-art-side" : "role-villager-art-side"} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </div>
+
+            {/* 右: 情報パネル */}
+            <div style={{ flex: 1, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* 役職確認パネル */}
+              <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
+                <p style={{ fontSize: 14, color: '#9ca3af', margin: '0 0 12px', letterSpacing: '.15em' }}>{currentPlayer.nickname} さんの役職は...</p>
+                <h1 style={{ fontSize: 48, margin: '10px 0', color: accentColor, fontWeight: 900 }}>{isKira ? 'キラ' : isL ? 'L' : '市民'}</h1>
+              </div>
+
+              {isKira ? (
+                <>
+                  {/* キラの能力パネル */}
+                  <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
+                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>毎晩、ランダムで1人の本名の一文字を知ることができる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>ミニゲームで1位になった場合、アイテム【死神の目】を入手できる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>【死神の目】を使用すると、その夜にランダムで1人の本名を知ることができる。</p>
+                  </div>
+
+                  {/* キラの勝利条件パネル */}
+                  <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
+                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>・5ターン以内に追放されなければ勝利する。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>・ただし、5ターン以内に誰も殺せなかった場合は敗北する。</p>
+                  </div>
+                </>
+              ) : isL ? (
+                <>
+                  {/* L の能力パネル */}
+                  <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
+                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>毎晩、プレイヤー1人の「順位」を調査できる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>（その日のミニゲームの順位がわかる）</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>昼のミニゲームで1位になったとき、アイテム【ショートケーキ】を入手できる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>【ショートケーキ】を使用すると、任意のプレイヤー1人を指名し、その人がキラかどうかを知ることができる。</p>
+                  </div>
+
+                  {/* L の勝利条件パネル */}
+                  <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
+                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>・5ターン以内にキラを追放する。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>・キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* 市民の勝利条件パネル */}
+                  <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
+                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>5ターン以内にキラを追放する</p>
+                  </div>
+
+                  {/* 市民の能力パネル */}
+                  <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
+                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>特殊能力は持たない。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>夜の行動では「休む」を選択する。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>話し合いと投票でキラ（敵）を追放へ導く。</p>
+                  </div>
+                </>
+              )}
+
+              {/* ボタン */}
+              <button className="dn-button" onClick={handleNext} style={{ marginTop: '0.5rem', padding: '12px 24px', fontSize: 14, letterSpacing: '.15em' }}>
+                {currentPlayerIndex < players.length - 1 ? '隠して次のプレイヤーへ' : '全員確認完了！ゲーム開始'}
+              </button>
+            </div>
+          </div>
+
+          {/* プログレスドット */}
+          <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: 10 }}>
+            {players.map((_, i) => (
+              <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: i === currentPlayerIndex ? 'var(--kira-red)' : 'var(--border-color)' }} />
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // 市民以外の場合は、既存のレイアウト
   return (
     <div className="title-screen">
       <div className="title-screen__grain" aria-hidden="true" />
@@ -42,9 +150,6 @@ export default function RoleRevealPage({ players, onNext }: Props) {
         )}
         {isShowing && currentPlayer.role === 'l' && (
           <img src={lImg} alt="L" className="role-l-art" />
-        )}
-        {isShowing && currentPlayer.role === 'villager' && (
-          <img src={siminnImg} alt="市民" className="role-villager-art" />
         )}
         <div style={{ width: '100%', display: 'grid', placeItems: 'center', gap: '1rem' }}>
           <h2 className="title-logo" style={{ fontSize: '2.2rem' }}>
