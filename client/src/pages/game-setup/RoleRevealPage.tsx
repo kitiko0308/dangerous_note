@@ -50,6 +50,13 @@ export default function RoleRevealPage({ players, onNext }: Props) {
   const isL = isShowing && displayRole === 'l';
   const isKira = isShowing && displayRole === 'kira';
   const accentColor = roleAccentColors[displayRole];
+  const tabRoles = (() => {
+    const base = (['kira', 'l', 'villager'] as const);
+    if (currentPlayer && base.includes(currentPlayer.role as any)) {
+      return [currentPlayer.role as typeof base[number], ...base.filter((r) => r !== currentPlayer.role)];
+    }
+    return base;
+  })();
   const roleIntroText = currentPlayer.role === 'villager' && displayRole !== 'villager'
     ? '彼は...'
     : `${currentPlayer.nickname} さんの役職は...`;
@@ -75,7 +82,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
             <div style={{ flexShrink: 0, width: '280px', minHeight: '400px', display: 'flex', flexDirection: 'column', gap: '0.1rem', marginTop: '-2rem' }}>
               {currentPlayer.role === 'villager' && (
                 <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '-0.95rem' }}>
-                  {(['kira', 'l', 'villager'] as const).map((role) => (
+                  {tabRoles.map((role) => (
                     <button
                       key={role}
                       type="button"
