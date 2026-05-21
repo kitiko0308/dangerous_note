@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import kiraImg from '../../assets/img/kira_hito.png';
+import lImg from '../../assets/img/L_hito.png';
+import siminnImg from '../../assets/img/siminn_hito.png';
 import type { Player } from '../../types';
 
 type Props = {
@@ -34,6 +37,15 @@ export default function RoleRevealPage({ players, onNext }: Props) {
       <div className="title-screen__vignette" aria-hidden="true" />
 
       <main className="title-content">
+        {isShowing && currentPlayer.role === 'kira' && (
+          <img src={kiraImg} alt="kira" className="role-kira-art" />
+        )}
+        {isShowing && currentPlayer.role === 'l' && (
+          <img src={lImg} alt="L" className="role-l-art" />
+        )}
+        {isShowing && currentPlayer.role === 'villager' && (
+          <img src={siminnImg} alt="市民" className="role-villager-art" />
+        )}
         <div style={{ width: '100%', display: 'grid', placeItems: 'center', gap: '1rem' }}>
           <h2 className="title-logo" style={{ fontSize: '2.2rem' }}>
             役職の確認
