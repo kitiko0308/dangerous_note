@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import kiraImg from '../../assets/img/kira_hito.png';
 import lImg from '../../assets/img/L_hito.png';
 import siminnImg from '../../assets/img/siminn_hito.png';
@@ -12,8 +12,15 @@ type Props = {
 export default function RoleRevealPage({ players, onNext }: Props) {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [isShowing, setIsShowing] = useState(false);
+  const [previewRole, setPreviewRole] = useState<Player['role']>('villager');
 
   const currentPlayer = players[currentPlayerIndex];
+
+  useEffect(() => {
+    if (isShowing) {
+      setPreviewRole(currentPlayer.role);
+    }
+  }, [currentPlayer.role, isShowing]);
 
   // 役職名の日本語表示用
   const roleNames = {
@@ -21,6 +28,12 @@ export default function RoleRevealPage({ players, onNext }: Props) {
     l: "L",
     villager: "市民"
   };
+
+  const roleAccentColors = {
+    kira: '#dc2626',
+    l: '#3b82f6',
+    villager: '#22c55e',
+  } as const;
 
   const handleNext = () => {
     if (currentPlayerIndex < players.length - 1) {
@@ -32,10 +45,11 @@ export default function RoleRevealPage({ players, onNext }: Props) {
   };
 
   // 市民、L、キラの場合は、左側画像+右側パネルレイアウト
-  const isVillager = isShowing && currentPlayer.role === 'villager';
-  const isL = isShowing && currentPlayer.role === 'l';
-  const isKira = isShowing && currentPlayer.role === 'kira';
-  const accentColor = currentPlayer.role === 'kira' ? '#dc2626' : currentPlayer.role === 'l' ? '#3b82f6' : '#22c55e';
+  const displayRole = currentPlayer.role === 'villager' ? previewRole : currentPlayer.role;
+  const isVillager = isShowing && displayRole === 'villager';
+  const isL = isShowing && displayRole === 'l';
+  const isKira = isShowing && displayRole === 'kira';
+  const accentColor = roleAccentColors[displayRole];
 
   if (isVillager || isL || isKira) {
     return (
@@ -55,7 +69,27 @@ export default function RoleRevealPage({ players, onNext }: Props) {
           {/* 左画像 + 右パネルレイアウト */}
           <div style={{ display: 'flex', alignItems: 'stretch', gap: '1.5rem', maxWidth: '1000px', margin: '0 auto', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
             {/* 左: 画像 */}
-            <div style={{ flexShrink: 0, width: '280px', minHeight: '400px' }}>
+            <div style={{ flexShrink: 0, width: '280px', minHeight: '400px', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {currentPlayer.role === 'villager' && (
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {(['kira', 'l', 'villager'] as const).map((role) => (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => setPreviewRole(role)}
+                      className="role-preview-tab"
+                      aria-pressed={displayRole === role}
+                      style={{
+                        borderColor: displayRole === role ? roleAccentColors[role] : 'rgba(255,255,255,.12)',
+                        background: displayRole === role ? `${roleAccentColors[role]}22` : 'rgba(0,0,0,.35)',
+                        color: displayRole === role ? '#ffffff' : '#cbd5e1',
+                      }}
+                    >
+                      {roleNames[role]}
+                    </button>
+                  ))}
+                </div>
+              )}
               <img src={isKira ? kiraImg : isL ? lImg : siminnImg} alt={isKira ? "キラ" : isL ? "L" : "市民"} className={isKira ? "role-kira-art-side" : isL ? "role-l-art-side" : "role-villager-art-side"} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
 
@@ -64,7 +98,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
               {/* 役職確認パネル */}
               <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                 <p style={{ fontSize: 14, color: '#9ca3af', margin: '0 0 12px', letterSpacing: '.15em' }}>{currentPlayer.nickname} さんの役職は...</p>
-                <h1 style={{ fontSize: 48, margin: '10px 0', color: accentColor, fontWeight: 900 }}>{isKira ? 'キラ' : isL ? 'L' : '市民'}</h1>
+                <h1 style={{ fontSize: 48, margin: '10px 0', color: accentColor, fontWeight: 900 }}>{roleNames[displayRole]}</h1>
                 {isKira && (
                   <p style={{ fontSize: 14, color: '#fca5a5', margin: '6px 0 0', fontWeight: 700 }}>名前を書かれた人間は死ぬ。</p>
                 )}
