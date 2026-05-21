@@ -88,8 +88,8 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   {/* キラの能力パネル (勝利条件の下) */}
                   <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                     <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#dc2626' }}>毎晩</span>、ランダムで1人の本名の<span style={{ color: '#dc2626' }}>一文字を知る</span>ことができる。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　ミニゲームで<span style={{ color: '#dc2626' }}>1位</span>になった場合、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#ffffff' }}>毎晩</span>、ランダムで1人の本名の<span style={{ color: '#dc2626' }}>一文字を知る</span>ことができる。</p>
+                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　ミニゲームで<span style={{ color: '#ffffff' }}>1位</span>になった場合、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
                     <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　<span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を使用すると、その夜にランダムで1人の<span style={{ color: '#dc2626' }}>本名を知る</span>ことができる。</p>
                   </div>
                 </>
