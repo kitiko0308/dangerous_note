@@ -57,7 +57,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
     }
     return base;
   })();
-  const roleIntroText = currentPlayer.role === 'villager' && displayRole !== 'villager'
+  const roleIntroText = displayRole !== currentPlayer.role
     ? '彼は...'
     : `${currentPlayer.nickname} さんの役職は...`;
 
@@ -80,7 +80,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.55rem', maxWidth: '1000px', margin: '0 auto', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
             {/* 左: 画像 */}
             <div style={{ flexShrink: 0, width: '280px', minHeight: '400px', display: 'flex', flexDirection: 'column', gap: '0.1rem', marginTop: '-2rem' }}>
-              {currentPlayer.role === 'villager' && (
+              {isShowing && (
                 <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '-0.95rem' }}>
                   {tabRoles.map((role) => (
                     <button
