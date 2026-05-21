@@ -20,7 +20,7 @@ export default function RulesPage({ onBack }: Props) {
 
   const pages = [
     <RuleSlide
-      key={`intro-${page}`}
+      key="intro"
       direction={direction}
       title="この世界のルール"
       subtitle="名前を知られた者は、消える。"
@@ -33,7 +33,7 @@ export default function RulesPage({ onBack }: Props) {
     </RuleSlide>,
 
     <RoleSlide
-      key={`kira-${page}`}
+      key="kira"
       direction={direction}
       title="キラ"
       accent="#b31414"
@@ -48,7 +48,7 @@ export default function RulesPage({ onBack }: Props) {
     />,
 
     <RoleSlide
-      key={`l-${page}`}
+      key="l"
       direction={direction}
       title="L"
       accent="#2f6fff"
@@ -63,7 +63,7 @@ export default function RulesPage({ onBack }: Props) {
     />,
 
     <RoleSlide
-      key={`citizen-${page}`}
+      key="citizen"
       direction={direction}
       title="市民"
       accent="#8fbf3f"
@@ -77,7 +77,7 @@ export default function RulesPage({ onBack }: Props) {
     />,
 
     <RuleSlide
-      key={`item-${page}`}
+      key="item"
       direction={direction}
       title="アイテム"
       subtitle="ミニゲーム1位の報酬"
@@ -98,7 +98,7 @@ export default function RulesPage({ onBack }: Props) {
     </RuleSlide>,
 
     <RuleSlide
-      key={`flow-${page}`}
+      key="flow"
       direction={direction}
       title="ゲームの流れ"
       subtitle="1ターンの進み方"
@@ -108,7 +108,7 @@ export default function RulesPage({ onBack }: Props) {
     </RuleSlide>,
 
     <RuleSlide
-      key={`end-${page}`}
+      key="end"
       direction={direction}
       title="準備はいい？"
       subtitle="疑え。それが生き残る唯一の方法。"
