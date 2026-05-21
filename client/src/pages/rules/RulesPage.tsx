@@ -163,6 +163,7 @@ export default function RulesPage({ onBack }: Props) {
 
   return (
     <div
+      className="rules-container"
       style={containerStyle}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -187,6 +188,57 @@ export default function RulesPage({ onBack }: Props) {
         .rule-button:hover {
           opacity: 0.88;
           transform: translateY(-1px);
+        }
+
+        .rules-container {
+          min-height: 100dvh;
+        }
+
+        @media (max-width: 480px) {
+          .rules-container {
+            padding: 18px 12px 18px !important;
+            justify-content: flex-start !important;
+          }
+
+          .rule-slide {
+            min-height: auto !important;
+            padding: 22px 18px !important;
+            border-radius: 14px !important;
+          }
+
+          .role-slide {
+            background-position: center top !important;
+            background-size: cover !important;
+          }
+
+          .role-text-area {
+            width: 100% !important;
+            min-height: auto !important;
+            padding-top: clamp(120px, 32vw, 180px) !important;
+          }
+
+          .rule-title {
+            font-size: 28px !important;
+          }
+
+          .rule-subtitle {
+            font-size: 15px !important;
+          }
+
+          .rule-point {
+            font-size: 14px !important;
+            line-height: 1.55 !important;
+            margin-bottom: 12px !important;
+          }
+
+          .item-image {
+            height: 120px !important;
+          }
+
+          .button-row {
+            margin-top: 18px !important;
+            padding-bottom: 8px !important;
+          }
         }
       `}</style>
 
@@ -220,7 +272,7 @@ export default function RulesPage({ onBack }: Props) {
         </div>
       </div>
 
-      <div style={buttonRowStyle}>
+      <div className="button-row" style={buttonRowStyle}>
         {page > 0 ? (
           <Button onClick={goPrev} sub>
             戻る
@@ -254,6 +306,7 @@ function RuleSlide({
 }) {
   return (
     <section
+      className="rule-slide"
       style={{
         ...slideStyle,
         borderColor: rgbaFromHex(accent, 0.6),
@@ -286,6 +339,7 @@ function RoleSlide({
 }) {
   return (
     <section
+      className="rule-slide role-slide"
       style={{
         ...slideStyle,
         borderColor: rgbaFromHex(accent, 0.6),
@@ -300,14 +354,14 @@ function RoleSlide({
         overflow: 'hidden',
       }}
     >
-      <div style={roleTextAreaStyle}>
+      <div className="role-text-area" style={roleTextAreaStyle}>
         <p style={{ ...labelStyle, color: accent }}>ROLE</p>
-        <h2 style={{ ...titleStyle, color: accent }}>{title}</h2>
+        <h2 className="rule-title" style={{ ...titleStyle, color: accent }}>{title}</h2>
         <p style={catchStyle}>{catchCopy}</p>
 
         <div style={{ marginTop: 24 }}>
           {points.map((point, index) => (
-            <div key={point} style={pointStyle}>
+            <div key={point} className="rule-point" style={pointStyle}>
               <span style={{ ...numberStyle, borderColor: accent, color: accent }}>
                 {index + 1}
               </span>
@@ -343,6 +397,7 @@ function ItemBox({
       }}
     >
       <div
+        className="item-image"
         style={{
           height: 150,
           backgroundImage: `url(${image})`,
