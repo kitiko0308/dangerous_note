@@ -49,7 +49,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
             <h2 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>
               役職の確認
             </h2>
-            <p className="title-sub">{currentPlayerIndex + 1} / {players.length} 人目の確認</p>
+            <p className="title-sub"><span style={{ color: '#dc2626' }}>{currentPlayerIndex + 1}</span> / {players.length} 人目の確認</p>
           </div>
 
           {/* 左画像 + 右パネルレイアウト */}
@@ -164,7 +164,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
           <h2 className="title-logo" style={{ fontSize: '2.2rem' }}>
             役職の確認
           </h2>
-          <p className="title-sub">{currentPlayerIndex + 1} / {players.length} 人目の確認</p>
+          <p className="title-sub"><span style={{ color: '#dc2626' }}>{currentPlayerIndex + 1}</span> / {players.length} 人目の確認</p>
 
           <div className="dn-panel" style={{ maxWidth: 520, width: '92%', minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             {!isShowing ? (
