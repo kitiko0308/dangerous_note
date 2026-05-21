@@ -57,9 +57,9 @@ export default function RoleRevealPage({ players, onNext }: Props) {
         <div className="title-screen__grain" aria-hidden="true" />
         <div className="title-screen__vignette" aria-hidden="true" />
 
-        <main style={{ position: 'relative', zIndex: 3, minHeight: '100svh', display: 'flex', flexDirection: 'column', padding: '2.6rem 1.4rem 1.8rem', paddingTop: '4rem' }}>
+        <main style={{ position: 'relative', zIndex: 3, minHeight: '100svh', display: 'flex', flexDirection: 'column', padding: '0.55rem 1.4rem 0.85rem', paddingTop: '0.35rem' }}>
           {/* ヘッダー */}
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '0.1rem' }}>
             <h2 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>
               役職の確認
             </h2>
@@ -67,11 +67,11 @@ export default function RoleRevealPage({ players, onNext }: Props) {
           </div>
 
           {/* 左画像 + 右パネルレイアウト */}
-          <div style={{ display: 'flex', alignItems: 'stretch', gap: '1.5rem', maxWidth: '1000px', margin: '0 auto', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.55rem', maxWidth: '1000px', margin: '0 auto', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
             {/* 左: 画像 */}
-            <div style={{ flexShrink: 0, width: '280px', minHeight: '400px', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ flexShrink: 0, width: '280px', minHeight: '400px', display: 'flex', flexDirection: 'column', gap: '0.1rem', marginTop: '-2rem' }}>
               {currentPlayer.role === 'villager' && (
-                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '-0.95rem' }}>
                   {(['kira', 'l', 'villager'] as const).map((role) => (
                     <button
                       key={role}
