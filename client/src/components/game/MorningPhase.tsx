@@ -58,10 +58,10 @@ export default function MorningPhase({ events, onNext }: Props) {
   return (
     <div className="dn-panel" style={{ maxWidth: 740, margin: '0 auto', textAlign: 'center' }}>
       <h1 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: 8 }}>朝フェーズ</h1>
-      <p className="title-sub" style={{ marginBottom: 40 }}>夜明けの報告</p>
-      <p className="title-tagline" style={{ marginTop: 18, marginBottom: 18 }}>話し合いで真実を見抜き、次の行動を決めよう。</p>
+      <p className="title-sub" style={{ marginBottom: 48 }}>夜明けの報告</p>
+      <p className="title-tagline" style={{ marginTop: 24, marginBottom: 26 }}>話し合いで真実を見抜き、次の行動を決めよう。</p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', marginBottom: 12 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', marginTop: 18, marginBottom: 18 }}>
         <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--text-main)' }}>{formatTime(secondsLeft)}</div>
         <div style={{ width: '100%', maxWidth: 420, height: 10, background: 'rgba(255,255,255,0.08)', borderRadius: 6 }}>
           <div style={{ width: `${progress}%`, height: '100%', background: 'var(--kira-red)', borderRadius: 6 }} />
@@ -69,7 +69,7 @@ export default function MorningPhase({ events, onNext }: Props) {
         {/* 一時停止ボタンは削除（タイマーは自動で動作） */}
       </div>
 
-      <div style={{ backgroundColor: 'rgba(0,0,0,0.28)', padding: 18, borderRadius: 8, marginBottom: 20, textAlign: 'left' }}>
+      <div style={{ backgroundColor: 'rgba(0,0,0,0.28)', padding: 18, borderRadius: 8, marginTop: 44, marginBottom: 20, textAlign: 'left' }}>
         <h4 style={{ color: '#ff6b6b', marginTop: 0 }}>昨夜の出来事</h4>
         <ul style={{ margin: '8px 0 0', paddingLeft: 18 }}>
           {events.map((event, i) => <li key={i} style={{ color: 'var(--text-main)', lineHeight: 1.6 }}>{event}</li>)}
