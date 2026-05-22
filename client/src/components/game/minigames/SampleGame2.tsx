@@ -6,26 +6,50 @@ type Props = {
   onFinish: (rankingIds: number[]) => void;
 };
 
+function sensorApiSupported(): boolean {
+  return typeof DeviceMotionEvent !== 'undefined'
+    || typeof DeviceOrientationEvent !== 'undefined';
+}
+
 // iOS などでセンサー権限が必要な場合に呼ぶユーティリティ
 // ボタンのクリックなどユーザー操作内で呼ぶこと
 async function requestMotionPermission(): Promise<boolean> {
-  // window 上にある DeviceMotionEvent を安全に参照する（直接参照は環境によってはエラーになる）
   type DM = { requestPermission?: () => Promise<"granted" | "denied"> };
   type Win = Window & { DeviceMotionEvent?: DM };
   const win =
     typeof window !== "undefined"
       ? (window as Win)
       : (undefined as unknown as Win);
-  const req = win?.DeviceMotionEvent?.requestPermission;
-  if (typeof req === "function") {
+  const dme = win?.DeviceMotionEvent;
+  if (dme && typeof dme.requestPermission === "function") {
     try {
-      return (await req()) === "granted";
+      return (await dme.requestPermission()) === "granted";
     } catch {
       return false;
     }
   }
-  // requestPermission が無い環境は、ondevicemotion の有無で対応可否を返す
-  return typeof window !== "undefined" ? "ondevicemotion" in window : false;
+  // requestPermission が無い環境 = iOS 13 未満 or Android
+  // DeviceMotionEvent 自体が定義されていれば許可不要で使える
+  return typeof DeviceMotionEvent !== "undefined";
+}
+
+// iOS 13+ などで DeviceOrientationEvent.requestPermission が必要な場合のユーティリティ
+async function requestOrientationPermission(): Promise<boolean> {
+  const doe =
+    typeof DeviceOrientationEvent !== "undefined"
+      ? (DeviceOrientationEvent as unknown as {
+          requestPermission?: () => Promise<"granted" | "denied">;
+        })
+      : undefined;
+  if (doe && typeof doe.requestPermission === "function") {
+    try {
+      return (await doe.requestPermission()) === "granted";
+    } catch {
+      return false;
+    }
+  }
+  // requestPermission が無い環境 = Android など
+  return typeof DeviceOrientationEvent !== "undefined";
 }
 
 // 振った回数をカウントするフック
@@ -93,17 +117,15 @@ export default function SampleGame({ players, onFinish }: Props) {
   // 計測中フラグ（true のとき devicemotion を監視）
   const [running, setRunning] = React.useState(false);
   // センサーがブラウザでサポートされているか
-  const [supported] = React.useState<boolean>(() => {
-    return (
-      typeof DeviceMotionEvent !== "undefined" || "ondevicemotion" in window
-    );
-  });
+  const [supported] = React.useState<boolean>(sensorApiSupported);
   // 権限取得の結果（null: 未取得 / true: 許可 / false: 拒否）
   const [permOk, setPermOk] = React.useState<boolean | null>(null);
   // デバッグ: 最後にボタンが押されたかどうか
   const [pressed, setPressed] = React.useState(false);
   // デバッグ: 直近のエラーメッセージ
   const [lastError, setLastError] = React.useState<string | null>(null);
+  // デバッグ: センサーAPI検出結果の詳細
+  const [sensorDebug, setSensorDebug] = React.useState<string>("");
   // 各プレイヤーの確定カウントを保持するマップ { playerId: count }
   const [counts, setCounts] = React.useState<Record<number, number>>({});
   // 振るフックから表示用カウントと mag/delta、リセット関数などを受け取る
@@ -162,6 +184,44 @@ export default function SampleGame({ players, onFinish }: Props) {
     // 手動で次へ（現在の表示カウントを確定して次へ進む）
     setCounts((prev) => ({ ...prev, [alivePlayers[idx].id]: count }));
     setIdx((i) => i + 1);
+  };
+
+  // ユーザー操作で権限を明示的に要求するハンドラ
+  const handleRequestPermissions = async () => {
+    setPressed(true);
+    setLastError(null);
+    try {
+      const dmType = typeof DeviceMotionEvent !== "undefined"
+        ? `DeviceMotionEvent${typeof (DeviceMotionEvent as unknown as Record<string, unknown>).requestPermission === "function" ? "+reqPerm" : ""}`
+        : "undefined";
+      const doType = typeof DeviceOrientationEvent !== "undefined"
+        ? `DeviceOrientationEvent${typeof (DeviceOrientationEvent as unknown as Record<string, unknown>).requestPermission === "function" ? "+reqPerm" : ""}`
+        : "undefined";
+      // navigator.permissions でセンサー権限状態を確認（可能な環境のみ）
+      let permQueryResult = "N/A";
+      try {
+        if (navigator.permissions?.query) {
+          const acc = await navigator.permissions.query({ name: "accelerometer" as PermissionName });
+          permQueryResult = `accelerometer=${acc.state}`;
+        }
+      } catch { /* 一部ブラウザは非対応 */ }
+      setSensorDebug(`DME=${dmType} DOE=${doType} permQuery=${permQueryResult}`);
+
+      const okMotion = await requestMotionPermission();
+      const okOrient = await requestOrientationPermission();
+      const ok = okMotion || okOrient;
+      setPermOk(ok);
+      if (!ok) {
+        alert("センサー権限が必要です");
+      }
+    } catch (err) {
+      const maybeMessage = err && (err as { message?: unknown }).message;
+      const msg = typeof maybeMessage === "string" ? maybeMessage : String(err);
+      setLastError(msg);
+      setPermOk(false);
+      console.error("request permissions error", err);
+      alert("センサー権限の確認でエラーが発生しました: " + msg);
+    }
   };
 
   return (
@@ -231,6 +291,9 @@ export default function SampleGame({ players, onFinish }: Props) {
               mag: {mag.toFixed(3)} delta: {delta.toFixed(3)}
             </div>
             <div style={{ color: "#fff" }}>ボタン押下: {String(pressed)}</div>
+            {sensorDebug && (
+              <div style={{ color: "#ffa", fontSize: 12 }}>{sensorDebug}</div>
+            )}
             {lastError && (
               <div style={{ color: "#f88" }}>エラー: {lastError}</div>
             )}
@@ -244,6 +307,27 @@ export default function SampleGame({ players, onFinish }: Props) {
               marginTop: 16,
             }}
           >
+            {permOk !== true && (
+              <div>
+                <button
+                  onClick={handleRequestPermissions}
+                  style={{
+                    padding: "10px 20px",
+                    cursor: "pointer",
+                    backgroundColor: "#3b82f6",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                  }}
+                >
+                  許可する
+                </button>
+                <p style={{ color: "#aaa", fontSize: 12, marginTop: 8 }}>
+                  ※ センサーAPIには HTTPS が必須です。
+                  http:// ではなく https:// でアクセスしてください。
+                </p>
+              </div>
+            )}
             <button
               onClick={() => startTurn(5000)}
               style={{
