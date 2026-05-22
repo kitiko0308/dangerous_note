@@ -24,6 +24,8 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   const [nightActionLogs, setNightActionLogs] = useState<string[]>([]);
   const [miniGameRanking, setMiniGameRanking] = useState<number[]>([]);
 
+  const toZenkaku = (n: number) => String(n).replace(/\d/g, d => '０１２３４５６７８９'[Number(d)]);
+
   const handleVote = (id: number | null) => {
     setExiledPlayerId(id);
     
@@ -125,7 +127,9 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   return (
     <div style={{ padding: 20, color: 'white', maxWidth: '800px', margin: '0 auto' }}>
       <header style={{ borderBottom: '1px solid #555', paddingBottom: 20, marginBottom: 20, textAlign: 'center' }}>
-        <h2 style={{ marginBottom: 15 }}>第 <span style={{ color: 'var(--kira-red)' }}>{turn}</span> ターン / 5ターン中</h2>
+        <h2 style={{ marginBottom: 15 }}>
+          <span style={{ color: 'var(--kira-red)' }}>{toZenkaku(turn)}</span> ターン {'\u00A0\u00A0/\u00A0\u00A0'}{toZenkaku(5)} ターン
+        </h2>
         
         {/* 生存者リスト（ゲーム中ずっと表示される共通UI） */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
