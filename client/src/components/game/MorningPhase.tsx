@@ -19,8 +19,13 @@ export default function MorningPhase({ events, onNext }: Props) {
 
       <p style={{ color: 'var(--text-dim)', marginBottom: 18 }}>※ ここに5分間の話し合い用タイマーや補助UIを実装します。</p>
 
-      <div className="title-menu" style={{ justifyContent: 'center' }}>
-        <button type="button" className="title-menu__button title-menu__button--primary" onClick={onNext}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 140, marginTop: 6 }}>
+        <button
+          type="button"
+          className="title-menu__button title-menu__button--primary"
+          onClick={onNext}
+          style={{ padding: '8px 14px', fontSize: '1rem', borderRadius: 6, justifySelf: 'center', minWidth: 180 }}
+        >
           話し合いを終了してミニゲームへ
         </button>
       </div>
