@@ -58,8 +58,8 @@ export default function MorningPhase({ events, onNext }: Props) {
   return (
     <div className="dn-panel" style={{ maxWidth: 740, margin: '0 auto', textAlign: 'center' }}>
       <h1 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: 8 }}>朝フェーズ</h1>
-      <p className="title-sub" style={{ marginBottom: 8 }}>夜明けの報告</p>
-      <p className="title-tagline" style={{ marginBottom: 18 }}>話し合いで真実を見抜き、次の行動を決めよう。</p>
+      <p className="title-sub" style={{ marginBottom: 40 }}>夜明けの報告</p>
+      <p className="title-tagline" style={{ marginTop: 18, marginBottom: 18 }}>話し合いで真実を見抜き、次の行動を決めよう。</p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', marginBottom: 12 }}>
         <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--text-main)' }}>{formatTime(secondsLeft)}</div>
