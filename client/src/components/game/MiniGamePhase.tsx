@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import SampleGame from './minigames/SampleGame';
+import SampleGame from './minigames/SampleGame2';
 import type { Player } from '../../types';
 
 type Props = {

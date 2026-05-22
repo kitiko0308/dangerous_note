@@ -9,8 +9,14 @@ type Props = {
 // iOS などでセンサー権限が必要な場合に呼ぶユーティリティ
 // ボタンのクリックなどユーザー操作内で呼ぶこと
 async function requestMotionPermission(): Promise<boolean> {
-  type ReqType = { requestPermission?: () => Promise<"granted" | "denied"> };
-  const req = (DeviceMotionEvent as unknown as ReqType)?.requestPermission;
+  // window 上にある DeviceMotionEvent を安全に参照する（直接参照は環境によってはエラーになる）
+  type DM = { requestPermission?: () => Promise<"granted" | "denied"> };
+  type Win = Window & { DeviceMotionEvent?: DM };
+  const win =
+    typeof window !== "undefined"
+      ? (window as Win)
+      : (undefined as unknown as Win);
+  const req = win?.DeviceMotionEvent?.requestPermission;
   if (typeof req === "function") {
     try {
       return (await req()) === "granted";
@@ -18,8 +24,8 @@ async function requestMotionPermission(): Promise<boolean> {
       return false;
     }
   }
-  // requestPermission が無い環境は許可不要とみなす
-  return true;
+  // requestPermission が無い環境は、ondevicemotion の有無で対応可否を返す
+  return typeof window !== "undefined" ? "ondevicemotion" in window : false;
 }
 
 // 振った回数をカウントするフック
@@ -86,6 +92,18 @@ export default function SampleGame({ players, onFinish }: Props) {
   const [idx, setIdx] = React.useState(0);
   // 計測中フラグ（true のとき devicemotion を監視）
   const [running, setRunning] = React.useState(false);
+  // センサーがブラウザでサポートされているか
+  const [supported] = React.useState<boolean>(() => {
+    return (
+      typeof DeviceMotionEvent !== "undefined" || "ondevicemotion" in window
+    );
+  });
+  // 権限取得の結果（null: 未取得 / true: 許可 / false: 拒否）
+  const [permOk, setPermOk] = React.useState<boolean | null>(null);
+  // デバッグ: 最後にボタンが押されたかどうか
+  const [pressed, setPressed] = React.useState(false);
+  // デバッグ: 直近のエラーメッセージ
+  const [lastError, setLastError] = React.useState<string | null>(null);
   // 各プレイヤーの確定カウントを保持するマップ { playerId: count }
   const [counts, setCounts] = React.useState<Record<number, number>>({});
   // 振るフックから表示用カウントと mag/delta、リセット関数などを受け取る
@@ -105,12 +123,29 @@ export default function SampleGame({ players, onFinish }: Props) {
   }, [idx, counts, alivePlayers, onFinish]);
 
   const startTurn = async (durationMs = 5000) => {
+    // ユーザー操作が来ていることを可視化
+    setPressed(true);
+    setLastError(null);
     // 権限を確認（iOS はここで requestPermission を呼ぶ）
-    const ok = await requestMotionPermission();
-    if (!ok) {
-      alert("センサー権限が必要です");
+    try {
+      const ok = await requestMotionPermission();
+      if (!ok) {
+        setPermOk(false);
+        alert("センサー権限が必要です");
+        return;
+      }
+      setPermOk(true);
+    } catch (err) {
+      // 例外が出た場合は画面に出す
+      const maybeMessage = err && (err as { message?: unknown }).message;
+      const msg = typeof maybeMessage === "string" ? maybeMessage : String(err);
+      setLastError(msg);
+      setPermOk(false);
+      console.error("requestMotionPermission error", err);
+      alert("センサー権限の確認でエラーが発生しました: " + msg);
       return;
     }
+    // 権限確認 OK の場合はここまで到達する
     // 計測開始前に内部カウントをリセットして測定フラグを立てる
     resetCount();
     setRunning(true);
@@ -185,10 +220,20 @@ export default function SampleGame({ players, onFinish }: Props) {
 
           <div style={{ marginTop: 12 }}>
             <div style={{ color: "#fff" }}>計測中: {String(running)}</div>
+            <div style={{ color: "#fff" }}>
+              センサー対応: {String(supported)}
+            </div>
+            <div style={{ color: "#fff" }}>
+              権限: {permOk === null ? "未取得" : permOk ? "許可" : "拒否"}
+            </div>
             <div style={{ color: "#fff" }}>カウント: {count}</div>
             <div style={{ color: "#ddd" }}>
               mag: {mag.toFixed(3)} delta: {delta.toFixed(3)}
             </div>
+            <div style={{ color: "#fff" }}>ボタン押下: {String(pressed)}</div>
+            {lastError && (
+              <div style={{ color: "#f88" }}>エラー: {lastError}</div>
+            )}
           </div>
 
           <div
