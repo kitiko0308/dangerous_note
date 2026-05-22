@@ -119,7 +119,14 @@ export default function MorningPhase({ events, onNext }: Props) {
           maxWidth: 740,
           margin: '0 auto',
           textAlign: 'center',
-          background: 'rgba(0,0,0,0.76)',
+          minHeight: 520,
+          background: 'transparent',
+          boxShadow: 'none',
+          border: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 0,
         }}
       >
         <img
@@ -127,9 +134,10 @@ export default function MorningPhase({ events, onNext }: Props) {
           alt="朝の背景画像"
           style={{
             display: 'block',
-            width: '100%',
+            width: 'auto',
             height: 'auto',
             maxWidth: '100%',
+            maxHeight: '100%',
             objectFit: 'contain',
           }}
         />
