@@ -125,7 +125,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   return (
     <div style={{ padding: 20, color: 'white', maxWidth: '800px', margin: '0 auto' }}>
       <header style={{ borderBottom: '1px solid #555', paddingBottom: 20, marginBottom: 20, textAlign: 'center' }}>
-        <h2 style={{ marginBottom: 15 }}>第 {turn} ターン / 5ターン中</h2>
+        <h2 style={{ marginBottom: 15 }}>第 <span style={{ color: 'var(--kira-red)' }}>{turn}</span> ターン / 5ターン中</h2>
         
         {/* 生存者リスト（ゲーム中ずっと表示される共通UI） */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
