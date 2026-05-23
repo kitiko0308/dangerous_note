@@ -85,7 +85,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
 
             <div className="player-setup__group">
               <label className="player-setup__label">本名</label>
-              <p className="player-setup__hint">真の名を知られた者は、運命から<strong className="kira-strong">逃れられない。</strong></p>
+              <p className="player-setup__hint"><span style={{ color: '#dc2626' }}>真の名</span>を知られた者は、運命から<strong className="kira-strong">逃れられない。</strong></p>
               <input
                 type="text"
                 value={players[currentPlayerIndex].realName}
