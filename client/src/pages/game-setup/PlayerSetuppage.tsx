@@ -28,12 +28,32 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
   };
 
   const fillRandom = () => {
-    const nick = sampleNicknames[currentPlayerIndex % sampleNicknames.length];
+    const nick = sampleNicknames[Math.floor(Math.random() * sampleNicknames.length)];
     const real = generateRandomRealName();
     const newData = [...players];
     newData[currentPlayerIndex] = {
       ...newData[currentPlayerIndex],
       nickname: nick,
+      realName: real,
+    };
+    setPlayers(newData);
+  };
+
+  const fillRandomNickOnly = () => {
+    const nick = sampleNicknames[Math.floor(Math.random() * sampleNicknames.length)];
+    const newData = [...players];
+    newData[currentPlayerIndex] = {
+      ...newData[currentPlayerIndex],
+      nickname: nick,
+    };
+    setPlayers(newData);
+  };
+
+  const fillRandomRealOnly = () => {
+    const real = generateRandomRealName();
+    const newData = [...players];
+    newData[currentPlayerIndex] = {
+      ...newData[currentPlayerIndex],
       realName: real,
     };
     setPlayers(newData);
@@ -107,31 +127,41 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
             <div className="player-setup__group">
               <label className="player-setup__label">ニックネーム</label>
               <p className="player-setup__hint"><span style={{ color: '#dc2626' }}>偽りの名</span>。油断すれば、命取りだ。</p>
-              <input
-                type="text"
-                value={players[currentPlayerIndex].nickname}
-                onChange={(e) => handleInputChange('nickname', e.target.value)}
-                placeholder="例: ミサミサ"
-                className="player-setup__input"
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input
+                  type="text"
+                  value={players[currentPlayerIndex].nickname}
+                  onChange={(e) => handleInputChange('nickname', e.target.value)}
+                  placeholder="例: ミサミサ"
+                  className="player-setup__input"
+                  style={{ flex: 1 }}
+                />
+                <button type="button" className="dn-button" onClick={fillRandomNickOnly} style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>ランダム</button>
+              </div>
             </div>
 
             <div className="player-setup__group">
               <label className="player-setup__label">本名</label>
               <p className="player-setup__hint"><span style={{ color: '#dc2626' }}>真の名</span><span style={{ color: 'var(--text-dim)' }}>を知られた者は、運命から逃れられない。</span></p>
-              <input
-                type="text"
-                value={players[currentPlayerIndex].realName}
-                onChange={(e) => handleInputChange('realName', e.target.value)}
-                placeholder="例: 天音海砂"
-                className="player-setup__input"
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input
+                  type="text"
+                  value={players[currentPlayerIndex].realName}
+                  onChange={(e) => handleInputChange('realName', e.target.value)}
+                  placeholder="例: 天音海砂"
+                  className="player-setup__input"
+                  style={{ flex: 1 }}
+                />
+                <button type="button" className="dn-button" onClick={fillRandomRealOnly} style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>ランダム</button>
+              </div>
               {realNameTrimmed.length > 0 && !realNameValid && (
                 <p className="player-setup__hint" style={{ color: '#dc2626' }}>※ 本名は ４文字 で入力してください</p>
               )}
             </div>
 
-            <div style={{ marginTop: 12 }}>
+            
+
+            <div style={{ marginTop: 24 }}>
               <button type="button" className="dn-button" onClick={fillRandom} style={{ padding: '8px 14px' }}>ランダム入力</button>
             </div>
 
