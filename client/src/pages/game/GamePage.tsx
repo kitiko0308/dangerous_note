@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toFullWidth } from '../../utils/numberFormat';
 import type { Player, GamePhase, GameResult } from "../../types";
 
 import MorningPhase from "../../components/game/MorningPhase";
@@ -29,7 +30,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   const [miniGameRanking, setMiniGameRanking] = useState<number[]>([]);
   const [miniGameTaps, setMiniGameTaps] = useState<Record<number, number>>({});
 
-  const toZenkaku = (n: number) => String(n).replace(/\d/g, d => '０１２３４５６７８９'[Number(d)]);
+  
 
   const handleVote = (id: number | null) => {
     setExiledPlayerId(id);
@@ -151,7 +152,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
     <div style={{ padding: 20, color: 'white', maxWidth: '800px', margin: '0 auto' }}>
       <header style={{ borderBottom: '1px solid #555', paddingBottom: 20, marginBottom: 20, textAlign: 'center' }}>
         <h2 style={{ marginBottom: 15 }}>
-          <span style={{ color: 'var(--kira-red)' }}>{toZenkaku(turn)}</span> ターン {'\u00A0\u00A0/\u00A0\u00A0'}{toZenkaku(5)} ターン
+          <span style={{ color: 'var(--kira-red)' }}>{toFullWidth(turn)}</span> ターン {'\u00A0\u00A0/\u00A0\u00A0'}{toFullWidth(5)} ターン
         </h2>
         
         {/* 生存者リスト（ゲーム中ずっと表示される共通UI） */}
