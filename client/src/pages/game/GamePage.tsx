@@ -198,7 +198,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
 
       <main>
         {phase === "morning" && (
-          <MorningPhase events={lastEvents} onNext={handleNextPhase} />
+          <MorningPhase events={lastEvents} onNext={handleNextPhase} turn={turn} />
         )}
         {phase === "mini_game" && (
           <MiniGamePhase players={players} onNext={handleNextPhase} />

@@ -4,9 +4,9 @@ import asaImage from '../../assets/img/asa.png';
 type Props = {
   events: string[];
   onNext: () => void;
+  turn?: number;
 };
-
-export default function MorningPhase({ events, onNext }: Props) {
+export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
   const TOTAL_SECONDS = 60 * 5; // 5分
   const showMorningPhase = true;
   const [secondsLeft, setSecondsLeft] = useState<number>(TOTAL_SECONDS);
@@ -125,7 +125,9 @@ export default function MorningPhase({ events, onNext }: Props) {
           letterSpacing: '0.08em',
         }}
       >
-        <span style={{ display: 'block', fontSize: '1.18rem', fontWeight: 700 }}>夜が明けた。</span>
+        {turn > 1 && (
+          <span style={{ display: 'block', fontSize: '1.18rem', fontWeight: 700 }}>夜が明けた。</span>
+        )}
         <span style={{ display: 'block', fontSize: '1rem', fontWeight: 400 }}>真実を語る者は、まだ沈黙の中にいる。</span>
         <span
           style={{
@@ -181,7 +183,7 @@ export default function MorningPhase({ events, onNext }: Props) {
             paddingBottom: 8,
           }}
         >
-          昨晩の出来事
+          {turn === 1 ? '今日の出来事' : '昨晩の出来事'}
         </h4>
         <ul style={{ margin: '8px 0 0', paddingLeft: 0, listStyle: 'none' }}>
           {events.map((event, i) => (
