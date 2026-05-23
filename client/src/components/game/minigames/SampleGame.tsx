@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Player } from "../../../types";
 
+type FinishPayload = {
+  rankingIds: number[];
+  taps: Record<number, number>;
+};
+
 type Props = {
   players: Player[];
-  onFinish: (rankingIds: number[]) => void; // ゲーム終了時に順位（ID配列）を渡す
+  onFinish: (payload: FinishPayload) => void; // ゲーム終了時に順位と得点マップを渡す
 };
 
 export default function SampleGame({ players, onFinish }: Props) {
@@ -12,7 +17,7 @@ export default function SampleGame({ players, onFinish }: Props) {
     [players],
   );
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(5);
   const [tapCount, setTapCount] = useState(0);
   const [turnResults, setTurnResults] = useState<
     Array<{ id: number; nickname: string; taps: number }>
@@ -28,7 +33,7 @@ export default function SampleGame({ players, onFinish }: Props) {
 
   const startNextTurn = (nextIndex: number) => {
     setCurrentTurnIndex(nextIndex);
-    setTimeLeft(10);
+    setTimeLeft(5);
     setTapCount(0);
     setIsRunning(false);
     setCountdown(null);
@@ -50,12 +55,15 @@ export default function SampleGame({ players, onFinish }: Props) {
     setTurnResults(nextResults);
 
     if (currentTurnIndex + 1 >= alivePlayers.length) {
-      const rankingIds = [...nextResults]
-        .sort((a, b) => b.taps - a.taps || a.id - b.id)
-        .map((result) => result.id);
+      const sorted = [...nextResults].sort(
+        (a, b) => b.taps - a.taps || a.id - b.id,
+      );
+      const rankingIds = sorted.map((r) => r.id);
+      const tapsMap: Record<number, number> = {};
+      nextResults.forEach((r) => (tapsMap[r.id] = r.taps));
 
       setIsFinished(true);
-      onFinish(rankingIds);
+      onFinish({ rankingIds, taps: tapsMap });
       return;
     }
 
@@ -105,7 +113,7 @@ export default function SampleGame({ players, onFinish }: Props) {
     const id = window.setTimeout(() => {
       setCountdown(null);
       setIsRunning(true);
-      setTimeLeft(10);
+      setTimeLeft(5);
     }, 600);
     return () => window.clearTimeout(id);
   }, [countdown]);
@@ -120,7 +128,7 @@ export default function SampleGame({ players, onFinish }: Props) {
   // 実際に変わったときだけリセットされるようにします。
   useEffect(() => {
     setCurrentTurnIndex(0);
-    setTimeLeft(10);
+    setTimeLeft(5);
     setTapCount(0);
     setTurnResults([]);
     setIsFinished(false);
@@ -176,10 +184,19 @@ export default function SampleGame({ players, onFinish }: Props) {
   };
 
   const finishBtnDisabled =
-    !isRunning || isFinished || countdown !== null || showEndMessage || !currentPlayer;
+    !isRunning ||
+    isFinished ||
+    countdown !== null ||
+    showEndMessage ||
+    !currentPlayer;
 
   const tapButtonDisabled =
-    !isRunning || timeLeft <= 0 || isFinished || countdown !== null || showEndMessage || !currentPlayer;
+    !isRunning ||
+    timeLeft <= 0 ||
+    isFinished ||
+    countdown !== null ||
+    showEndMessage ||
+    !currentPlayer;
 
   return (
     <div
@@ -234,20 +251,28 @@ export default function SampleGame({ players, onFinish }: Props) {
         {currentPlayer ? (
           <>
             <p style={{ margin: 0, color: "#f5d565", fontWeight: 700 }}>
-              <span style={{ fontFamily: "Garamond, 'Times New Roman', serif", fontSize: 20 }}>
+              <span
+                style={{
+                  fontFamily: "Garamond, 'Times New Roman', serif",
+                  fontSize: 20,
+                }}
+              >
                 {currentPlayer.nickname}
               </span>
-              <span style={{ marginLeft: 8, fontSize: 16, color: "#ebd79a" }}>のターン</span>
+              <span style={{ marginLeft: 8, fontSize: 16, color: "#ebd79a" }}>
+                のターン
+              </span>
             </p>
             <p style={{ margin: "8px 0 0", color: "#ddd" }}>
-              次は {alivePlayers[currentTurnIndex + 1]?.nickname ?? "なし"}{" "}
-              のターン
+              {alivePlayers[currentTurnIndex + 1]
+                ? `次は ${alivePlayers[currentTurnIndex + 1].nickname} のターン`
+                : "あなたが最後の番です"}
             </p>
             <p style={{ margin: "12px 0 0", color: "#aaa" }}>
               残り時間: {timeLeft}秒 / 連打数: {tapCount}
             </p>
             <p className="title-tagline" style={{ margin: "12px 0 0" }}>
-              10秒の間に連打して、1人ずつ記録するゲームです。
+              5秒の間に連打して、1人ずつ記録するゲームです。
             </p>
 
             {showEndMessage ? (
@@ -264,13 +289,20 @@ export default function SampleGame({ players, onFinish }: Props) {
                 <p style={{ margin: 0, color: "#aaa" }}>スタンバイ…</p>
               </div>
             ) : !isRunning ? (
-              <button
-                onClick={handleReady}
-                className="title-menu__button title-menu__button--primary"
-                style={{ marginTop: "16px" }}
+              <div
+                style={{
+                  marginTop: "16px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
               >
-                準備OK
-              </button>
+                <button
+                  onClick={handleReady}
+                  className="title-menu__button title-menu__button--primary"
+                >
+                  準備OK
+                </button>
+              </div>
             ) : (
               <button
                 onClick={handleTap}
@@ -342,9 +374,6 @@ export default function SampleGame({ players, onFinish }: Props) {
                   }}
                 >
                   {r.nickname}
-                  <span style={{ marginLeft: 4, fontSize: 12, opacity: 0.75 }}>
-                    ({r.taps}回)
-                  </span>
                 </span>
               ))}
             </div>
