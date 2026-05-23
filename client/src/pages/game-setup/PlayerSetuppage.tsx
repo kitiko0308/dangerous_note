@@ -53,7 +53,10 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
     }
   };
 
-  const isInputValid = players[currentPlayerIndex].nickname.trim() !== '' && players[currentPlayerIndex].realName.trim() !== '';
+  const nickValid = players[currentPlayerIndex].nickname.trim() !== '';
+  const realNameTrimmed = players[currentPlayerIndex].realName.trim();
+  const realNameValid = realNameTrimmed.length === 4;
+  const isInputValid = nickValid && realNameValid;
 
   return (
     <div className="title-screen" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.12)), url(${aiImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
@@ -94,9 +97,12 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
                 type="text"
                 value={players[currentPlayerIndex].realName}
                 onChange={(e) => handleInputChange('realName', e.target.value)}
-                placeholder="例: 天音　海砂"
+                placeholder="例: 天音海砂"
                 className="player-setup__input"
               />
+              {realNameTrimmed.length > 0 && !realNameValid && (
+                <p className="player-setup__hint" style={{ color: '#dc2626' }}>※ 本名は ４文字 で入力してください</p>
+              )}
             </div>
 
             <button
