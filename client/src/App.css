@@ -1,6 +1,6 @@
 :root {
   --bg-dark: #0a0a0a;
-  --bg-panel: #161616;
+  --bg-panel: rgba(22,22,22,0.36);
   --kira-red: #8a0303;
   --l-blue: #003366;
   --text-main: #e8e0d4;
