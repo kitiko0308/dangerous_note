@@ -343,18 +343,25 @@ function RoleSlide({
       style={{
         ...slideStyle,
         borderColor: rgbaFromHex(accent, 0.6),
-        boxShadow: `0 0 28px ${rgbaFromHex(accent, 0.2)}`,
+        boxShadow: `0 0 32px ${rgbaFromHex(accent, 0.28)}`,
         animation: direction === 'next' ? 'pageNext 0.35s ease' : 'pagePrev 0.35s ease',
         backgroundImage: `
-          linear-gradient(90deg, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.88) 48%, rgba(5,5,5,0.52) 100%),
+          linear-gradient(90deg, rgba(5,5,5,0.78) 0%, rgba(5,5,5,0.46) 48%, rgba(5,5,5,0.18) 100%),
           url(${image})
         `,
         backgroundSize: 'cover',
-        backgroundPosition: 'center right',
+        backgroundPosition: title === '市民' ? 'center 18%' : 'center right',
+        backgroundBlendMode: 'overlay',
         overflow: 'hidden',
       }}
     >
-      <div className="role-text-area" style={roleTextAreaStyle}>
+      <div
+        className="role-text-area"
+        style={{
+          ...roleTextAreaStyle,
+          paddingTop: title === '市民' ? '18%' : undefined,
+        }}
+      >
         <p style={{ ...labelStyle, color: accent }}>ROLE</p>
         <h2 className="rule-title" style={{ ...titleStyle, color: accent }}>{title}</h2>
         <p style={catchStyle}>{catchCopy}</p>
@@ -520,7 +527,7 @@ const bookFrameStyle: React.CSSProperties = {
 };
 
 const slideStyle: React.CSSProperties = {
-  minHeight: 440,
+  minHeight: 620,
   padding: '28px 22px',
   border: '1px solid',
   borderRadius: 18,
@@ -530,8 +537,8 @@ const slideStyle: React.CSSProperties = {
 };
 
 const roleTextAreaStyle: React.CSSProperties = {
-  width: '68%',
-  minHeight: 360,
+  width: '60%',
+  minHeight: 480,
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
