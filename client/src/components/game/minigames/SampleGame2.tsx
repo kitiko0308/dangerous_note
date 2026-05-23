@@ -11,58 +11,14 @@ function sensorApiSupported(): boolean {
     || typeof DeviceOrientationEvent !== 'undefined';
 }
 
-// iOS などでセンサー権限が必要な場合に呼ぶユーティリティ
-// ボタンのクリックなどユーザー操作内で呼ぶこと
-async function requestMotionPermission(): Promise<boolean> {
-  type DM = { requestPermission?: () => Promise<"granted" | "denied"> };
-  type Win = Window & { DeviceMotionEvent?: DM };
-  const win =
-    typeof window !== "undefined"
-      ? (window as Win)
-      : (undefined as unknown as Win);
-  const dme = win?.DeviceMotionEvent;
-  if (dme && typeof dme.requestPermission === "function") {
-    try {
-      return (await dme.requestPermission()) === "granted";
-    } catch {
-      return false;
-    }
-  }
-  // requestPermission が無い環境 = iOS 13 未満 or Android
-  // DeviceMotionEvent 自体が定義されていれば許可不要で使える
-  return typeof DeviceMotionEvent !== "undefined";
-}
-
-// iOS 13+ などで DeviceOrientationEvent.requestPermission が必要な場合のユーティリティ
-async function requestOrientationPermission(): Promise<boolean> {
-  const doe =
-    typeof DeviceOrientationEvent !== "undefined"
-      ? (DeviceOrientationEvent as unknown as {
-          requestPermission?: () => Promise<"granted" | "denied">;
-        })
-      : undefined;
-  if (doe && typeof doe.requestPermission === "function") {
-    try {
-      return (await doe.requestPermission()) === "granted";
-    } catch {
-      return false;
-    }
-  }
-  // requestPermission が無い環境 = Android など
-  return typeof DeviceOrientationEvent !== "undefined";
-}
-
-// 振った回数をカウントするフック
-// active: 計測中フラグ、threshold: 差分の閾値、cooldown: 連続誤検出防止の間隔(ms)
 function useShakeCounter(active: boolean, threshold = 12, cooldown = 450) {
-  const [count, setCount] = React.useState(0); // 表示用カウント
-  const [mag, setMag] = React.useState(0); // 現在のベクトル大きさ
-  const [delta, setDelta] = React.useState(0); // 前フレームからの差分
-  const prevMag = React.useRef<number | null>(null); // 直前の mag
-  const lastRef = React.useRef(0); // 最後にヒットした時刻
-  const countRef = React.useRef(0); // 最新カウントを参照するための ref
+  const [count, setCount] = React.useState(0);
+  const [mag, setMag] = React.useState(0);
+  const [delta, setDelta] = React.useState(0);
+  const prevMag = React.useRef<number | null>(null);
+  const lastRef = React.useRef(0);
+  const countRef = React.useRef(0);
 
-  // devicemotion を監視して mag/delta を計算し、閾値を超えたらカウント
   React.useEffect(() => {
     if (!active) return;
     const handler = (e: DeviceMotionEvent) => {
@@ -77,12 +33,11 @@ function useShakeCounter(active: boolean, threshold = 12, cooldown = 450) {
         const d = Math.abs(m - prevMag.current);
         setDelta(d);
         const now = Date.now();
-        // 閾値超え & クールダウンを満たしたらカウント
         if (d > threshold && now - lastRef.current > cooldown) {
           lastRef.current = now;
           setCount((c) => {
             const nc = c + 1;
-            countRef.current = nc; // ref にも保持して外部から参照可能にする
+            countRef.current = nc;
             return nc;
           });
         }
@@ -94,9 +49,7 @@ function useShakeCounter(active: boolean, threshold = 12, cooldown = 450) {
     return () => window.removeEventListener("devicemotion", handler);
   }, [active, threshold, cooldown]);
 
-  // 外部から現在のカウントを取得する関数
   const getCount = () => countRef.current;
-  // カウント/内部状態をリセットする関数
   const reset = () => {
     setCount(0);
     countRef.current = 0;
@@ -109,32 +62,30 @@ function useShakeCounter(active: boolean, threshold = 12, cooldown = 450) {
   return [count, reset, mag, delta, getCount] as const;
 }
 
+function requestPermissionWithActivation(): Promise<boolean> {
+  const dme = typeof DeviceMotionEvent !== "undefined"
+    ? (DeviceMotionEvent as unknown as { requestPermission?: () => Promise<"granted" | "denied"> })
+    : undefined;
+  if (dme && typeof dme.requestPermission === "function") {
+    try {
+      return dme.requestPermission().then(r => r === "granted");
+    } catch {
+      return Promise.resolve(false);
+    }
+  }
+  return Promise.resolve(typeof DeviceMotionEvent !== "undefined");
+}
+
 export default function SampleGame({ players, onFinish }: Props) {
-  // 生存している参加者だけを対象にする
   const alivePlayers = players.filter((p) => p.isAlive);
-  // 現在何番目のプレイヤーを計測しているか（インデックス）
   const [idx, setIdx] = React.useState(0);
-  // 計測中フラグ（true のとき devicemotion を監視）
   const [running, setRunning] = React.useState(false);
-  // センサーがブラウザでサポートされているか
   const [supported] = React.useState<boolean>(sensorApiSupported);
-  // 権限取得の結果（null: 未取得 / true: 許可 / false: 拒否）
   const [permOk, setPermOk] = React.useState<boolean | null>(null);
-  // デバッグ: 最後にボタンが押されたかどうか
   const [pressed, setPressed] = React.useState(false);
-  // デバッグ: 直近のエラーメッセージ
-  const [lastError, setLastError] = React.useState<string | null>(null);
-  // デバッグ: センサーAPI検出結果の詳細
-  const [sensorDebug, setSensorDebug] = React.useState<string>("");
-  // 各プレイヤーの確定カウントを保持するマップ { playerId: count }
   const [counts, setCounts] = React.useState<Record<number, number>>({});
-  // 振るフックから表示用カウントと mag/delta、リセット関数などを受け取る
   const [count, resetCount, mag, delta, getCount] = useShakeCounter(running);
 
-  // NOTE: we avoid calling setCounts synchronously inside an effect
-  // to prevent cascading renders. final counts are set when a turn finishes.
-
-  // 全員の順番が終わったら結果を作って親に渡す
   React.useEffect(() => {
     if (idx >= alivePlayers.length && alivePlayers.length > 0) {
       const ranking = [...alivePlayers]
@@ -145,83 +96,27 @@ export default function SampleGame({ players, onFinish }: Props) {
   }, [idx, counts, alivePlayers, onFinish]);
 
   const startTurn = async (durationMs = 5000) => {
-    // ユーザー操作が来ていることを可視化
-    setPressed(true);
-    setLastError(null);
-    // 権限を確認（iOS はここで requestPermission を呼ぶ）
-    try {
-      const ok = await requestMotionPermission();
-      if (!ok) {
-        setPermOk(false);
-        alert("センサー権限が必要です");
-        return;
-      }
-      setPermOk(true);
-    } catch (err) {
-      // 例外が出た場合は画面に出す
-      const maybeMessage = err && (err as { message?: unknown }).message;
-      const msg = typeof maybeMessage === "string" ? maybeMessage : String(err);
-      setLastError(msg);
+    const ok = await requestPermissionWithActivation();
+    if (!ok) {
+      setPressed(true);
       setPermOk(false);
-      console.error("requestMotionPermission error", err);
-      alert("センサー権限の確認でエラーが発生しました: " + msg);
       return;
     }
-    // 権限確認 OK の場合はここまで到達する
-    // 計測開始前に内部カウントをリセットして測定フラグを立てる
+    setPressed(true);
+    setPermOk(true);
     resetCount();
     setRunning(true);
-    // durationMs 後に計測を止めて確定値を保存、次のプレイヤーへ
     setTimeout(() => {
       setRunning(false);
-      const finalCount = getCount(); // ref から最新値を取得
+      const finalCount = getCount();
       setCounts((prev) => ({ ...prev, [alivePlayers[idx].id]: finalCount }));
       setIdx((i) => i + 1);
     }, durationMs);
   };
 
   const skipTurn = () => {
-    // 手動で次へ（現在の表示カウントを確定して次へ進む）
     setCounts((prev) => ({ ...prev, [alivePlayers[idx].id]: count }));
     setIdx((i) => i + 1);
-  };
-
-  // ユーザー操作で権限を明示的に要求するハンドラ
-  const handleRequestPermissions = async () => {
-    setPressed(true);
-    setLastError(null);
-    try {
-      const dmType = typeof DeviceMotionEvent !== "undefined"
-        ? `DeviceMotionEvent${typeof (DeviceMotionEvent as unknown as Record<string, unknown>).requestPermission === "function" ? "+reqPerm" : ""}`
-        : "undefined";
-      const doType = typeof DeviceOrientationEvent !== "undefined"
-        ? `DeviceOrientationEvent${typeof (DeviceOrientationEvent as unknown as Record<string, unknown>).requestPermission === "function" ? "+reqPerm" : ""}`
-        : "undefined";
-      // navigator.permissions でセンサー権限状態を確認（可能な環境のみ）
-      let permQueryResult = "N/A";
-      try {
-        if (navigator.permissions?.query) {
-          const acc = await navigator.permissions.query({ name: "accelerometer" as PermissionName });
-          permQueryResult = `accelerometer=${acc.state}`;
-        }
-      } catch { /* 一部ブラウザは非対応 */ }
-      setSensorDebug(`DME=${dmType} DOE=${doType} permQuery=${permQueryResult}`);
-
-      const okMotion = await requestMotionPermission();
-      const okOrient = await requestOrientationPermission();
-      const ok = okMotion || okOrient;
-      setPermOk(ok);
-      if (!ok) {
-        alert("センサー権限が必要です");
-      }
-    } catch (err) {
-      const maybeMessage = err && (err as { message?: unknown }).message;
-      const msg = typeof maybeMessage === "string" ? maybeMessage : String(err);
-      setLastError(msg);
-      setPermOk(false);
-      console.error("request permissions error", err);
-      alert("センサー権限の確認でエラーが発生しました: " + msg);
-    }
   };
 
   return (
@@ -291,12 +186,6 @@ export default function SampleGame({ players, onFinish }: Props) {
               mag: {mag.toFixed(3)} delta: {delta.toFixed(3)}
             </div>
             <div style={{ color: "#fff" }}>ボタン押下: {String(pressed)}</div>
-            {sensorDebug && (
-              <div style={{ color: "#ffa", fontSize: 12 }}>{sensorDebug}</div>
-            )}
-            {lastError && (
-              <div style={{ color: "#f88" }}>エラー: {lastError}</div>
-            )}
           </div>
 
           <div
@@ -307,54 +196,47 @@ export default function SampleGame({ players, onFinish }: Props) {
               marginTop: 16,
             }}
           >
-            {permOk !== true && (
-              <div>
-                <button
-                  onClick={handleRequestPermissions}
-                  style={{
-                    padding: "10px 20px",
-                    cursor: "pointer",
-                    backgroundColor: "#3b82f6",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                  }}
-                >
-                  許可する
-                </button>
-                <p style={{ color: "#aaa", fontSize: 12, marginTop: 8 }}>
-                  ※ センサーAPIには HTTPS が必須です。
-                  http:// ではなく https:// でアクセスしてください。
-                </p>
-              </div>
-            )}
             <button
               onClick={() => startTurn(5000)}
+              disabled={running}
               style={{
                 padding: "10px 20px",
-                cursor: "pointer",
+                cursor: running ? "default" : "pointer",
                 backgroundColor: "#ccc14b",
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
+                opacity: running ? 0.5 : 1,
               }}
             >
               5秒で開始
             </button>
             <button
               onClick={skipTurn}
+              disabled={running}
               style={{
                 padding: "10px 20px",
-                cursor: "pointer",
+                cursor: running ? "default" : "pointer",
                 backgroundColor: "#666",
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
+                opacity: running ? 0.5 : 1,
               }}
             >
               手動で次へ
             </button>
           </div>
+
+          {permOk === false && (
+            <div style={{ marginTop: 12, color: "#ffa", fontSize: 13 }}>
+              ⚠ センサー権限が拒否されました。
+              一度拒否するとiOS側でブロックされます。
+              解除するには:
+              <strong> 設定 → Safari → 詳細 → Webサイトデータ</strong>
+              からこのサイトのデータを消去してください。
+            </div>
+          )}
 
           <p style={{ marginTop: 16, color: "#ccc" }}>
             現在の結果:{" "}
