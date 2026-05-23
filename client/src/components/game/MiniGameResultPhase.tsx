@@ -155,13 +155,13 @@ export default function MiniGameResultPhase({
           <div style={{ textAlign: "center", width: '100%', maxWidth: 560, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2rem', fontFamily: '"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif' }}>
             <div className="dn-panel" style={{ width: '100%', padding: '20px 24px', textAlign: 'left' }}>
               <div style={{ textAlign: "left", display: "inline-block", width: '100%' }}>
-                <ul style={{ fontSize: 'clamp(.9rem, 1.8vw, 1.05rem)', listStyle: "none", padding: 0, margin: 0 }}>
+                <ul role="list" style={{ fontSize: 'clamp(.9rem, 1.8vw, 1.05rem)', listStyle: "none", padding: 0, margin: 0 }}>
                   {eventLogs.map((log, i) => (
                     <li
                       key={i}
                       style={{ marginBottom: "10px", color: "#fca5a5", letterSpacing: '.08em', lineHeight: 1.6 }}
                     >
-                      ⚠️ {log}
+                      {log}
                     </li>
                   ))}
                 </ul>
