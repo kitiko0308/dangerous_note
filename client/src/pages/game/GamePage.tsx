@@ -11,7 +11,7 @@ import MidnightPhase from "../../components/game/MidnightPhase";
 type Props = {
   players: Player[];
   setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
-  onEnd: (result: GameResult) => void;
+  onEnd: (result: GameResult, turn: number) => void;
 };
 
 export default function GamePage({ players, setPlayers, onEnd }: Props) {
@@ -55,7 +55,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
     if (id !== null) {
       const exiledP = updatedPlayers.find((p) => p.id === id);
       if (exiledP?.role === "kira") {
-        onEnd("kira_lose");
+        onEnd("villager_win", turn);
         return;
       }
     }
@@ -65,7 +65,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
       (p) => p.isAlive && p.role !== "kira",
     );
     if (otherSurvivors.length === 0) {
-      onEnd("kira_win");
+      onEnd("kira_win", turn);
       return;
     }
   };
@@ -97,7 +97,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
             ? players.find((p) => p.id === exiledPlayerId)
             : null;
         if (exiledPlayer?.role === "kira") {
-          onEnd("villager_win");
+          onEnd("villager_win", turn);
         } else {
           setPhase("midnight");
         }
@@ -107,8 +107,8 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
         if (turn >= 5) {
           // 判定ロジック：キラが自分の手（深夜アクション）で1人でも殺したか？
           const kiraKillsCount = players.filter((p) => p.isKilledByKira).length;
-          if (kiraKillsCount === 0) onEnd("kira_lose");
-          else onEnd("kira_win");
+          if (kiraKillsCount === 0) onEnd("villager_win", turn);
+          else onEnd("kira_win", turn);
         } else {
           setTurn(turn + 1);
           setPhase("morning"); // 深夜の次は「朝」
@@ -139,7 +139,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
             (p) => p.isAlive && p.role !== "kira",
           );
           if (otherSurvivorsAfterMidnight.length === 0) {
-            onEnd("kira_win");
+            onEnd("kira_win", turn);
             return;
           }
         }
