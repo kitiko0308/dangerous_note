@@ -4,17 +4,36 @@ import asaImage from '../../assets/img/asa.png';
 type Props = {
   events: string[];
   onNext: () => void;
+  killedNicknames?: string[];
 };
 
-export default function MorningPhase({ events, onNext }: Props) {
+export default function MorningPhase({ events, onNext, killedNicknames = [] }: Props) {
   const TOTAL_SECONDS = 60 * 5; // 5分
   const INTRO_SECONDS = 5;
   const [showMorningPhase, setShowMorningPhase] = useState<boolean>(false);
+  const [showVictimName, setShowVictimName] = useState<boolean>(false);
   const [secondsLeft, setSecondsLeft] = useState<number>(TOTAL_SECONDS);
   const [isBlinkVisible, setIsBlinkVisible] = useState<boolean>(true);
   const intervalRef = useRef<number | null>(null);
   const blinkRef = useRef<number | null>(null);
   const introRef = useRef<number | null>(null);
+  const victimRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (victimRef.current) return;
+
+    victimRef.current = window.setTimeout(() => {
+      setShowVictimName(true);
+      victimRef.current = null;
+    }, 2000);
+
+    return () => {
+      if (victimRef.current) {
+        clearTimeout(victimRef.current);
+        victimRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (introRef.current) return;
@@ -127,6 +146,7 @@ export default function MorningPhase({ events, onNext }: Props) {
           alignItems: 'center',
           justifyContent: 'center',
           padding: 0,
+          position: 'relative',
         }}
       >
         <img
@@ -141,6 +161,31 @@ export default function MorningPhase({ events, onNext }: Props) {
             objectFit: 'contain',
           }}
         />
+        <div
+          style={{
+            position: 'absolute',
+            top: '25%',
+            left: 0,
+            right: 0,
+            textAlign: 'center',
+            fontFamily: '"Yu Mincho", "Hiragino Mincho ProN", serif',
+            letterSpacing: '0.08em',
+          }}
+        >
+          <p style={{ color: '#000000', fontSize: '1.2rem', margin: 0, fontWeight: 500 }}>被害者</p>
+          {showVictimName && (
+            <p
+              style={{
+                color: '#ff5a5a',
+                fontSize: '1.1rem',
+                margin: '8px 0 0 0',
+                fontWeight: 500,
+              }}
+            >
+              {killedNicknames.length > 0 ? killedNicknames.join('　') : 'なし'}
+            </p>
+          )}
+        </div>
       </div>
     );
   }
