@@ -27,6 +27,8 @@ export default function MidnightPhase({
   const currentPlayer = players[currentPlayerIndex];
 
   const handleNextPlayer = () => {
+    if (isLoadingAction) return;
+
     let nextIndex = currentPlayerIndex + 1;
     while (nextIndex < players.length && !players[nextIndex].isAlive) {
       nextIndex++;
@@ -81,8 +83,8 @@ export default function MidnightPhase({
 
     await new Promise((resolve) => setTimeout(resolve, 700));
 
-    setPlayers(
-      players.map((p) =>
+    setPlayers((prev) =>
+      prev.map((p) =>
         p.id === target.id
           ? {
               ...p,
@@ -104,10 +106,8 @@ export default function MidnightPhase({
     const target = players.find((p) => p.id === targetId);
     if (!target) return;
 
-    setPlayers(
-      players.map((p) =>
-        p.id === targetId ? { ...p, isKilledByKira: true } : p,
-      ),
+    setPlayers((prev) =>
+      prev.map((p) => (p.id === targetId ? { ...p, isKilledByKira: true } : p)),
     );
 
     setNightActionLogs((prev) => [
@@ -167,8 +167,8 @@ export default function MidnightPhase({
       }
     }
 
-    setPlayers(
-      players.map((p) => {
+    setPlayers((prev) =>
+      prev.map((p) => {
         const updated = { ...p };
 
         if (item === 'death_note_eye' && p.id === effectiveTargetId) {
@@ -287,7 +287,7 @@ export default function MidnightPhase({
                     <p style={logTitleStyle}>ACTION LOG</p>
 
                     {isLoadingAction && (
-                      <p style={loadingStyle}>
+                      <p style={loadingStyle} aria-live="polite">
                         解析中...
                       </p>
                     )}
@@ -442,7 +442,14 @@ export default function MidnightPhase({
                 )}
               </div>
 
-              <button type="button" onClick={handleNextPlayer} style={nextButtonStyle} className="midnight-next-button">
+              <button
+                type="button"
+                onClick={handleNextPlayer}
+                disabled={isLoadingAction}
+                aria-busy={isLoadingAction}
+                style={isLoadingAction ? disabledBtnStyle : nextButtonStyle}
+                className="midnight-next-button"
+              >
                 {currentSurvivorNumber < totalSurvivors
                   ? '行動を終了して次のプレイヤーへ'
                   : '行動を終了して夜明けを迎える'}
