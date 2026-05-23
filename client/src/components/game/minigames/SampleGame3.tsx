@@ -1,12 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Player } from "../../../types";
 
 type Props = {
   players: Player[];
   onFinish: (rankingIds: number[]) => void;
 };
-
-type ResultMap = Record<number, { time: number; falseStart?: boolean }>; // playerId -> result
 
 export default function SampleGame({ players, onFinish }: Props) {
   const alivePlayers = useMemo(
@@ -26,7 +24,6 @@ export default function SampleGame({ players, onFinish }: Props) {
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
   // countdown removed per user request
   const [isRunning, setIsRunning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(5);
   const [turnResults, setTurnResults] = useState<
     Array<{ id: number; nickname: string; time: number; falseStart?: boolean }>
   >([]);
@@ -71,7 +68,6 @@ export default function SampleGame({ players, onFinish }: Props) {
     setIndicatorGreen(false);
     goTimeRef.current = null;
     setIsRunning(false);
-    setTimeLeft(5);
 
     const delay = 1000 + Math.floor(Math.random() * 2001); // 1000-3000ms
     if (timerRef.current) window.clearTimeout(timerRef.current);
@@ -243,20 +239,6 @@ export default function SampleGame({ players, onFinish }: Props) {
     }, 1200);
   };
 
-  const indicatorStyle: React.CSSProperties = {
-    width: 220,
-    height: 120,
-    margin: "18px auto",
-    borderRadius: 8,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#111",
-    fontSize: 22,
-    fontWeight: 700,
-    backgroundColor: indicatorGreen ? "#4caf50" : "#c62828",
-    transition: "background-color 200ms ease",
-  };
   const currentPlayer = alivePlayers[currentTurnIndex];
 
   return (
