@@ -15,6 +15,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
 
   const sampleNicknames = ['いちか', 'にの', 'みく', 'よつば', 'いつき'];
   const [randomSeqIndex, setRandomSeqIndex] = useState(0);
+  const isNicknameFixed = currentPlayerIndex === players.length - 1 && players.slice(0, players.length - 1).every((p) => p.nickname.trim() !== '');
   
   const getUniqueNickname = (used: Set<string>) => {
     // try base names first
@@ -83,6 +84,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
   };
 
   const fillRandomNickOnly = () => {
+    if (isNicknameFixed) return;
     const nick = chooseSequentialOrUniqueNickname();
     const newData = [...players];
     newData[currentPlayerIndex] = {
@@ -105,6 +107,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
   
 
   const handleInputChange = (field: 'nickname' | 'realName', value: string) => {
+    if (field === 'nickname' && isNicknameFixed) return;
     const newData = [...players];
     newData[currentPlayerIndex] = {
       ...newData[currentPlayerIndex],
@@ -175,11 +178,13 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
                   type="text"
                   value={players[currentPlayerIndex].nickname}
                   onChange={(e) => handleInputChange('nickname', e.target.value)}
+                  readOnly={isNicknameFixed}
+                  aria-readonly={isNicknameFixed}
                   placeholder="例: ミサミサ"
                   className="player-setup__input"
                   style={{ flex: 1 }}
                 />
-                <button type="button" className="dn-button" onClick={fillRandomNickOnly} style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>ランダム</button>
+                <button type="button" className="dn-button" onClick={fillRandomNickOnly} style={{ padding: '8px 10px', whiteSpace: 'nowrap' }} disabled={isNicknameFixed} aria-disabled={isNicknameFixed}>ランダム</button>
               </div>
               {currentPlayerIndex === players.length - 1 && players.slice(0, players.length - 1).every((p) => p.nickname.trim() !== '') && (
                 <p className="player-setup__hint" style={{ color: 'var(--text-dim)' }}>※ ニックネーム固定</p>
