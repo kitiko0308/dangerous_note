@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import type { Player, GamePhase, GameResult } from '../../types';
+import React, { useState } from "react";
+import type { Player, GamePhase, GameResult } from "../../types";
 
-import MorningPhase from '../../components/game/MorningPhase';
-import MiniGamePhase from '../../components/game/MiniGamePhase';
-import MiniGameResultPhase from '../../components/game/MiniGameResultPhase';
-import VotingPhase from '../../components/game/VotingPhase';
-import ExileResultPhase from '../../components/game/ExileResultPhase';
-import MidnightPhase from '../../components/game/MidnightPhase';
+import MorningPhase from "../../components/game/MorningPhase";
+import MiniGamePhase from "../../components/game/MiniGamePhase";
+import MiniGameResultPhase from "../../components/game/MiniGameResultPhase";
+import VotingPhase from "../../components/game/VotingPhase";
+import ExileResultPhase from "../../components/game/ExileResultPhase";
+import MidnightPhase from "../../components/game/MidnightPhase";
 
 type Props = {
   players: Player[];
@@ -18,103 +18,126 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   const [turn, setTurn] = useState(1);
   const [phase, setPhase] = useState<GamePhase>("morning");
   const [exiledPlayerId, setExiledPlayerId] = useState<number | null>(null);
-  const [_lastExiledPlayerName, setLastExiledPlayerName] = useState<string | null>(null);
-  
-  const [lastEvents, setLastEvents] = useState<string[]>(["ゲーム開始！最初のターンです。"]);
+  const [_lastExiledPlayerName, setLastExiledPlayerName] = useState<
+    string | null
+  >(null);
+
+  const [lastEvents, setLastEvents] = useState<string[]>([
+    "ゲーム開始！最初のターンです。",
+  ]);
   const [nightActionLogs, setNightActionLogs] = useState<string[]>([]);
   const [miniGameRanking, setMiniGameRanking] = useState<number[]>([]);
+  const [miniGameTaps, setMiniGameTaps] = useState<Record<number, number>>({});
 
   const toZenkaku = (n: number) => String(n).replace(/\d/g, d => '０１２３４５６７８９'[Number(d)]);
 
   const handleVote = (id: number | null) => {
     setExiledPlayerId(id);
-    
+
     let updatedPlayers = players;
 
     // もし追放された人がいたら、その人の生存フラグを折り、名前を記録する
     if (id !== null) {
-      const exiledP = players.find(p => p.id === id);
+      const exiledP = players.find((p) => p.id === id);
       setLastExiledPlayerName(exiledP?.nickname || null);
 
-      updatedPlayers = players.map(p => 
-        p.id === id ? { ...p, isAlive: false } : p
+      updatedPlayers = players.map((p) =>
+        p.id === id ? { ...p, isAlive: false } : p,
       );
       setPlayers(updatedPlayers);
     } else {
       setLastExiledPlayerName(null);
     }
-    
+
     setPhase("exile_result");
 
     // 勝利判定：キラが追放されたら村人勝利
     if (id !== null) {
-      const exiledP = updatedPlayers.find(p => p.id === id);
-      if (exiledP?.role === 'kira') {
+      const exiledP = updatedPlayers.find((p) => p.id === id);
+      if (exiledP?.role === "kira") {
         onEnd("kira_lose");
         return;
       }
     }
 
     // 勝利判定：キラ以外の生存者がいなくなったらキラ勝利
-    const otherSurvivors = updatedPlayers.filter(p => p.isAlive && p.role !== 'kira');
+    const otherSurvivors = updatedPlayers.filter(
+      (p) => p.isAlive && p.role !== "kira",
+    );
     if (otherSurvivors.length === 0) {
       onEnd("kira_win");
       return;
     }
   };
 
-  const handleNextPhase = (miniGameResults?: number[]) => {
+  type MiniGameResults = { rankingIds: number[]; taps: Record<number, number> };
+
+  const handleNextPhase = (miniGameResults?: MiniGameResults) => {
     if (miniGameResults) {
-      setMiniGameRanking(miniGameResults);
+      setMiniGameRanking(miniGameResults.rankingIds);
+      setMiniGameTaps(miniGameResults.taps || {});
     }
     switch (phase) {
-      case "morning": setPhase("mini_game"); break;
-      case "mini_game": setPhase("minigame_result"); break;
-      case "minigame_result": setPhase("voting"); break;
-      case "voting": 
+      case "morning":
+        setPhase("mini_game");
+        break;
+      case "mini_game":
+        setPhase("minigame_result");
+        break;
+      case "minigame_result":
+        setPhase("voting");
+        break;
+      case "voting":
         // handleVote() で遷移するためここは通らない
         break;
       case "exile_result": {
         // 追放された人がキラなら村人の勝ち
-        const exiledPlayer = exiledPlayerId !== null ? players.find(p => p.id === exiledPlayerId) : null;
+        const exiledPlayer =
+          exiledPlayerId !== null
+            ? players.find((p) => p.id === exiledPlayerId)
+            : null;
         if (exiledPlayer?.role === "kira") {
           onEnd("villager_win");
         } else {
-          setPhase("midnight"); 
+          setPhase("midnight");
         }
         break;
       }
       case "midnight":
         if (turn >= 5) {
           // 判定ロジック：キラが自分の手（深夜アクション）で1人でも殺したか？
-          const kiraKillsCount = players.filter(p => p.isKilledByKira).length; 
+          const kiraKillsCount = players.filter((p) => p.isKilledByKira).length;
           if (kiraKillsCount === 0) onEnd("kira_lose");
           else onEnd("kira_win");
         } else {
           setTurn(turn + 1);
           setPhase("morning"); // 深夜の次は「朝」
-          
+
           // 朝に表示するメッセージを組み立てる
           const morningMessages: string[] = [];
           if (nightActionLogs.length > 0) {
             morningMessages.push(...nightActionLogs);
           } else {
-            morningMessages.push("昨夜は誰も殺害されず、平和な夜が明けました。");
+            morningMessages.push(
+              "昨夜は誰も殺害されず、平和な夜が明けました。",
+            );
           }
 
           setLastEvents(morningMessages);
           setNightActionLogs([]); // ログをリセット
 
           // 未使用アイテムの消去 ＋ 深夜に殺されたプレイヤーを正式に死亡状態にする
-          const updatedPlayers = players.map(p => ({ 
-            ...p, 
-            items: [], 
-            isAlive: p.isKilledByKira ? false : p.isAlive 
+          const updatedPlayers = players.map((p) => ({
+            ...p,
+            items: [],
+            isAlive: p.isKilledByKira ? false : p.isAlive,
           }));
           setPlayers(updatedPlayers);
 
           // 勝利判定：キラ以外の生存者がいなくなったらキラ勝利（深夜の殺害確定後）
-          const otherSurvivorsAfterMidnight = updatedPlayers.filter(p => p.isAlive && p.role !== 'kira');
+          const otherSurvivorsAfterMidnight = updatedPlayers.filter(
+            (p) => p.isAlive && p.role !== "kira",
+          );
           if (otherSurvivorsAfterMidnight.length === 0) {
             onEnd("kira_win");
             return;
@@ -132,25 +155,33 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
         </h2>
         
         {/* 生存者リスト（ゲーム中ずっと表示される共通UI） */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          {players.map(p => (
-            <div 
-              key={p.id} 
-              style={{ 
-                padding: '5px 12px', 
-                backgroundColor: p.isAlive ? '#2a2a2a' : '#111', 
-                color: p.isAlive ? 'white' : '#555',
-                border: p.isAlive ? '1px solid #555' : '1px solid #222',
-                borderRadius: '20px',
-                fontSize: '14px',
-                textDecoration: p.isAlive ? 'none' : 'line-through',
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "10px",
+            flexWrap: "wrap",
+          }}
+        >
+          {players.map((p) => (
+            <div
+              key={p.id}
+              style={{
+                padding: "5px 12px",
+                backgroundColor: p.isAlive ? "#2a2a2a" : "#111",
+                color: p.isAlive ? "white" : "#555",
+                border: p.isAlive ? "1px solid #555" : "1px solid #222",
+                borderRadius: "20px",
+                fontSize: "14px",
+                textDecoration: p.isAlive ? "none" : "line-through",
                 opacity: p.isAlive ? 1 : 0.6,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px'
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
               }}
             >
-              {p.nickname} {!p.isAlive && <span style={{ fontSize: '12px' }}>💀</span>}
+              {p.nickname}{" "}
+              {!p.isAlive && <span style={{ fontSize: "12px" }}>💀</span>}
             </div>
           ))}
         </div>
@@ -164,21 +195,35 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
           <MiniGamePhase players={players} onNext={handleNextPhase} />
         )}
         {phase === "minigame_result" && (
-          <MiniGameResultPhase 
-            players={players} 
-            setPlayers={setPlayers} 
-            onNext={() => handleNextPhase()} 
+          <MiniGameResultPhase
+            players={players}
+            setPlayers={setPlayers}
+            onNext={() => handleNextPhase()}
             rankingIds={miniGameRanking}
+            taps={miniGameTaps}
           />
         )}
         {phase === "voting" && (
-          <VotingPhase players={players} setPlayers={setPlayers} onVote={handleVote} />
+          <VotingPhase
+            players={players}
+            setPlayers={setPlayers}
+            onVote={handleVote}
+          />
         )}
         {phase === "exile_result" && (
-          <ExileResultPhase exiledPlayerId={exiledPlayerId} players={players} onNext={handleNextPhase} />
+          <ExileResultPhase
+            exiledPlayerId={exiledPlayerId}
+            players={players}
+            onNext={handleNextPhase}
+          />
         )}
         {phase === "midnight" && (
-          <MidnightPhase players={players} setPlayers={setPlayers} setNightActionLogs={setNightActionLogs} onNext={handleNextPhase} />
+          <MidnightPhase
+            players={players}
+            setPlayers={setPlayers}
+            setNightActionLogs={setNightActionLogs}
+            onNext={handleNextPhase}
+          />
         )}
       </main>
     </div>
