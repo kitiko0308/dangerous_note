@@ -75,7 +75,7 @@ const contentStyle: React.CSSProperties = {
   maxWidth: "min(1400px, 96%)",
   display: "flex",
   flexDirection: "column",
-  alignItems: "stretch",
+  alignItems: "center",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -112,4 +112,5 @@ const gameCardStyle: React.CSSProperties = {
   backdropFilter: "blur(6px)",
   WebkitBackdropFilter: "blur(6px)",
   padding: "clamp(8px, 2vw, 14px)",
+  margin: "0 auto",
 };
