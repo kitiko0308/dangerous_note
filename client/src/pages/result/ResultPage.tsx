@@ -34,20 +34,23 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
     return 'villager';
   };
   const winnerKey = normalizeWinner(rawWinner as string | undefined);
+  const normalizedResultData = resultData
+    ? { ...resultData, winner: normalizeWinner(resultData.winner) }
+    : undefined;
 
-  const data: ResultData = resultData || {
+  const data: ResultData = normalizedResultData || {
     winner: winnerKey,
     turn: resolvedTurn,
     survivors: players?.filter(p => p.isAlive).length ?? 0,
     executed: players?.filter(p => !p.isAlive).length ?? 0,
-    destroyedKira: result === 'villager_win' || result === 'kira_lose',
+    destroyedKira: winnerKey === 'villager',
     players: players?.map(p => ({
       name: p.realName || 'Unknown', nickname: p.nickname || '-',
       role: p.role === 'kira' ? 'キラ' : p.role === 'l' ? 'L' : '市民', alive: p.isAlive,
     })) || [],
   };
 
-  const kira = data.winner === 'kira';
+  const kira = winnerKey === 'kira';
 
   // 各役職の生存状況を取得
   const lPlayer = data.players.find(p => p.role === 'L');
