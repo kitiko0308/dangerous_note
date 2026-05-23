@@ -96,7 +96,7 @@ export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }
         <h2 className="vote-title" style={titleStyle}>追放投票</h2>
 
         <p style={descriptionStyle}>
-          怪しい人物を1人選んでください。名前の一部が公開されている場合があります。
+          怪しい人物を1人選んでください。
         </p>
 
         <div className="vote-grid" style={playerGridStyle}>
@@ -130,7 +130,7 @@ export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }
           誰も追放しない
         </button>
 
-        <p style={noteStyle}>※誰かを選択すると、その人の追放結果演出へ進みます</p>
+        <p style={noteStyle}>※選択をすると、追放結果へ進みます</p>
       </div>
     </div>
   );
