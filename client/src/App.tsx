@@ -12,27 +12,36 @@ import ResultPage from "./pages/result/ResultPage";
 // 型のインポート
 import type { ScreenState, GameResult, Player } from "./types";
 
+const createInitialPlayers = (): Player[] =>
+  Array.from({ length: 5 }, (_, i) => ({
+    id: i,
+    nickname: "",
+    realName: "",
+    role: "villager",
+    isAlive: true,
+    items: [],
+    revealedChars: [],
+    kiraRevealedChars: [],
+    isKilledByKira: false,
+  }));
+
 function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenState>("title");
   const [gameResult, setGameResult] = useState<GameResult>(null);
+  const [gameTurn, setGameTurn] = useState(0);
 
   // 全プレイヤーのデータを管理
-  const [players, setPlayers] = useState<Player[]>(
-    Array.from({ length: 5 }, (_, i) => ({
-      id: i,
-      nickname: "",
-      realName: "",
-      role: "villager",
-      isAlive: true,
-      items: [],
-      revealedChars: [],
-      kiraRevealedChars: [],
-      isKilledByKira: false,
-    }))
-  );
+  const [players, setPlayers] = useState<Player[]>(createInitialPlayers());
 
-  const handleGameEnd = (result: GameResult) => {
+  const resetGameState = () => {
+    setGameResult(null);
+    setGameTurn(0);
+    setPlayers(createInitialPlayers());
+  };
+
+  const handleGameEnd = (result: GameResult, turn: number) => {
     setGameResult(result);
+    setGameTurn(turn);
     setCurrentScreen("result");
   };
 
@@ -77,8 +86,9 @@ function App() {
         <ResultPage 
           result={gameResult} 
           players={players}
+          turn={gameTurn}
           onBack={() => {
-            setGameResult(null);
+            resetGameState();
             setCurrentScreen("title");
           }} 
         />

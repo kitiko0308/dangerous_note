@@ -21,25 +21,36 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
   const normalizeWinner = (w?: string): 'kira' | 'villager' => {
     if (!w) return 'villager';
     const lw = String(w).toLowerCase();
-    if (lw.includes('kira') || lw === 'キラ') return 'kira';
-    if (lw.includes('villager') || lw.includes('市民') || lw === 'l') return 'villager';
+    if (lw === 'kira_win' || lw === 'kira' || lw === 'キラ') return 'kira';
+    if (
+      lw === 'villager_win' ||
+      lw === 'kira_lose' ||
+      lw.includes('villager') ||
+      lw.includes('市民') ||
+      lw === 'l'
+    ) {
+      return 'villager';
+    }
     return 'villager';
   };
   const winnerKey = normalizeWinner(rawWinner as string | undefined);
+  const normalizedResultData = resultData
+    ? { ...resultData, winner: normalizeWinner(resultData.winner) }
+    : undefined;
 
-  const data: ResultData = resultData || {
+  const data: ResultData = normalizedResultData || {
     winner: winnerKey,
     turn: resolvedTurn,
     survivors: players?.filter(p => p.isAlive).length ?? 0,
     executed: players?.filter(p => !p.isAlive).length ?? 0,
-    destroyedKira: result === 'villager_win' || result === 'kira_lose',
+    destroyedKira: winnerKey === 'villager',
     players: players?.map(p => ({
       name: p.realName || 'Unknown', nickname: p.nickname || '-',
       role: p.role === 'kira' ? 'キラ' : p.role === 'l' ? 'L' : '市民', alive: p.isAlive,
     })) || [],
   };
 
-  const kira = data.winner === 'kira';
+  const kira = winnerKey === 'kira';
 
   // 各役職の生存状況を取得
   const lPlayer = data.players.find(p => p.role === 'L');
@@ -179,6 +190,15 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
           </div>
         </header>
 
+        <div className="r-fade" style={{ textAlign:'center', padding: '4px 20px 10px' }}>
+          <div style={{ fontSize: 'clamp(1.8rem, 4.8vw, 3.8rem)', fontWeight: 900, lineHeight: 1.12, letterSpacing: '.08em', color: '#f8fafc', textShadow: `0 0 26px ${ac}99, 0 2px 10px rgba(0,0,0,.9)` }}>
+            {title}
+          </div>
+          <div style={{ marginTop: 8, fontSize: 'clamp(.85rem, 2.1vw, 1.05rem)', letterSpacing: '.18em', color: ac2, textShadow: '0 2px 10px rgba(0,0,0,.88)' }}>
+            {sub}
+          </div>
+        </div>
+
         {/* メインレイアウト */}
         <div className="r-fade" style={{ flex:1,display:'flex',flexWrap:'wrap',gap:10,padding:'12px 20px 24px',maxWidth:1320,margin:'0 auto',width:'100%',alignItems:'stretch' }}>
 
@@ -200,17 +220,6 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
 
           {/* 中央: 結果 */}
           <div style={{ flex:1,minWidth:320,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',order:2,paddingTop:10 }} className="r-result-col">
-
-            {/* 勝利タイトル */}
-            <div style={{ textAlign:'center',width:'100%',marginTop:14,marginBottom:28 }}>
-              <h1 style={{ fontSize:'clamp(2.35rem,7.8vw,4.2rem)',fontWeight:900,lineHeight:1.12,margin:'0 0 12px',
-                background:'linear-gradient(180deg,#fff 0%,#ccc 40%,#ddd 60%,#888 100%)',
-                WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',
-                filter:`drop-shadow(0 0 26px ${ac}99)` }}>
-                {title}
-              </h1>
-              <p style={{ fontSize:'clamp(.9rem,2.6vw,1.15rem)',letterSpacing:'.28em',color:ac2,margin:0,textShadow:'0 2px 10px rgba(0,0,0,.88)' }}>{sub}</p>
-            </div>
 
             <div className="r-mobile-portrait" style={{ display:'none',width:'100%',maxWidth:610,border:'1px solid rgba(255,255,255,.12)',background:'rgba(0,0,0,.76)',padding:6,marginBottom:16,boxShadow:`0 0 30px ${ac}24`,position:'relative' }}>
               <div style={{ position:'relative' }}>
