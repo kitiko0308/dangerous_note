@@ -80,7 +80,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
                 type="text"
                 value={players[currentPlayerIndex].nickname}
                 onChange={(e) => handleInputChange('nickname', e.target.value)}
-                placeholder="例: たなか"
+                placeholder="例: ミサミサ"
                 className="player-setup__input"
               />
             </div>
