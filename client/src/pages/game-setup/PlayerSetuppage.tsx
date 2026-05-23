@@ -13,6 +13,32 @@ type Props = {
 export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }: Props) {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
 
+  const sampleNicknames = ['いちか', 'にの', 'みく', 'よつば', 'いつき'];
+
+  // ベースになる本名ソース（ユーザー指定の候補）
+  const baseRealNameSources = ['天音海砂', '高橋太一', '山口誠人', '桜井舞子', '鈴木一郎'];
+  const realNameCharPool = baseRealNameSources.join('').split('').filter((c) => c.trim() !== '');
+
+  const generateRandomRealName = () => {
+    let name = '';
+    for (let i = 0; i < 4; i += 1) {
+      name += realNameCharPool[Math.floor(Math.random() * realNameCharPool.length)];
+    }
+    return name;
+  };
+
+  const fillRandom = () => {
+    const nick = sampleNicknames[currentPlayerIndex % sampleNicknames.length];
+    const real = generateRandomRealName();
+    const newData = [...players];
+    newData[currentPlayerIndex] = {
+      ...newData[currentPlayerIndex],
+      nickname: nick,
+      realName: real,
+    };
+    setPlayers(newData);
+  };
+
   
 
   const handleInputChange = (field: 'nickname' | 'realName', value: string) => {
@@ -103,6 +129,10 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
               {realNameTrimmed.length > 0 && !realNameValid && (
                 <p className="player-setup__hint" style={{ color: '#dc2626' }}>※ 本名は ４文字 で入力してください</p>
               )}
+            </div>
+
+            <div style={{ marginTop: 12 }}>
+              <button type="button" className="dn-button" onClick={fillRandom} style={{ padding: '8px 14px' }}>ランダム入力</button>
             </div>
 
             <button
