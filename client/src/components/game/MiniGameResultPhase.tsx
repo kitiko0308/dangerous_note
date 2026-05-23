@@ -168,14 +168,17 @@ export default function MiniGameResultPhase({
               </div>
             </div>
 
-            {/* 全員の現在の公開状態を表示（チームメンバーのUI実装の参考用） */}
-            <div className="dn-panel" style={{ width: '100%', padding: '15px 20px', textAlign: "left" }}>
+            {/* 全員の現在の公開状態を表示 */}
+            <div className="dn-panel" style={{ width: '100%', padding: '20px 24px', textAlign: "left" }}>
               <h3
                 style={{
-                  fontSize: 'clamp(.8rem, 1.5vw, .9rem)',
+                  fontSize: 13,
                   letterSpacing: '.2em',
                   color: '#9ca3af',
-                  marginBottom: "15px",
+                  borderBottom: '1px solid rgba(255,255,255,.08)',
+                  paddingBottom: 10,
+                  marginTop: 0,
+                  marginBottom: 12,
                   textAlign: "center",
                 }}
               >
@@ -185,7 +188,7 @@ export default function MiniGameResultPhase({
                 style={{
                   display: "flex",
                   flexWrap: "wrap",
-                  gap: "10px",
+                  gap: "12px",
                   justifyContent: "center",
                 }}
               >
@@ -202,25 +205,42 @@ export default function MiniGameResultPhase({
                       <div
                         key={p.id}
                         style={{
-                          background: "rgba(0,0,0,.35)",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          minWidth: "120px",
+                          background: "linear-gradient(180deg, rgba(255,255,255,.06) 0%, rgba(0,0,0,.3) 100%)",
+                          padding: "0",
+                          borderRadius: "10px",
+                          minWidth: "130px",
+                          flex: "1 0 auto",
+                          maxWidth: "160px",
                           textAlign: "center",
                           border: "1px solid rgba(255,255,255,.1)",
+                          boxShadow: "0 4px 16px rgba(0,0,0,.4)",
+                          overflow: "hidden",
                         }}
                       >
-                        <div style={{ fontWeight: "bold", color: "#e5e5e5", fontSize: 'clamp(.8rem, 1.5vw, .9rem)' }}>
-                          {p.nickname}
+                        <div style={{
+                          background: "rgba(0,0,0,.35)",
+                          padding: "12px 14px 8px",
+                          borderBottom: "1px solid rgba(255,255,255,.06)",
+                        }}>
+                          <div style={{ fontWeight: 700, color: "#e5e5e5", fontSize: 'clamp(.85rem, 1.5vw, .95rem)', letterSpacing: '.08em' }}>
+                            {p.nickname}
+                          </div>
                         </div>
-                        <div
-                          style={{
-                            fontSize: 'clamp(.65rem, 1.2vw, .75rem)',
-                            color: "#fca5a5",
-                            marginTop: "5px",
-                          }}
-                        >
-                          {maskedName}
+                        <div style={{
+                          padding: "10px 14px 14px",
+                        }}>
+                          <div style={{ fontSize: 'clamp(.7rem, 1.2vw, .8rem)', color: "#9ca3af", letterSpacing: '.15em', marginBottom: 4 }}>本名</div>
+                          <div
+                            style={{
+                              fontSize: 'clamp(.8rem, 1.4vw, .9rem)',
+                              color: "#fca5a5",
+                              fontWeight: 500,
+                              letterSpacing: '.12em',
+                              fontFamily: '"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif',
+                            }}
+                          >
+                            {maskedName}
+                          </div>
                         </div>
                       </div>
                     );
