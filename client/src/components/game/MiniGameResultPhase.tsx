@@ -144,23 +144,16 @@ export default function MiniGameResultPhase({
       <div className="title-screen__grain" aria-hidden="true" />
       <div className="title-screen__vignette" aria-hidden="true" />
 
-      <main className="title-content" style={{ gap: '1.2rem', padding: '2.6rem 1.4rem 1.8rem' }}>
+      <main className="title-content" style={{ gap: '0.8rem', padding: '3rem 1.4rem 1.8rem', alignContent: 'start', justifyContent: 'center', justifyItems: 'center' }}>
         <h2 className="title-logo" style={{ fontSize: 'clamp(2.2rem, 5.5vw, 4.2rem)' }}>
-          📊 ミニゲーム結果
+          ミニゲーム結果
         </h2>
 
         {!isProcessed ? (
           <p className="title-sub">集計中...</p>
         ) : (
-          <div style={{ textAlign: "center", width: '100%', maxWidth: 560, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2rem' }}>
+          <div style={{ textAlign: "center", width: '100%', maxWidth: 560, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2rem', fontFamily: '"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif' }}>
             <div className="dn-panel" style={{ width: '100%', padding: '20px 24px', textAlign: 'left' }}>
-              <p className="title-sub" style={{ fontSize: 'clamp(.78rem, 1.6vw, .92rem)', marginBottom: 20 }}>
-                【担当2への申し送り】
-              </p>
-              <p style={{ fontSize: 'clamp(.78rem, 1.4vw, .85rem)', color: '#9ca3af', marginBottom: 20 }}>
-                データ処理は完了しています。以下の内容を使ってかっこいい演出を作ってください。
-              </p>
-
               <div style={{ textAlign: "left", display: "inline-block", width: '100%' }}>
                 <ul style={{ fontSize: 'clamp(.9rem, 1.8vw, 1.05rem)', listStyle: "none", padding: 0, margin: 0 }}>
                   {eventLogs.map((log, i) => (
@@ -186,7 +179,7 @@ export default function MiniGameResultPhase({
                   textAlign: "center",
                 }}
               >
-                👥 現在のプレイヤー情報（全員に見えています）
+                現在のプレイヤー情報
               </h3>
               <div
                 style={{
@@ -236,7 +229,7 @@ export default function MiniGameResultPhase({
             </div>
 
             <button
-              className="dn-button"
+              className="dn-button dn-button-primary"
               onClick={onNext}
               style={{
                 width: 'min(74vw, 320px)',
