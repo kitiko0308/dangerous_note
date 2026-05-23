@@ -4,20 +4,15 @@ import asaImage from '../../assets/img/asa.png';
 type Props = {
   events: string[];
   onNext: () => void;
-  killedNicknames: string[];
 };
 
-export default function MorningPhase({ events, onNext, killedNicknames }: Props) {
+export default function MorningPhase({ events, onNext }: Props) {
   const TOTAL_SECONDS = 60 * 5; // 5分
-  const INTRO_SECONDS = 5;
-  const [showMorningPhase, setShowMorningPhase] = useState<boolean>(false);
-  const [showVictimName, setShowVictimName] = useState<boolean>(false);
+  const showMorningPhase = true;
   const [secondsLeft, setSecondsLeft] = useState<number>(TOTAL_SECONDS);
   const [isBlinkVisible, setIsBlinkVisible] = useState<boolean>(true);
   const intervalRef = useRef<number | null>(null);
   const blinkRef = useRef<number | null>(null);
-  const introRef = useRef<number | null>(null);
-  const victimRef = useRef<number | null>(null);
   const onNextRef = useRef<() => void>(onNext);
 
   // Keep the ref up-to-date so the interval always calls the latest callback
@@ -25,38 +20,6 @@ export default function MorningPhase({ events, onNext, killedNicknames }: Props)
   useEffect(() => {
     onNextRef.current = onNext;
   }, [onNext]);
-
-  useEffect(() => {
-    if (victimRef.current) return;
-
-    victimRef.current = window.setTimeout(() => {
-      setShowVictimName(true);
-      victimRef.current = null;
-    }, 2000);
-
-    return () => {
-      if (victimRef.current) {
-        clearTimeout(victimRef.current);
-        victimRef.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (introRef.current) return;
-
-    introRef.current = window.setTimeout(() => {
-      setShowMorningPhase(true);
-      introRef.current = null;
-    }, INTRO_SECONDS * 1000);
-
-    return () => {
-      if (introRef.current) {
-        clearTimeout(introRef.current);
-        introRef.current = null;
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (!showMorningPhase) return;
@@ -136,52 +99,6 @@ export default function MorningPhase({ events, onNext, killedNicknames }: Props)
   };
 
   const progress = (secondsLeft / TOTAL_SECONDS) * 100;
-
-  if (!showMorningPhase) {
-    return (
-      <div
-        className="dn-panel"
-        style={{
-          maxWidth: 740,
-          margin: '0 auto',
-          textAlign: 'center',
-          minHeight: 520,
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.56), rgba(0, 0, 0, 0.56)), url(${asaImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-          backgroundRepeat: 'no-repeat',
-          padding: 0,
-          position: 'relative',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: '70%',
-            left: 0,
-            right: 0,
-            textAlign: 'center',
-            fontFamily: '"Yu Mincho", "Hiragino Mincho ProN", serif',
-            letterSpacing: '0.08em',
-          }}
-        >
-          <p style={{ color: '#000000', fontSize: '1.2rem', margin: 0, fontWeight: 500 }}>被害者</p>
-          {showVictimName && (
-            <p
-              style={{
-                color: '#ff5a5a',
-                fontSize: '1.1rem',
-                margin: '8px 0 0 0',
-                fontWeight: 500,
-              }}
-            >
-              {killedNicknames.length > 0 ? killedNicknames.join('　') : 'なし'}
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div
