@@ -21,6 +21,7 @@ export default function ExileResultPhase({
 
   return (
     <div
+      className="exile-result-container"
       style={{
         ...containerStyle,
         backgroundImage: `
@@ -34,7 +35,10 @@ export default function ExileResultPhase({
     >
       <style>{`
         .exile-next-button {
-          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+          transition:
+            transform 0.18s ease,
+            box-shadow 0.18s ease,
+            filter 0.18s ease;
         }
 
         .exile-next-button:hover {
@@ -82,16 +86,21 @@ export default function ExileResultPhase({
           }
         }
       `}</style>
-      <div style={cardStyle}>
+
+      <div className="exile-result-card" style={cardStyle}>
         <p style={labelStyle}>EXILE RESULT</p>
 
-        <h2 style={titleStyle} className="exile-result-title">追放結果発表</h2>
+        <h2 style={titleStyle} className="exile-result-title">
+          追放結果発表
+        </h2>
 
         {exiledPlayer ? (
           <>
             <p style={subTextStyle}>投票の結果、追放されたのは</p>
 
-            <h1 style={nameStyle} className="exile-result-name">{exiledPlayer.nickname}</h1>
+            <h1 style={nameStyle} className="exile-result-name">
+              {exiledPlayer.nickname}
+            </h1>
 
             <p style={sentenceStyle}>でした。</p>
 
@@ -129,7 +138,10 @@ export default function ExileResultPhase({
           <>
             <p style={subTextStyle}>投票の結果</p>
 
-            <h1 style={noExileStyle} className="exile-result-no-exile">
+            <h1
+              style={noExileStyle}
+              className="exile-result-no-exile"
+            >
               誰も追放されませんでした
             </h1>
 
@@ -141,7 +153,12 @@ export default function ExileResultPhase({
 
         <div style={dividerStyle} />
 
-        <button type="button" onClick={onNext} style={buttonStyle} className="exile-next-button">
+        <button
+          type="button"
+          onClick={onNext}
+          style={buttonStyle}
+          className="exile-next-button"
+        >
           次へ進む
         </button>
       </div>
@@ -154,7 +171,7 @@ const containerStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'flex-start',
-  padding: 'clamp(24px, 6vw, 80px) 16px 32px',
+  padding: '80px 16px 40px',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
@@ -166,14 +183,10 @@ const cardStyle: React.CSSProperties = {
   padding: '24px 28px 26px',
   borderRadius: 18,
   border: 'none',
-
   background: 'rgba(8, 4, 4, 0.38)',
-
   boxShadow: '0 8px 24px rgba(0,0,0,0.32)',
-
   color: '#e8e0d4',
   textAlign: 'center',
-
   backdropFilter: 'blur(2px)',
 };
 
