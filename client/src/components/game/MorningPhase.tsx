@@ -150,7 +150,7 @@ export default function MorningPhase({ events, onNext, killedNicknames = [] }: P
         <div
           style={{
             position: 'absolute',
-            top: '25%',
+            top: '70%',
             left: 0,
             right: 0,
             textAlign: 'center',
