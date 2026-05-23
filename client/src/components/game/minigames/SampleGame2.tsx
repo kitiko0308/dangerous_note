@@ -8,8 +8,8 @@ type Props = {
 
 function useShakeCounter(active: boolean, threshold = 6, cooldown = 200) {
   const [count, setCount] = React.useState(0);
-  const [mag, setMag] = React.useState(0);
-  const [delta, setDelta] = React.useState(0);
+  const magRef = React.useRef(0);
+  const deltaRef = React.useRef(0);
   const prevMag = React.useRef<number | null>(null);
   const lastRef = React.useRef(0);
   const countRef = React.useRef(0);
@@ -23,10 +23,10 @@ function useShakeCounter(active: boolean, threshold = 6, cooldown = 200) {
       const y = a.y ?? 0;
       const z = a.z ?? 0;
       const m = Math.sqrt(x * x + y * y + z * z);
-      setMag(m);
+      magRef.current = m;
       if (prevMag.current != null) {
         const d = Math.abs(m - prevMag.current);
-        setDelta(d);
+        deltaRef.current = d;
         const now = Date.now();
         if (d > threshold && now - lastRef.current > cooldown) {
           lastRef.current = now;
@@ -48,13 +48,13 @@ function useShakeCounter(active: boolean, threshold = 6, cooldown = 200) {
   const reset = () => {
     setCount(0);
     countRef.current = 0;
-    setMag(0);
-    setDelta(0);
+    magRef.current = 0;
+    deltaRef.current = 0;
     prevMag.current = null;
     lastRef.current = 0;
   };
 
-  return [count, reset, mag, delta, getCount] as const;
+  return [count, reset, () => magRef.current, () => deltaRef.current, getCount] as const;
 }
 
 function requestPermissionWithActivation(): Promise<boolean> {
@@ -76,22 +76,69 @@ function requestPermissionWithActivation(): Promise<boolean> {
 }
 
 export default function SampleGame({ players, onFinish }: Props) {
-  const alivePlayers = players.filter((p) => p.isAlive);
+  const alivePlayers = React.useMemo(() => players.filter((p) => p.isAlive), [players]);
   const [idx, setIdx] = React.useState(0);
   const [running, setRunning] = React.useState(false);
   const [countdown, setCountdown] = React.useState<number | null>(null);
   const [timeLeft, setTimeLeft] = React.useState<number | null>(null);
   const [permOk, setPermOk] = React.useState<boolean | null>(null);
   const [counts, setCounts] = React.useState<Record<number, number>>({});
-  const [count, resetCount, , , getCount] = useShakeCounter(running);
+  const [count, resetCount] = useShakeCounter(running);
+
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countRef = React.useRef(count);
+  const idxRef = React.useRef(idx);
+  const alivePlayersRef = React.useRef(alivePlayers);
+  React.useEffect(() => { countRef.current = count; });
+  React.useEffect(() => { idxRef.current = idx; });
+  React.useEffect(() => { alivePlayersRef.current = alivePlayers; });
+
+  const finishTurn = React.useCallback(() => {
+    setRunning(false);
+    setTimeLeft(null);
+    setCounts((prev) => ({ ...prev, [alivePlayersRef.current[idxRef.current].id]: countRef.current }));
+    setIdx((i) => i + 1);
+  }, []);
+
+  const clearTimer = React.useCallback(() => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const tickRef = React.useRef<((remaining: number) => void) | null>(null);
+  const tick = React.useCallback((remaining: number) => {
+    if (remaining <= 0) {
+      finishTurn();
+      return;
+    }
+    setTimeLeft(remaining);
+    timerRef.current = setTimeout(() => tickRef.current!(remaining - 1), 1000);
+  }, [finishTurn]);
+  React.useEffect(() => { tickRef.current = tick; });
 
   React.useEffect(() => {
-    // 参加者が0人の場合は即座に終了を通知する
+    if (countdown === null) return;
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown((c) => (c ?? 0) - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+    const timer = setTimeout(() => {
+      setCountdown(null);
+      setRunning(true);
+      tick(5);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [countdown, tick]);
+
+  React.useEffect(() => () => clearTimer(), [clearTimer]);
+
+  React.useEffect(() => {
     if (alivePlayers.length === 0) {
       onFinish([]);
       return;
     }
-
     if (idx >= alivePlayers.length) {
       const ranking = [...alivePlayers]
         .sort((a, b) => (counts[b.id] || 0) - (counts[a.id] || 0))
@@ -111,43 +158,12 @@ export default function SampleGame({ players, onFinish }: Props) {
     setCountdown(3);
   };
 
-  React.useEffect(() => {
-    if (countdown === null) return;
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown((c) => (c ?? 0) - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-    const timer = setTimeout(() => {
-      setCountdown(null);
-      setRunning(true);
-      setTimeLeft(5);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [countdown]);
-
-  React.useEffect(() => {
-    if (timeLeft === null) return;
-    const timer = setTimeout(() => {
-      if (timeLeft <= 0) {
-        setRunning(false);
-        setTimeLeft(null);
-        const finalCount = getCount();
-        setCounts((prev) => ({ ...prev, [alivePlayers[idx].id]: finalCount }));
-        setIdx((i) => i + 1);
-      } else {
-        setTimeLeft((t) => (t ?? 0) - 1);
-      }
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [timeLeft]);
-
   const skipTurn = () => {
-    // stop any active countdown/measurement and record current count
-    const finalCount = getCount();
+    clearTimer();
     setCountdown(null);
     setTimeLeft(null);
     setRunning(false);
-    setCounts((prev) => ({ ...prev, [alivePlayers[idx].id]: finalCount }));
+    setCounts((prev) => ({ ...prev, [alivePlayers[idx].id]: countRef.current }));
     setIdx((i) => i + 1);
   };
 
