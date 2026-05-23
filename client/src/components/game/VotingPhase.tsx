@@ -101,9 +101,10 @@ export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }
 
         <div className="vote-grid" style={playerGridStyle}>
           {alivePlayers.map((player) => {
+            const revealedSet = new Set(player.revealedChars);
             const maskedName = player.realName
               .split('')
-              .map((char, index) => (player.revealedChars.includes(index) ? char : '〇'))
+              .map((char, index) => (revealedSet.has(index) ? char : '〇'))
               .join('');
 
             return (
@@ -113,13 +114,7 @@ export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }
                 onClick={() => onVote(player.id)}
                 className="vote-player-button"
                 style={{
-                  ...playerButtonStyle,
-                  borderColor:
-                    player.role === 'kira'
-                      ? 'rgba(138, 3, 3, 0.42)'
-                      : player.role === 'l'
-                        ? 'rgba(59, 130, 246, 0.34)'
-                        : 'rgba(255, 255, 255, 0.14)',
+                  ...playerButtonStyle
                 }}
               >
                 <span style={nicknameStyle}>{player.nickname}</span>
@@ -152,7 +147,7 @@ const containerStyle: React.CSSProperties = {
   backgroundPosition: 'center 18%',
   backgroundRepeat: 'no-repeat',
   backgroundBlendMode: 'overlay',
-  filter: 'brightness(1.06) contrast(1.08) ',
+  filter: 'brightness(1.06) contrast(1.08)',
 };
 
 const cardStyle: React.CSSProperties = {
