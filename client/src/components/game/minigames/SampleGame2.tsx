@@ -11,7 +11,7 @@ function sensorApiSupported(): boolean {
     || typeof DeviceOrientationEvent !== 'undefined';
 }
 
-function useShakeCounter(active: boolean, threshold = 12, cooldown = 450) {
+function useShakeCounter(active: boolean, threshold = 6, cooldown = 200) {
   const [count, setCount] = React.useState(0);
   const [mag, setMag] = React.useState(0);
   const [delta, setDelta] = React.useState(0);
@@ -82,9 +82,8 @@ export default function SampleGame({ players, onFinish }: Props) {
   const [running, setRunning] = React.useState(false);
   const [supported] = React.useState<boolean>(sensorApiSupported);
   const [permOk, setPermOk] = React.useState<boolean | null>(null);
-  const [pressed, setPressed] = React.useState(false);
   const [counts, setCounts] = React.useState<Record<number, number>>({});
-  const [count, resetCount, mag, delta, getCount] = useShakeCounter(running);
+  const [count, resetCount, mag, , getCount] = useShakeCounter(running);
 
   React.useEffect(() => {
     if (idx >= alivePlayers.length && alivePlayers.length > 0) {
@@ -98,11 +97,9 @@ export default function SampleGame({ players, onFinish }: Props) {
   const startTurn = async (durationMs = 5000) => {
     const ok = await requestPermissionWithActivation();
     if (!ok) {
-      setPressed(true);
       setPermOk(false);
       return;
     }
-    setPressed(true);
     setPermOk(true);
     resetCount();
     setRunning(true);
@@ -122,28 +119,41 @@ export default function SampleGame({ players, onFinish }: Props) {
   return (
     <div
       style={{
-        backgroundColor: "#2a4a2a",
+        backgroundColor: "#0f1a0f",
         padding: 30,
-        borderRadius: "8px",
+        borderRadius: "12px",
         textAlign: "center",
+        border: "1px solid rgba(180,150,120,0.15)",
+        boxShadow: "inset 0 0 60px rgba(0,0,0,0.4)",
       }}
     >
-      <h3>🎮 ミニゲーム：振るゲーム（順番計測）</h3>
+      <h3 style={{
+        fontFamily: '"Garamond", "Times New Roman", serif',
+        fontSize: "1.4rem",
+        color: "#e8e0d4",
+        letterSpacing: "0.08em",
+        marginBottom: "1rem",
+      }}>
+        🎮 ミニゲーム：振るゲーム
+      </h3>
 
       <div
         style={{
           margin: "20px 0",
-          padding: "10px",
-          backgroundColor: "#111",
-          borderRadius: "5px",
+          padding: "12px",
+          backgroundColor: "rgba(0,0,0,0.3)",
+          borderRadius: "8px",
+          border: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <p style={{ color: "#aaa", marginBottom: "10px" }}>【今回の参加者】</p>
+        <p style={{ color: "#888", marginBottom: "10px", fontSize: "0.85rem" }}>
+          【今回の参加者】
+        </p>
         <div
           style={{
             display: "flex",
             justifyContent: "center",
-            gap: "15px",
+            gap: "12px",
             flexWrap: "wrap",
           }}
         >
@@ -151,9 +161,13 @@ export default function SampleGame({ players, onFinish }: Props) {
             <span
               key={p.id}
               style={{
-                padding: "5px 10px",
-                backgroundColor: "#444",
+                padding: "5px 14px",
+                backgroundColor: "rgba(255,255,255,0.06)",
                 borderRadius: "15px",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "#e8e0d4",
+                fontFamily: '"Yu Mincho", "Hiragino Mincho ProN", serif',
+                fontSize: "0.9rem",
               }}
             >
               {p.nickname}
@@ -163,50 +177,76 @@ export default function SampleGame({ players, onFinish }: Props) {
       </div>
 
       {alivePlayers.length === 0 ? (
-        <p style={{ color: "#ccc" }}>参加者がいません</p>
+        <p style={{ color: "#888" }}>参加者がいません</p>
       ) : idx >= alivePlayers.length ? (
-        <p style={{ color: "#ccc" }}>集計中…</p>
+        <p style={{ color: "#888" }}>集計中…</p>
       ) : (
         <>
-          <p style={{ marginTop: "10px", color: "#aaa" }}>
-            {alivePlayers[idx].nickname}{" "}
+          <p style={{
+            marginTop: "10px",
+            color: "#e8e0d4",
+            opacity: 0.75,
+            fontSize: "1rem",
+            lineHeight: 1.8,
+          }}>
+            <strong style={{
+              fontFamily: '"Yu Mincho", "Hiragino Mincho ProN", serif',
+              color: "#e8e0d4",
+            }}>
+              {alivePlayers[idx].nickname}
+            </strong>{" "}
             の番です。計測中はスマホを振ってください。
           </p>
 
-          <div style={{ marginTop: 12 }}>
-            <div style={{ color: "#fff" }}>計測中: {String(running)}</div>
-            <div style={{ color: "#fff" }}>
-              センサー対応: {String(supported)}
+          <div style={{
+            marginTop: 16,
+            padding: "16px",
+            backgroundColor: "rgba(0,0,0,0.25)",
+            borderRadius: "8px",
+            border: "1px solid rgba(255,255,255,0.05)",
+          }}>
+            <div style={{
+              fontFamily: '"Garamond", "Times New Roman", serif',
+              fontSize: "3rem",
+              color: "#88ff88",
+              textShadow: "0 0 20px rgba(136,255,136,0.2)",
+              margin: "10px 0",
+            }}>
+              {count}
             </div>
-            <div style={{ color: "#fff" }}>
-              権限: {permOk === null ? "未取得" : permOk ? "許可" : "拒否"}
+            <div style={{ color: "#888", fontSize: "0.8rem", display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
+              <span>計測中: {String(running)}</span>
+              <span>センサー: {String(supported)}</span>
+              <span>権限: {permOk === null ? "未取得" : permOk ? "許可" : "拒否"}</span>
+              <span>mag: {mag.toFixed(1)}</span>
             </div>
-            <div style={{ color: "#fff" }}>カウント: {count}</div>
-            <div style={{ color: "#ddd" }}>
-              mag: {mag.toFixed(3)} delta: {delta.toFixed(3)}
-            </div>
-            <div style={{ color: "#fff" }}>ボタン押下: {String(pressed)}</div>
           </div>
 
           <div
             style={{
               display: "flex",
-              gap: 10,
+              gap: 12,
               justifyContent: "center",
-              marginTop: 16,
+              marginTop: 20,
             }}
           >
             <button
               onClick={() => startTurn(5000)}
               disabled={running}
               style={{
-                padding: "10px 20px",
+                padding: "12px 28px",
+                borderRadius: "6px",
+                border: running ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(204,193,75,0.5)",
+                background: running
+                  ? "rgba(255,255,255,0.02)"
+                  : "linear-gradient(180deg, rgba(204,193,75,0.15), rgba(50,48,20,0.25))",
+                color: running ? "#555" : "#ccc14b",
+                fontFamily: '"Yu Mincho", "Hiragino Mincho ProN", serif',
+                fontSize: "1rem",
+                letterSpacing: "0.1em",
                 cursor: running ? "default" : "pointer",
-                backgroundColor: "#ccc14b",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                opacity: running ? 0.5 : 1,
+                opacity: running ? 0.4 : 1,
+                transition: "all 0.2s",
               }}
             >
               5秒で開始
@@ -215,13 +255,17 @@ export default function SampleGame({ players, onFinish }: Props) {
               onClick={skipTurn}
               disabled={running}
               style={{
-                padding: "10px 20px",
+                padding: "12px 28px",
+                borderRadius: "6px",
+                border: "1px solid rgba(255,255,255,0.1)",
+                background: "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.15))",
+                color: running ? "#555" : "#e8e0d4",
+                fontFamily: '"Yu Mincho", "Hiragino Mincho ProN", serif',
+                fontSize: "1rem",
+                letterSpacing: "0.1em",
                 cursor: running ? "default" : "pointer",
-                backgroundColor: "#666",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                opacity: running ? 0.5 : 1,
+                opacity: running ? 0.4 : 1,
+                transition: "all 0.2s",
               }}
             >
               手動で次へ
@@ -238,7 +282,7 @@ export default function SampleGame({ players, onFinish }: Props) {
             </div>
           )}
 
-          <p style={{ marginTop: 16, color: "#ccc" }}>
+          <p style={{ marginTop: 20, color: "#888", fontSize: "0.85rem" }}>
             現在の結果:{" "}
             {alivePlayers
               .map((p) => `${p.nickname}:${counts[p.id] || 0}`)
