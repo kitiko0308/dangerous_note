@@ -89,7 +89,7 @@ export default function SampleGame({ players, onFinish }: Props) {
     if (!current || playerId !== current.id) return; // only current player can respond
 
     // ignore repeated presses once recorded or after finish
-    if (!isRunning && phase !== "go") return;
+    if (!isRunning && phase !== "go" && phase !== "waiting") return;
 
     const now = Date.now();
 
