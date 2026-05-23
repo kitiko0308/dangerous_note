@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Player, Role } from '../../types';
 import { toFullWidth } from '../../utils/numberFormat';
+import aiImg from '../../assets/img/ai.png';
 
 type Props = {
   players: Player[];
@@ -55,7 +56,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
   const isInputValid = players[currentPlayerIndex].nickname.trim() !== '' && players[currentPlayerIndex].realName.trim() !== '';
 
   return (
-    <div className="title-screen">
+    <div className="title-screen" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.12)), url(${aiImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="title-screen__grain" aria-hidden="true" />
       <div className="title-screen__vignette" aria-hidden="true" />
       <button
