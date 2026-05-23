@@ -197,7 +197,7 @@ export default function MorningPhase({ events, onNext }: Props) {
                 marginBottom: 6,
               }}
             >
-              <span style={{ position: 'absolute', left: 0, color: 'rgba(239, 231, 219, 0.72)' }}>♦</span>
+              <span style={{ position: 'absolute', left: 0, color: 'rgba(239, 231, 219, 0.72)' }}></span>
               {event}
             </li>
           ))}
