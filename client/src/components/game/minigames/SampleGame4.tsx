@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Player } from "../../../types";
+import sinigamiImg from "../../../assets/img/sinigami.png";
+import appleImg from "../../../assets/img/apple.png";
 
 type FinishPayload = { rankingIds: number[]; taps: Record<number, number> };
 
@@ -21,11 +23,10 @@ const TRACK_WIDTH = 360;
 const RUNNER_X = 56;
 const RUNNER_WIDTH = 34;
 const OBSTACLE_START_X = 420;
-const OBSTACLE_HALF_WIDTH = 12;
+const OBSTACLE_HALF_WIDTH = 20;
 const JUMP_DURATION_MS = 420;
 const GROUND_OBSTACLE_BOTTOM = 26;
 const CEILING_OBSTACLE_BOTTOM = 82;
-const OBSTACLE_HEIGHT = 18;
 
 const getRandomObstacleKind = (difficultyLevel: number): ObstacleKind => {
   const ceilingChance = Math.min(0.5, 0.18 + difficultyLevel * 0.06);
@@ -409,7 +410,7 @@ export default function SampleGame({ players, onFinish }: Props) {
                 marginRight: "auto",
                 borderRadius: 16,
                 background:
-                  "linear-gradient(180deg, rgba(118, 199, 255, 0.18) 0%, rgba(23, 48, 30, 0.95) 30%, rgba(14, 28, 17, 1) 100%)",
+                  "linear-gradient(180deg, rgba(238, 227, 255, 0.95) 0%, rgba(214, 198, 255, 0.9) 35%, rgba(184, 160, 235, 0.95) 100%)",
                 overflow: "hidden",
                 border: "1px solid rgba(255,255,255,0.08)",
               }}
@@ -425,37 +426,42 @@ export default function SampleGame({ players, onFinish }: Props) {
                     "linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.45), rgba(255,255,255,0.08))",
                 }}
               />
-              <div
+              <img
+                src={appleImg}
+                alt="プレイヤー"
                 style={{
                   position: "absolute",
                   left: RUNNER_X,
                   bottom: jumpOffset ? 72 : 26,
-                  width: 34,
-                  height: 34,
+                  width: 36,
+                  height: 36,
+                  objectFit: "cover",
                   borderRadius: 999,
-                  background:
-                    "radial-gradient(circle at 35% 35%, #fef2c0 0%, #ffcb69 38%, #cc7a00 100%)",
-                  boxShadow: "0 10px 18px rgba(0,0,0,0.35)",
+                  backgroundColor: "transparent",
+                  transform: "translateX(-50%)",
+                  boxShadow: "0 6px 12px rgba(0,0,0,0.22)",
                   transition: `bottom ${JUMP_DURATION_MS}ms cubic-bezier(0.22,1,0.36,1)`,
+                  userSelect: "none",
+                  pointerEvents: "none",
                 }}
               />
-              <div
+              <img
+                src={sinigamiImg}
+                alt="障害物"
                 style={{
                   position: "absolute",
                   left: obstacleX,
                   bottom:
                     obstacleKind === "ground"
-                      ? GROUND_OBSTACLE_BOTTOM
-                      : CEILING_OBSTACLE_BOTTOM,
-                  width: obstacleKind === "ground" ? 24 : 28,
-                  height: OBSTACLE_HEIGHT,
-                  borderRadius: 6,
-                  background:
-                    obstacleKind === "ground"
-                      ? "linear-gradient(180deg, #ff8a65 0%, #d84315 100%)"
-                      : "linear-gradient(180deg, #9c27b0 0%, #5e35b1 100%)",
-                  boxShadow: "0 8px 16px rgba(0,0,0,0.28)",
+                      ? GROUND_OBSTACLE_BOTTOM - 8
+                      : CEILING_OBSTACLE_BOTTOM - 18,
+                  width: 64,
+                  height: 64,
+                  objectFit: "contain",
                   transform: "translateX(-50%)",
+                  filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.28))",
+                  userSelect: "none",
+                  pointerEvents: "none",
                 }}
               />
               {/* 状態表示を非表示にしました */}
