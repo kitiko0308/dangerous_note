@@ -463,7 +463,7 @@ export default function SampleGame({ players, onFinish }: Props) {
             </div>
 
             <p style={{ margin: "10px 0 0", color: "#ddd" }}>
-              スペースキーかジャンプボタンで操作できます。地上の障害物はジャンプで避けられますが、頭上の障害物はジャンプすると当たります。
+              エンターキーかジャンプボタンで操作できます。地上の障害物はジャンプで避けられますが、頭上の障害物はジャンプすると当たります。
             </p>
 
             {showEndMessage ? (
