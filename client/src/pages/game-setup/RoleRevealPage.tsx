@@ -70,9 +70,9 @@ export default function RoleRevealPage({ players, onNext }: Props) {
         <div className="title-screen__grain" aria-hidden="true" />
         <div className="title-screen__vignette" aria-hidden="true" />
 
-        <main style={{ position: 'relative', zIndex: 3, minHeight: '100svh', display: 'flex', flexDirection: 'column', padding: '0.55rem 1.4rem 0.85rem', paddingTop: '0.35rem' }}>
+        <main style={{ position: 'relative', zIndex: 3, minHeight: '100svh', display: 'flex', flexDirection: 'column', padding: '0.7rem 1.4rem 0.85rem', paddingTop: '0.55rem' }}>
           {/* ヘッダー */}
-          <div style={{ textAlign: 'center', marginBottom: '0.1rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '0.35rem' }}>
             <h2 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>
               役職の確認
             </h2>
@@ -80,11 +80,11 @@ export default function RoleRevealPage({ players, onNext }: Props) {
           </div>
 
           {/* 左画像 + 右パネルレイアウト */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.55rem', maxWidth: '1000px', margin: '0 auto', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {/* 左: 画像 */}
-            <div style={{ flexShrink: 0, width: '280px', minHeight: '400px', display: 'flex', flexDirection: 'column', gap: '0.1rem', marginTop: '-2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.55rem', maxWidth: '1000px', margin: '0.75rem auto 0', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {/* 右: 画像 */}
+            <div style={{ flexShrink: 0, width: '280px', minHeight: '400px', display: 'flex', flexDirection: 'column', gap: '0.1rem', marginTop: '0', order: 2 }}>
               {isShowing && (
-                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '-0.95rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '0' }}>
                   {tabRoles.map((role) => (
                     <button
                       key={role}
@@ -93,9 +93,13 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                       className="role-preview-tab"
                       aria-pressed={displayRole === role}
                       style={{
+                        transform: displayRole === role ? 'scale(1.12)' : 'scale(1)',
+                        padding: displayRole === role ? '10px 16px' : '8px 12px',
+                        fontSize: displayRole === role ? '14px' : '13px',
                         borderColor: displayRole === role ? roleAccentColors[role] : 'rgba(255,255,255,.12)',
                         background: displayRole === role ? `${roleAccentColors[role]}22` : 'rgba(0,0,0,.35)',
                         color: displayRole === role ? '#ffffff' : '#cbd5e1',
+                        zIndex: displayRole === role ? 2 : 1,
                       }}
                     >
                       {roleNames[role]}
@@ -107,7 +111,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
             </div>
 
             {/* 右: 情報パネル */}
-            <div style={{ flex: 1, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ flex: 1, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.1rem', order: 1 }}>
               {/* 役職確認パネル */}
               <div style={{ border: '1px solid rgba(255,255,255,.1)', background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(8px)', padding: '20px 24px', position: 'relative', boxShadow: `0 0 18px ${accentColor}14` }}>
                 <p style={{ fontSize: 14, color: '#9ca3af', margin: '0 0 12px', letterSpacing: '.15em' }}>{roleIntroText}</p>
@@ -177,14 +181,14 @@ export default function RoleRevealPage({ players, onNext }: Props) {
               )}
 
               {/* ボタン */}
-              <button className="dn-button role-reveal-action-button" onClick={handleNext} style={{ marginTop: '0.5rem', padding: '12px 24px', fontSize: 14, letterSpacing: '.15em' }}>
+              <button className="dn-button role-reveal-action-button" onClick={handleNext} style={{ marginTop: '1.8rem', padding: '12px 24px', fontSize: 14, letterSpacing: '.15em' }}>
                 {currentPlayerIndex < players.length - 1 ? 'Next Player' : (currentPlayer.role === 'kira' ? <><span style={{ color: accentColor }}>狩り</span>を始める</> : <><span style={{ color: accentColor }}>裁き</span>を始める</>)}
               </button>
             </div>
           </div>
 
           {/* プログレスドット */}
-          <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: 10 }}>
+          <div style={{ marginTop: '3.6rem', display: 'flex', justifyContent: 'center', gap: 10 }}>
             {players.map((_, i) => (
               <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: i === currentPlayerIndex ? 'var(--kira-red)' : 'var(--border-color)' }} />
             ))}
@@ -207,13 +211,13 @@ export default function RoleRevealPage({ players, onNext }: Props) {
         {isShowing && currentPlayer.role === 'l' && (
           <img src={lImg} alt="L" className="role-l-art" />
         )}
-        <div style={{ width: '100%', display: 'grid', placeItems: 'center', gap: '1rem' }}>
+        <div style={{ width: '100%', display: 'grid', placeItems: 'center', gap: '1rem', paddingTop: '0.75rem' }}>
           <h2 className="title-logo" style={{ fontSize: '2.2rem' }}>
             役職の確認
           </h2>
           <p className="title-sub"><span style={{ color: '#dc2626' }}>{currentPlayerIndex + 1}</span> / {players.length} 人目の確認</p>
 
-          <div className="dn-panel" style={{ maxWidth: 520, width: '92%', minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="dn-panel" style={{ maxWidth: 520, width: '92%', minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '1.6rem' }}>
             {!isShowing ? (
               <>
                 <p style={{ fontSize: 20, marginBottom: 24 }}>
@@ -239,7 +243,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
             )}
           </div>
 
-          <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center', gap: 10 }}>
+          <div style={{ marginTop: 32, display: 'flex', justifyContent: 'center', gap: 10 }}>
             {players.map((_, i) => (
               <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: i === currentPlayerIndex ? 'var(--kira-red)' : 'var(--border-color)' }} />
             ))}
