@@ -139,28 +139,14 @@ export default function MorningPhase({ events, onNext, killedNicknames = [] }: P
           margin: '0 auto',
           textAlign: 'center',
           minHeight: 520,
-          background: 'transparent',
-          boxShadow: 'none',
-          border: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.56), rgba(0, 0, 0, 0.56)), url(${asaImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+          backgroundRepeat: 'no-repeat',
           padding: 0,
           position: 'relative',
         }}
       >
-        <img
-          src={asaImage}
-          alt="朝の背景画像"
-          style={{
-            display: 'block',
-            width: 'auto',
-            height: 'auto',
-            maxWidth: '100%',
-            maxHeight: '100%',
-            objectFit: 'contain',
-          }}
-        />
         <div
           style={{
             position: 'absolute',
