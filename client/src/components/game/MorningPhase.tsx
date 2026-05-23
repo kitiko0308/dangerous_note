@@ -257,7 +257,7 @@ export default function MorningPhase({ events, onNext, killedNicknames = [] }: P
             paddingBottom: 8,
           }}
         >
-          昨夜の出来事
+          昨晩の出来事
         </h4>
         <ul style={{ margin: '8px 0 0', paddingLeft: 0, listStyle: 'none' }}>
           {events.map((event, i) => (
@@ -273,14 +273,14 @@ export default function MorningPhase({ events, onNext, killedNicknames = [] }: P
                 marginBottom: 6,
               }}
             >
-              <span style={{ position: 'absolute', left: 0, color: 'rgba(239, 231, 219, 0.72)' }}>◇</span>
+              <span style={{ position: 'absolute', left: 0, color: 'rgba(239, 231, 219, 0.72)' }}></span>
               {event}
             </li>
           ))}
         </ul>
       </div>
 
-      
+
 
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 120, marginTop: 6 }}>
         <button
