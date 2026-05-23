@@ -225,8 +225,8 @@ export default function RoleRevealPage({ players, onNext }: Props) {
           <div className="dn-panel" style={{ maxWidth: 520, width: '92%', minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '1.6rem' }}>
             {!isShowing ? (
               <>
-                <p style={{ fontSize: 20, marginBottom: 24 }}>
-                  <strong>{currentPlayer.nickname || `プレイヤー ${currentPlayer.id + 1}`}</strong> さん<br />以外は見ないでください
+                <p className="role-reveal-warning">
+                  <strong>{currentPlayer.nickname || `プレイヤー ${currentPlayer.id + 1}`}</strong> さん以外、<br />頁を覗いてはならない。
                 </p>
                 <button className="dn-button dn-button-primary" onClick={() => setIsShowing(true)}>
                   役職を確認する

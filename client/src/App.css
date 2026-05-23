@@ -347,6 +347,21 @@
   opacity: 0.92;
 }
 
+.role-reveal-warning {
+  margin: 0 0 24px;
+  color: #e6ddd0;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: 1.18rem;
+  line-height: 1.8;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+
+.role-reveal-warning strong {
+  color: #f2e8d8;
+  font-weight: 700;
+}
+
 .title-tagline {
   margin: 0;
   letter-spacing: 0.08em;
