@@ -66,14 +66,14 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
       <main className="title-content">
         <div className="player-setup__wrap">
           <h2 className="title-logo player-setup__title">プレイヤー設定</h2>
-          <p className="title-sub">他のプレイヤーに見られないように入力してください</p>
+          <p className="title-sub">他のプレイヤーに<span style={{ color: '#dc2626' }}>見られないように</span>入力してください</p>
 
           <div className="dn-panel player-setup__panel">
             <p className="player-setup__progress"><span style={{ color: '#dc2626' }}>{currentPlayerIndex + 1}</span>/ {players.length}</p>
 
             <div className="player-setup__group">
               <label className="player-setup__label">ニックネーム</label>
-              <p className="player-setup__hint">偽りの名。油断すれば、命取りだ。</p>
+              <p className="player-setup__hint"><span style={{ color: '#dc2626' }}>偽りの名</span>。油断すれば、命取りだ。</p>
               <input
                 type="text"
                 value={players[currentPlayerIndex].nickname}
