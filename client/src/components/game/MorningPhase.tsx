@@ -4,10 +4,10 @@ import asaImage from '../../assets/img/asa.png';
 type Props = {
   events: string[];
   onNext: () => void;
-  killedNicknames?: string[];
+  killedNicknames: string[];
 };
 
-export default function MorningPhase({ events, onNext, killedNicknames = [] }: Props) {
+export default function MorningPhase({ events, onNext, killedNicknames }: Props) {
   const TOTAL_SECONDS = 60 * 5; // 5分
   const INTRO_SECONDS = 5;
   const [showMorningPhase, setShowMorningPhase] = useState<boolean>(false);
