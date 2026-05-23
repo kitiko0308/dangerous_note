@@ -223,9 +223,9 @@ export default function SampleGame({ players, onFinish }: Props) {
               marginTop: 32,
               fontFamily: '"Garamond", "Times New Roman", serif',
               fontSize: countdown > 0 ? "6rem" : "3rem",
-              color: countdown > 0 ? "#ff4444" : "#88ff88",
+              color: countdown > 0 ? "#e8e0d4" : "#88ff88",
               textShadow: countdown > 0
-                ? "0 0 40px rgba(255,68,68,0.4)"
+                ? "0 0 40px rgba(232,224,212,0.3)"
                 : "0 0 40px rgba(136,255,136,0.4)",
             }}>
               {countdown > 0 ? countdown : "GO!"}
@@ -266,9 +266,9 @@ export default function SampleGame({ players, onFinish }: Props) {
                   style={{
                     padding: "12px 28px",
                     borderRadius: "6px",
-                    border: "1px solid rgba(204,193,75,0.5)",
-                    background: "linear-gradient(180deg, rgba(204,193,75,0.15), rgba(50,48,20,0.25))",
-                    color: "#ccc14b",
+                    border: "1px solid rgba(215,37,37,0.6)",
+                    background: "linear-gradient(180deg, rgba(152,17,17,0.25), rgba(30,3,3,0.3))",
+                    color: "#e8e0d4",
                     fontFamily: '"Yu Mincho", "Hiragino Mincho ProN", serif',
                     fontSize: "1rem",
                     letterSpacing: "0.1em",
