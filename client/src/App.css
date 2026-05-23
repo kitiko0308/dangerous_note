@@ -603,6 +603,7 @@
   display: grid;
   place-items: center;
   gap: 1rem;
+  font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
 }
 
 .player-setup__title {
@@ -649,6 +650,7 @@
   border: 1px solid var(--border-color);
   background: transparent;
   color: var(--text-main);
+  font: inherit;
   box-sizing: border-box;
 }
 

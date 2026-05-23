@@ -14,6 +14,8 @@ export default function RoleRevealPage({ players, onNext }: Props) {
   const [isShowing, setIsShowing] = useState(false);
   const [previewRole, setPreviewRole] = useState<Player['role']>(() => players[0]?.role ?? 'villager');
 
+  const toFull = (num: number) => String(num).replace(/\d/g, (d) => String.fromCharCode(d.charCodeAt(0) + 0xFF10 - 0x30));
+
   const currentPlayer = players[currentPlayerIndex];
 
   // previewRole は初期化で players[0] の役職に合わせるため、
@@ -76,7 +78,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
             <h2 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>
               役職の確認
             </h2>
-            <p className="title-sub"><span style={{ color: '#dc2626' }}>{currentPlayerIndex + 1}</span> / {players.length} 人目の確認</p>
+            <p className="title-sub"><span style={{ color: '#dc2626' }}>{toFull(currentPlayerIndex + 1)}</span> / {toFull(players.length)} 人目の確認</p>
           </div>
 
           {/* 左画像 + 右パネルレイアウト */}
@@ -220,7 +222,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
           <h2 className="title-logo" style={{ fontSize: '2.2rem' }}>
             役職の確認
           </h2>
-          <p className="title-sub"><span style={{ color: '#dc2626' }}>{currentPlayerIndex + 1}</span>/ {players.length} </p>
+          <p className="title-sub"><span style={{ color: '#dc2626' }}>{toFull(currentPlayerIndex + 1)}</span>/ {toFull(players.length)} </p>
 
           <div className="dn-panel" style={{ maxWidth: 520, width: '92%', minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '1.6rem' }}>
             {!isShowing ? (

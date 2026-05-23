@@ -11,6 +11,8 @@ type Props = {
 export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }: Props) {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
 
+  const toFull = (num: number) => String(num).replace(/\d/g, (d) => String.fromCharCode(d.charCodeAt(0) + 0xFF10 - 0x30));
+
   const handleInputChange = (field: 'nickname' | 'realName', value: string) => {
     const newData = [...players];
     newData[currentPlayerIndex] = {
@@ -69,7 +71,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
           <p className="title-sub">他のプレイヤーに<span style={{ color: '#dc2626' }}>見られないように</span>入力してください</p>
 
           <div className="dn-panel player-setup__panel">
-            <p className="player-setup__progress"><span style={{ color: '#dc2626' }}>{currentPlayerIndex + 1}</span>/ {players.length}</p>
+            <p className="player-setup__progress"><span style={{ color: '#dc2626' }}>{toFull(currentPlayerIndex + 1)}</span>/ {toFull(players.length)}</p>
 
             <div className="player-setup__group">
               <label className="player-setup__label">ニックネーム</label>
@@ -85,7 +87,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
 
             <div className="player-setup__group">
               <label className="player-setup__label">本名</label>
-              <p className="player-setup__hint"><span style={{ color: '#dc2626' }}>真の名</span>を知られた者は、運命から<strong style={{ color: '#ffffff' }}>逃れられない。</strong></p>
+              <p className="player-setup__hint"><span style={{ color: '#dc2626' }}>真の名</span><span style={{ color: 'var(--text-dim)' }}>を知られた者は、運命から逃れられない。</span></p>
               <input
                 type="text"
                 value={players[currentPlayerIndex].realName}
