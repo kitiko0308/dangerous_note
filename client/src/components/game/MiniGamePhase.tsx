@@ -13,12 +13,8 @@ type Props = {
   onNext: (results?: MiniGameResults) => void;
 };
 
-export default function MiniGamePhase({
-  players,
-  onNext,
-}: Props) {
-  const [selectedGame, _setSelectedGame] =
-    useState<string>("sample");
+export default function MiniGamePhase({ players, onNext }: Props) {
+  const [selectedGame, _setSelectedGame] = useState<string>("sample");
 
   return (
     <div style={containerStyle}>
@@ -27,18 +23,11 @@ export default function MiniGamePhase({
       <div style={contentStyle}>
         <p style={labelStyle}>MINI GAME</p>
 
-        <h1 style={titleStyle}>
-          ミニゲームフェーズ
-        </h1>
+        <h1 style={titleStyle}>ミニゲームフェーズ</h1>
 
         <div style={gameCardStyle}>
           {selectedGame === "sample" && (
-            <SampleGame
-              players={players}
-              onFinish={(results) =>
-                onNext(results)
-              }
-            />
+            <SampleGame players={players} onFinish={(results) => onNext(results)} />
           )}
         </div>
       </div>
@@ -69,27 +58,23 @@ const containerStyle: React.CSSProperties = {
 const overlayStyle: React.CSSProperties = {
   position: "absolute",
   inset: 0,
-
   background: `
     linear-gradient(
       rgba(0,0,0,0.18),
       rgba(0,0,0,0.42)
     )
   `,
-
   backdropFilter: "blur(0.4px)",
+  WebkitBackdropFilter: "blur(0.4px)",
 };
 
 const contentStyle: React.CSSProperties = {
   position: "relative",
   zIndex: 2,
-
   width: "100%",
   maxWidth: "min(1400px, 96%)",
-
   display: "flex",
   flexDirection: "column",
-
   alignItems: "stretch",
 };
 
@@ -119,12 +104,12 @@ const titleStyle: React.CSSProperties = {
 const gameCardStyle: React.CSSProperties = {
   width: "100%",
   maxWidth: "min(1240px, 98vw)",
-  minHeight: "calc(100svh - 78px)",
+  minHeight: "calc(100svh - var(--mini-game-header-height, 78px))",
   borderRadius: "18px",
   background: "rgba(10, 8, 6, 0.34)",
   border: "1px solid rgba(255,255,255,0.08)",
   boxShadow: "0 10px 40px rgba(0,0,0,0.32)",
   backdropFilter: "blur(6px)",
+  WebkitBackdropFilter: "blur(6px)",
   padding: "clamp(8px, 2vw, 14px)",
-  margin: "0 auto",
 };
