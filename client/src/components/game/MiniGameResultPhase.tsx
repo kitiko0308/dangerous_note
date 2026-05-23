@@ -139,133 +139,130 @@ export default function MiniGameResultPhase({
 
   return (
     <div
-      style={{
-        backgroundColor: "#2a3a2a",
-        padding: 30,
-        borderRadius: "12px",
-        border: "1px solid #44ff44",
-      }}
+      className="title-screen"
     >
-      <h2 style={{ color: "#44ff44", marginBottom: "30px" }}>
-        📊 ミニゲーム結果
-      </h2>
+      <div className="title-screen__grain" aria-hidden="true" />
+      <div className="title-screen__vignette" aria-hidden="true" />
 
-      {!isProcessed ? (
-        <p>集計中...</p>
-      ) : (
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              backgroundColor: "rgba(0,0,0,0.5)",
-              padding: "20px",
-              borderRadius: "8px",
-              marginBottom: "30px",
-            }}
-          >
-            <p style={{ color: "#aaa", fontSize: "14px" }}>
-              【担当2への申し送り】
-            </p>
-            <p style={{ fontSize: "14px", marginBottom: "20px" }}>
-              データ処理は完了しています。以下の内容を使ってかっこいい演出を作ってください。
-            </p>
+      <main className="title-content" style={{ gap: '0.8rem', padding: '3rem 1.4rem 1.8rem', alignContent: 'start', justifyContent: 'center', justifyItems: 'center' }}>
+        <h2 className="title-logo" style={{ fontSize: 'clamp(2.2rem, 5.5vw, 4.2rem)' }}>
+          ミニゲーム結果
+        </h2>
 
-            <div style={{ textAlign: "left", display: "inline-block" }}>
-              <ul style={{ fontSize: "18px", listStyle: "none", padding: 0 }}>
-                {eventLogs.map((log, i) => (
-                  <li
-                    key={i}
-                    style={{ marginBottom: "10px", color: "#ff4444" }}
-                  >
-                    ⚠️ {log}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* 全員の現在の公開状態を表示（チームメンバーのUI実装の参考用） */}
-          <div
-            style={{
-              backgroundColor: "#1a2a1a",
-              padding: "15px",
-              borderRadius: "8px",
-              marginBottom: "30px",
-              textAlign: "left",
-            }}
-          >
-            <h3
-              style={{
-                fontSize: "16px",
-                color: "#88ff88",
-                marginBottom: "15px",
-                textAlign: "center",
-              }}
-            >
-              👥 現在のプレイヤー情報（全員に見えています）
-            </h3>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "10px",
-                justifyContent: "center",
-              }}
-            >
-              {players
-                .filter((p) => p.isAlive)
-                .map((p) => {
-                  const maskedName = p.realName
-                    .split("")
-                    .map((char, i) =>
-                      p.revealedChars.includes(i) ? char : "〇",
-                    )
-                    .join("");
-                  return (
-                    <div
-                      key={p.id}
-                      style={{
-                        backgroundColor: "#222",
-                        padding: "10px",
-                        borderRadius: "5px",
-                        minWidth: "120px",
-                        textAlign: "center",
-                        border: "1px solid #444",
-                      }}
+        {!isProcessed ? (
+          <p className="title-sub">集計中...</p>
+        ) : (
+          <div style={{ textAlign: "center", width: '100%', maxWidth: 560, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2rem', fontFamily: '"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif' }}>
+            <div className="dn-panel" style={{ width: '100%', padding: '20px 24px', textAlign: 'left' }}>
+              <div style={{ textAlign: "left", display: "inline-block", width: '100%' }}>
+                <ul role="list" style={{ fontSize: 'clamp(.9rem, 1.8vw, 1.05rem)', listStyle: "none", padding: 0, margin: 0 }}>
+                  {eventLogs.map((log, i) => (
+                    <li
+                      key={i}
+                      style={{ marginBottom: "10px", color: "#fca5a5", letterSpacing: '.08em', lineHeight: 1.6 }}
                     >
-                      <div style={{ fontWeight: "bold", color: "white" }}>
-                        {p.nickname}
-                      </div>
+                      {log}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* 全員の現在の公開状態を表示 */}
+            <div className="dn-panel" style={{ width: '100%', padding: '20px 24px', textAlign: "left" }}>
+              <h3
+                style={{
+                  fontSize: 13,
+                  letterSpacing: '.2em',
+                  color: '#9ca3af',
+                  borderBottom: '1px solid rgba(255,255,255,.08)',
+                  paddingBottom: 10,
+                  marginTop: 0,
+                  marginBottom: 12,
+                  textAlign: "center",
+                }}
+              >
+                現在のプレイヤー情報
+              </h3>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "12px",
+                  justifyContent: "center",
+                }}
+              >
+                {players
+                  .filter((p) => p.isAlive)
+                  .map((p) => {
+                    const maskedName = p.realName
+                      .split("")
+                      .map((char, i) =>
+                        p.revealedChars.includes(i) ? char : "〇",
+                      )
+                      .join("");
+                    return (
                       <div
+                        key={p.id}
                         style={{
-                          fontSize: "12px",
-                          color: "#ffaaaa",
-                          marginTop: "5px",
+                          background: "linear-gradient(180deg, rgba(255,255,255,.06) 0%, rgba(0,0,0,.3) 100%)",
+                          padding: "0",
+                          borderRadius: "10px",
+                          minWidth: "130px",
+                          flex: "1 0 auto",
+                          maxWidth: "160px",
+                          textAlign: "center",
+                          border: "1px solid rgba(255,255,255,.1)",
+                          boxShadow: "0 4px 16px rgba(0,0,0,.4)",
+                          overflow: "hidden",
                         }}
                       >
-                        {maskedName}
+                        <div style={{
+                          background: "rgba(0,0,0,.35)",
+                          padding: "12px 14px 8px",
+                          borderBottom: "1px solid rgba(255,255,255,.06)",
+                        }}>
+                          <div style={{ fontWeight: 700, color: "#e5e5e5", fontSize: 'clamp(.85rem, 1.5vw, .95rem)', letterSpacing: '.08em' }}>
+                            {p.nickname}
+                          </div>
+                        </div>
+                        <div style={{
+                          padding: "10px 14px 14px",
+                        }}>
+                          <div style={{ fontSize: 'clamp(.7rem, 1.2vw, .8rem)', color: "#9ca3af", letterSpacing: '.15em', marginBottom: 4 }}>本名</div>
+                          <div
+                            style={{
+                              fontSize: 'clamp(.8rem, 1.4vw, .9rem)',
+                              color: "#fca5a5",
+                              fontWeight: 500,
+                              letterSpacing: '.12em',
+                              fontFamily: '"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif',
+                            }}
+                          >
+                            {maskedName}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+              </div>
             </div>
-          </div>
 
-          <button
-            onClick={onNext}
-            style={{
-              padding: "15px 40px",
-              backgroundColor: "#44ff44",
-              color: "black",
-              border: "none",
-              cursor: "pointer",
-              borderRadius: "5px",
-              fontWeight: "bold",
-            }}
-          >
-            投票フェーズへ進む
-          </button>
-        </div>
-      )}
+            <button
+              className="dn-button dn-button-primary"
+              onClick={onNext}
+              style={{
+                width: 'min(74vw, 320px)',
+                padding: "14px 8px",
+                fontSize: 15,
+                letterSpacing: '.2em',
+              }}
+            >
+              投票フェーズへ進む
+            </button>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
