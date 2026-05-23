@@ -92,7 +92,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
                 type="text"
                 value={players[currentPlayerIndex].realName}
                 onChange={(e) => handleInputChange('realName', e.target.value)}
-                placeholder="例: 田中 太郎"
+                placeholder="例: 天音　海砂"
                 className="player-setup__input"
               />
             </div>
