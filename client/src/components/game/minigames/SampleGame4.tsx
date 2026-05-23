@@ -23,7 +23,7 @@ const TRACK_WIDTH = 360;
 const RUNNER_X = 56;
 const RUNNER_WIDTH = 34;
 const OBSTACLE_START_X = 420;
-const OBSTACLE_HALF_WIDTH = 20;
+const OBSTACLE_HALF_WIDTH = 32;
 const JUMP_DURATION_MS = 420;
 const GROUND_OBSTACLE_BOTTOM = 26;
 const CEILING_OBSTACLE_BOTTOM = 82;
@@ -256,8 +256,8 @@ export default function SampleGame({ players, onFinish }: Props) {
 
       const obstacleLeft = obstaclePosition - OBSTACLE_HALF_WIDTH;
       const obstacleRight = obstaclePosition + OBSTACLE_HALF_WIDTH;
-      const runnerLeft = RUNNER_X;
-      const runnerRight = RUNNER_X + RUNNER_WIDTH;
+      const runnerLeft = RUNNER_X - RUNNER_WIDTH / 2;
+      const runnerRight = RUNNER_X + RUNNER_WIDTH / 2;
       const collided =
         obstacleRight >= runnerLeft &&
         obstacleLeft <= runnerRight &&
@@ -435,8 +435,7 @@ export default function SampleGame({ players, onFinish }: Props) {
                   bottom: jumpOffset ? 72 : 26,
                   width: 36,
                   height: 36,
-                  objectFit: "cover",
-                  borderRadius: 999,
+                  objectFit: "contain",
                   backgroundColor: "transparent",
                   transform: "translateX(-50%)",
                   boxShadow: "0 6px 12px rgba(0,0,0,0.22)",
