@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import type { Player, GamePhase, GameResult } from "../../types";
 
 import MorningPhase from "../../components/game/MorningPhase";
@@ -11,7 +11,7 @@ import MidnightPhase from "../../components/game/MidnightPhase";
 type Props = {
   players: Player[];
   setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
-  onEnd: (result: GameResult) => void;
+  onEnd: (result: GameResult, turn: number) => void;
 };
 
 export default function GamePage({ players, setPlayers, onEnd }: Props) {
@@ -28,8 +28,15 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   const [nightActionLogs, setNightActionLogs] = useState<string[]>([]);
   const [miniGameRanking, setMiniGameRanking] = useState<number[]>([]);
   const [miniGameTaps, setMiniGameTaps] = useState<Record<number, number>>({});
+  const hasEndedRef = useRef(false);
 
   const toZenkaku = (n: number) => String(n).replace(/\d/g, d => '０１２３４５６７８９'[Number(d)]);
+
+  const finishGame = (result: GameResult, completedTurn: number = turn) => {
+    if (hasEndedRef.current) return;
+    hasEndedRef.current = true;
+    onEnd(result, completedTurn);
+  };
 
   const handleVote = (id: number | null) => {
     setExiledPlayerId(id);
@@ -49,13 +56,11 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
       setLastExiledPlayerName(null);
     }
 
-    setPhase("exile_result");
-
     // 勝利判定：キラが追放されたら村人勝利
     if (id !== null) {
       const exiledP = updatedPlayers.find((p) => p.id === id);
       if (exiledP?.role === "kira") {
-        onEnd("kira_lose");
+        finishGame("villager_win", turn);
         return;
       }
     }
@@ -65,9 +70,11 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
       (p) => p.isAlive && p.role !== "kira",
     );
     if (otherSurvivors.length === 0) {
-      onEnd("kira_win");
+      finishGame("kira_win", turn);
       return;
     }
+
+    setPhase("exile_result");
   };
 
   type MiniGameResults = { rankingIds: number[]; taps: Record<number, number> };
@@ -97,7 +104,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
             ? players.find((p) => p.id === exiledPlayerId)
             : null;
         if (exiledPlayer?.role === "kira") {
-          onEnd("villager_win");
+          finishGame("villager_win", turn);
         } else {
           setPhase("midnight");
         }
@@ -107,8 +114,8 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
         if (turn >= 5) {
           // 判定ロジック：キラが自分の手（深夜アクション）で1人でも殺したか？
           const kiraKillsCount = players.filter((p) => p.isKilledByKira).length;
-          if (kiraKillsCount === 0) onEnd("kira_lose");
-          else onEnd("kira_win");
+          if (kiraKillsCount === 0) finishGame("villager_win", turn);
+          else finishGame("kira_win", turn);
         } else {
           setTurn(turn + 1);
           setPhase("morning"); // 深夜の次は「朝」
@@ -139,7 +146,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
             (p) => p.isAlive && p.role !== "kira",
           );
           if (otherSurvivorsAfterMidnight.length === 0) {
-            onEnd("kira_win");
+            finishGame("kira_win", turn);
             return;
           }
         }
