@@ -357,7 +357,7 @@ export default function MidnightPhase({
                               style={canKillNow ? killBtnStyle : disabledBtnStyle}
                               className={canKillNow ? 'midnight-kill-button' : ''}
                             >
-                              {p.nickname} を殺害する
+                              {p.nickname} の名前をノートに書く
                               {hasAlreadyKilled && ' 済'}
                               {!hasAlreadyKilled && !isFullyKnown && '（本名が不明です）'}
                             </button>
