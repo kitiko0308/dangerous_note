@@ -79,10 +79,17 @@ export default function MiniGameResultPhase({
     const lastPlaceIds = Object.entries(ranksById)
       .filter(([_, r]) => r === maxRank)
       .map(([id]) => Number(id));
+    const lastPlaceLabel =
+      lastPlaceIds.length > 1 ? "同率最下位の" : "最下位の";
+
+    const participantIds = new Set(newRanking.map((p) => p.id));
 
     const updatedPlayers = players.map((p) => {
-      const rank =
-        ranksById[p.id] ?? newRanking.findIndex((rp) => rp.id === p.id) + 1;
+      if (!participantIds.has(p.id)) {
+        return p;
+      }
+
+      const rank = ranksById[p.id] ?? participantIds.size;
       let updatedPlayer = { ...p, miniGameRank: rank };
 
       // 1位（同率含む）へのアイテム付与
@@ -117,7 +124,7 @@ export default function MiniGameResultPhase({
             .join("");
 
           newLogs.push(
-            `最下位の ${p.nickname} の本名の一部「${maskedName}」が全員に公開された！`,
+            `${lastPlaceLabel} ${p.nickname} の本名の一部「${maskedName}」が全員に公開された！`,
           );
         }
       }

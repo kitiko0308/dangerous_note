@@ -264,8 +264,9 @@ export default function SampleGame({ players, onFinish }: Props) {
               </span>
             </p>
             <p style={{ margin: "8px 0 0", color: "#ddd" }}>
-              次は {alivePlayers[currentTurnIndex + 1]?.nickname ?? "なし"}{" "}
-              のターン
+              {alivePlayers[currentTurnIndex + 1]
+                ? `次は ${alivePlayers[currentTurnIndex + 1].nickname} のターン`
+                : "あなたが最後の番です"}
             </p>
             <p style={{ margin: "12px 0 0", color: "#aaa" }}>
               残り時間: {timeLeft}秒 / 連打数: {tapCount}
