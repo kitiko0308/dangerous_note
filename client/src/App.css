@@ -55,10 +55,10 @@
 .role-kira-art {
   position: absolute;
   left: 2%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: clamp(200px, 18vw, 320px);
-  max-width: 320px;
+  top: 72%;
+  transform: translateY(-72%);
+  width: clamp(120px, 12vw, 200px);
+  max-width: 200px;
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
@@ -73,10 +73,10 @@
 .role-l-art {
   position: absolute;
   left: 2%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: clamp(180px, 16vw, 300px);
-  max-width: 300px;
+  top: 72%;
+  transform: translateY(-72%);
+  width: clamp(100px, 11vw, 180px);
+  max-width: 180px;
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
@@ -91,10 +91,10 @@
 .role-villager-art {
   position: absolute;
   left: 2%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: clamp(180px, 16vw, 300px);
-  max-width: 300px;
+  top: 72%;
+  transform: translateY(-72%);
+  width: clamp(100px, 11vw, 180px);
+  max-width: 180px;
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
@@ -124,7 +124,8 @@
   object-fit: contain;
 }
 
-.role-preview-tab {
+.role-preview-tab,
+.role-reveal__tab {
   padding: 8px 12px;
   min-width: 72px;
   border-radius: 999px;
@@ -136,12 +137,20 @@
   letter-spacing: 0.12em;
   cursor: pointer;
   transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  display: inline-block;
+  margin-top: 0.6rem;
 }
 
 .role-preview-tab:hover {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.28);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+}
+
+@media (max-width: 640px) {
+  .role-preview-tab {
+    margin-top: 0.4rem;
+  }
 }
 
 .dn-button-primary:hover {
@@ -326,6 +335,240 @@
     rgba(225, 218, 205, 0.8),
     transparent
   );
+}
+
+.role-reveal-tabs-hint {
+  margin: 0 0 0.35rem;
+  text-align: center;
+  color: #d8d2c8;
+  font-family: var(--font-serif);
+  font-size: 0.86rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+
+.role-reveal__main {
+  position: relative;
+  z-index: 3;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: 0.55rem 1.4rem 0.85rem;
+}
+
+.role-reveal__header {
+  text-align: center;
+  margin-bottom: 0.35rem;
+}
+
+.role-reveal__title {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.role-reveal__layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  max-width: 1000px;
+  margin: 0.75rem auto 0;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.role-reveal__art {
+  flex-shrink: 0;
+  width: 280px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-top: 0;
+  order: 2;
+}
+
+.role-reveal__tabs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 0;
+}
+
+.role-reveal__art-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.role-reveal__panel {
+  flex: 1;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.1rem;
+  order: 1;
+}
+
+.role-reveal__card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  padding: 20px 24px;
+  position: relative;
+}
+
+.role-reveal__intro {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0 0 12px;
+  letter-spacing: 0.15em;
+}
+
+.role-reveal__role-name {
+  font-size: 48px;
+  margin: 10px 0;
+  font-weight: 900;
+}
+
+.role-reveal__role-copy {
+  font-size: 14px;
+  margin: 6px 0 0;
+  font-weight: 700;
+}
+
+.role-reveal__section-title {
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: #9ca3af;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.role-reveal__rule {
+  font-size: 13px;
+  color: #d1d5db;
+  letter-spacing: 0.08em;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.role-reveal__rule--spaced {
+  margin-top: 8px;
+}
+
+.role-reveal__action {
+  margin-top: 1.8rem;
+  padding: 12px 24px;
+  font-size: 14px;
+  letter-spacing: 0.15em;
+}
+
+.role-reveal__dots {
+  margin-top: 3.6rem;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.role-reveal__progress-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.role-reveal__simple-wrap {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  padding-top: 0.75rem;
+}
+
+.role-reveal__simple-panel {
+  max-width: 520px;
+  width: 92%;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.6rem;
+}
+
+.role-reveal__simple-dots {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  .role-reveal__main {
+    padding: 0.85rem 1rem 1rem;
+  }
+
+  .role-reveal__layout {
+    gap: 0.8rem;
+  }
+
+  .role-reveal__art,
+  .role-reveal__panel {
+    order: initial;
+  }
+
+  .role-reveal__art {
+    width: min(360px, 100%);
+    min-height: auto;
+  }
+
+  .role-reveal__panel {
+    min-width: min(360px, 100%);
+    margin-top: 0.4rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .role-reveal__title {
+    font-size: 1.9rem;
+  }
+
+  .role-reveal__card {
+    padding: 16px 14px;
+  }
+
+  .role-reveal__role-name {
+    font-size: 40px;
+  }
+
+  .role-reveal__action {
+    margin-top: 1.1rem;
+    width: 100%;
+  }
+
+  .role-reveal__dots {
+    margin-top: 2.4rem;
+  }
+}
+
+.role-reveal-warning {
+  margin: 0 0 24px;
+  color: #e6ddd0;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: 1.18rem;
+  line-height: 1.8;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+
+.role-reveal-warning strong {
+  color: #f2e8d8;
+  font-weight: 700;
 }
 
 .title-tagline {
@@ -561,4 +804,102 @@
     font-size: clamp(1.2rem, 2.2vw, 1.5rem);
     padding: 0.5rem 0.6rem;
   }
+}
+
+/* Player setup specific styles (responsive) */
+.player-setup__wrap {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+}
+
+.player-setup__title {
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+}
+
+.player-setup__panel {
+  max-width: 520px;
+  width: 92%;
+  padding: 32px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.player-setup__progress {
+  margin: 0 0 12px 0;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  width: 100%;
+  text-align: center;
+}
+
+.player-setup__group {
+  margin-bottom: 16px;
+}
+
+.player-setup__label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.player-setup__hint {
+  opacity: 0.75;
+  margin: 6px 0 8px 0;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.player-setup__input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.player-setup__next {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.player-setup__dots {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.player-setup__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border-color);
+}
+
+.player-setup__dot--active {
+  background: var(--kira-red);
+}
+
+.kira-strong { color: var(--kira-red); }
+
+@media (max-width: 640px) {
+  .player-setup__panel {
+    padding: 20px;
+    width: 96%;
+  }
+
+  .player-setup__title { font-size: 1.8rem; }
+  .player-setup__input { padding: 12px; }
+}
+
+@media (max-width: 420px) {
+  .player-setup__panel { padding: 16px; }
+  .player-setup__title { font-size: 1.6rem; }
+  .player-setup__hint { font-size: 13px; }
 }
