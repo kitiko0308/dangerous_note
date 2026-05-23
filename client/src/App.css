@@ -336,6 +336,28 @@
   );
 }
 
+.role-reveal-tabs-hint {
+  margin: 0 0 0.35rem;
+  text-align: center;
+  color: #d8d2c8;
+  font-family: var(--font-serif);
+  font-size: 0.86rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+
+.role-reveal-tabs-hint::before,
+.role-reveal-tabs-hint::after {
+  content: "";
+  display: inline-block;
+  width: clamp(1.1rem, 4vw, 2rem);
+  height: 1px;
+  margin-inline: 0.55rem;
+  vertical-align: middle;
+  background: linear-gradient(90deg, transparent, rgba(216, 210, 200, 0.75), transparent);
+}
+
 .title-tagline {
   margin: 0;
   letter-spacing: 0.08em;

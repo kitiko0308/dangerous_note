@@ -84,7 +84,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
             {/* 右: 画像 */}
             <div style={{ flexShrink: 0, width: '280px', minHeight: '400px', display: 'flex', flexDirection: 'column', gap: '0.1rem', marginTop: '0', order: 2 }}>
               {isShowing && (
-                <p style={{ margin: '0 0 0.35rem', textAlign: 'center', fontSize: 12, letterSpacing: '.18em', color: '#9ca3af' }}>
+                <p className="role-reveal-tabs-hint">
                   ▼ 他の役職を確認する
                 </p>
               )}
