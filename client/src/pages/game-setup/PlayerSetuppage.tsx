@@ -69,7 +69,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
           <p className="title-sub">他のプレイヤーに見られないように入力してください</p>
 
           <div className="dn-panel player-setup__panel">
-            <p className="player-setup__progress">{currentPlayerIndex + 1} / {players.length}</p>
+            <p className="player-setup__progress"><span style={{ color: '#dc2626' }}>{currentPlayerIndex + 1}</span>/ {players.length}</p>
 
             <div className="player-setup__group">
               <label className="player-setup__label">ニックネーム</label>

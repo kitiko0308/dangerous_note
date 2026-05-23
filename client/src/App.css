@@ -621,6 +621,8 @@
   margin: 0 0 12px 0;
   color: var(--text-dim);
   font-size: 0.95rem;
+  width: 100%;
+  text-align: center;
 }
 
 .player-setup__group {
