@@ -18,6 +18,13 @@ export default function MorningPhase({ events, onNext, killedNicknames = [] }: P
   const blinkRef = useRef<number | null>(null);
   const introRef = useRef<number | null>(null);
   const victimRef = useRef<number | null>(null);
+  const onNextRef = useRef<() => void>(onNext);
+
+  // Keep the ref up-to-date so the interval always calls the latest callback
+  // without needing onNext in the timer effect's dependency array.
+  useEffect(() => {
+    onNextRef.current = onNext;
+  }, [onNext]);
 
   useEffect(() => {
     if (victimRef.current) return;
@@ -65,7 +72,7 @@ export default function MorningPhase({ events, onNext, killedNicknames = [] }: P
             clearInterval(intervalRef.current);
             intervalRef.current = null;
           }
-          onNext();
+          onNextRef.current();
           return 0;
         }
         return prev - 1;
@@ -78,7 +85,7 @@ export default function MorningPhase({ events, onNext, killedNicknames = [] }: P
         intervalRef.current = null;
       }
     };
-  }, [onNext, showMorningPhase]);
+  }, [showMorningPhase]);
 
   useEffect(() => {
     if (!showMorningPhase) return;
