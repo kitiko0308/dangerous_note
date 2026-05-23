@@ -98,7 +98,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                       key={role}
                       type="button"
                       onClick={() => setPreviewRole(role)}
-                      className="role-preview-tab"
+                      className="role-preview-tab role-reveal__tab"
                       aria-pressed={displayRole === role}
                       style={{
                         transform: displayRole === role ? 'scale(1.12)' : 'scale(1)',
@@ -139,51 +139,51 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                 <>
                   {/* キラの勝利条件パネル (先に表示) */}
                   <div className="role-reveal__card" style={{ boxShadow: `0 0 18px ${accentColor}14` }}>
-                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#dc2626' }}>追放されなければ</span>勝利する。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　ただし、5ターン以内に誰も殺せなかった場合は敗北する。</p>
+                    <h3 className="role-reveal__section-title">勝利条件</h3>
+                    <p className="role-reveal__rule">♦　<span style={{ color: '#dc2626' }}>追放されなければ</span>勝利する。</p>
+                    <p className="role-reveal__rule role-reveal__rule--spaced">　　ただし、5ターン以内に誰も殺せなかった場合は敗北する。</p>
                   </div>
 
                   {/* キラの能力パネル (勝利条件の下) */}
                   <div className="role-reveal__card" style={{ boxShadow: `0 0 18px ${accentColor}14` }}>
-                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#ffffff' }}>毎晩</span>、ランダムで1人の本名の<span style={{ color: '#dc2626' }}>一文字を知る</span>ことができる。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　ミニゲームで<span style={{ color: '#ffffff' }}>1位</span>になった場合、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　<span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を使用すると、その夜にランダムで1人の<span style={{ color: '#dc2626' }}>本名を知る</span>ことができる。</p>
+                    <h3 className="role-reveal__section-title">能力</h3>
+                    <p className="role-reveal__rule">♦　<span style={{ color: '#ffffff' }}>毎晩</span>、ランダムで1人の本名の<span style={{ color: '#dc2626' }}>一文字を知る</span>ことができる。</p>
+                    <p className="role-reveal__rule role-reveal__rule--spaced">♦　ミニゲームで<span style={{ color: '#ffffff' }}>1位</span>になった場合、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
+                    <p className="role-reveal__rule role-reveal__rule--spaced">　　<span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>死神の目</span><span style={{ color: '#ffffff' }}>　】</span></span> を使用すると、その夜にランダムで1人の<span style={{ color: '#dc2626' }}>本名を知る</span>ことができる。</p>
                   </div>
                 </>
               ) : isL ? (
                 <>
                   {/* L の勝利条件パネル (先に表示) */}
                   <div className="role-reveal__card" style={{ boxShadow: `0 0 18px ${accentColor}14` }}>
-                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#3b82f6' }}>キラを追放</span>する。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。</p>
+                    <h3 className="role-reveal__section-title">勝利条件</h3>
+                    <p className="role-reveal__rule">♦　<span style={{ color: '#3b82f6' }}>キラを追放</span>する。</p>
+                    <p className="role-reveal__rule role-reveal__rule--spaced">♦　キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。</p>
                   </div>
 
                   {/* L の能力パネル (勝利条件の下) */}
                   <div className="role-reveal__card" style={{ boxShadow: `0 0 18px ${accentColor}14` }}>
-                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　毎晩、プレイヤー1人の、その日のミニゲームの<span style={{ color: '#3b82f6' }}>「順位」を調査</span>できる。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　昼のミニゲームで1位になったとき、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>ショートケーキ</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>　　<span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>ショートケーキ</span><span style={{ color: '#ffffff' }}>　】</span></span> を使用すると、任意のプレイヤー1人を指名し、その人が<span style={{ color: '#3b82f6' }}>キラか</span><span style={{ color: '#3b82f6' }}>どうかを知る</span>ことができる。</p>
+                    <h3 className="role-reveal__section-title">能力</h3>
+                    <p className="role-reveal__rule">♦　毎晩、プレイヤー1人の、その日のミニゲームの<span style={{ color: '#3b82f6' }}>「順位」を調査</span>できる。</p>
+                    <p className="role-reveal__rule role-reveal__rule--spaced">♦　昼のミニゲームで1位になったとき、アイテム <span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>ショートケーキ</span><span style={{ color: '#ffffff' }}>　】</span></span> を入手できる。</p>
+                    <p className="role-reveal__rule role-reveal__rule--spaced">　　<span><span style={{ color: '#ffffff' }}>【　</span><span style={{ color: accentColor }}>ショートケーキ</span><span style={{ color: '#ffffff' }}>　】</span></span> を使用すると、任意のプレイヤー1人を指名し、その人が<span style={{ color: '#3b82f6' }}>キラか</span><span style={{ color: '#3b82f6' }}>どうかを知る</span>ことができる。</p>
                   </div>
                 </>
               ) : (
                 <>
                   {/* 市民の勝利条件パネル */}
                   <div className="role-reveal__card" style={{ boxShadow: `0 0 18px ${accentColor}14` }}>
-                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>勝利条件</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　<span style={{ color: '#22c55e' }}>キラを追放</span>する。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。</p>
+                    <h3 className="role-reveal__section-title">勝利条件</h3>
+                    <p className="role-reveal__rule">♦　<span style={{ color: '#22c55e' }}>キラを追放</span>する。</p>
+                    <p className="role-reveal__rule role-reveal__rule--spaced">♦　キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。</p>
                   </div>
 
                   {/* 市民の能力パネル */}
                   <div className="role-reveal__card" style={{ boxShadow: `0 0 18px ${accentColor}14` }}>
-                    <h3 style={{ fontSize: 13, letterSpacing: '.2em', color: '#9ca3af', borderBottom: '1px solid rgba(255,255,255,.08)', paddingBottom: '10px', marginTop: 0, marginBottom: '12px' }}>能力</h3>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: 0 }}>♦　特殊能力は<span style={{ color: '#22c55e' }}>持たない</span>。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　夜の行動では「休む」を選択する。</p>
-                    <p style={{ fontSize: 13, color: '#d1d5db', letterSpacing: '.08em', lineHeight: 1.7, margin: '8px 0 0' }}>♦　話し合いと投票でキラ（敵）を追放へ導く。</p>
+                    <h3 className="role-reveal__section-title">能力</h3>
+                    <p className="role-reveal__rule">♦　特殊能力は<span style={{ color: '#22c55e' }}>持たない</span>。</p>
+                    <p className="role-reveal__rule role-reveal__rule--spaced">♦　夜の行動では「休む」を選択する。</p>
+                    <p className="role-reveal__rule role-reveal__rule--spaced">♦　話し合いと投票でキラ（敵）を追放へ導く。</p>
                   </div>
                 </>
               )}

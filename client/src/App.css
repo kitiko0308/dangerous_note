@@ -124,7 +124,8 @@
   object-fit: contain;
 }
 
-.role-preview-tab {
+.role-preview-tab,
+.role-reveal__tab {
   padding: 8px 12px;
   min-width: 72px;
   border-radius: 999px;
@@ -437,6 +438,28 @@
   font-size: 14px;
   margin: 6px 0 0;
   font-weight: 700;
+}
+
+.role-reveal__section-title {
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: #9ca3af;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.role-reveal__rule {
+  font-size: 13px;
+  color: #d1d5db;
+  letter-spacing: 0.08em;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.role-reveal__rule--spaced {
+  margin-top: 8px;
 }
 
 .role-reveal__action {
