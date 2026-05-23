@@ -14,6 +14,49 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
 
   const sampleNicknames = ['いちか', 'にの', 'みく', 'よつば', 'いつき'];
+  const [randomSeqIndex, setRandomSeqIndex] = useState(0);
+  
+  const getUniqueNickname = (used: Set<string>) => {
+    // try base names first
+    for (const name of sampleNicknames) {
+      if (!used.has(name)) return name;
+    }
+    // if all base names are used, append numeric suffixes to make unique names
+    for (let suffix = 2; suffix < 1000; suffix += 1) {
+      for (const base of sampleNicknames) {
+        const candidate = `${base}${suffix}`;
+        if (!used.has(candidate)) return candidate;
+      }
+    }
+    // fallback (very unlikely)
+    return `${sampleNicknames[0]}${Date.now()}`;
+  };
+
+  
+
+  const chooseSequentialOrUniqueNickname = () => {
+    // exclude current player's existing nickname so re-randomizing can keep base names available
+    const used = new Set(players.map((p, i) => (i === currentPlayerIndex ? '' : p.nickname)).filter(Boolean));
+    const n = sampleNicknames.length;
+    for (let offset = 0; offset < n; offset += 1) {
+      const idx = (randomSeqIndex + offset) % n;
+      const candidate = sampleNicknames[idx];
+      if (!used.has(candidate)) {
+        // advance sequence start to next position after chosen
+        setRandomSeqIndex((idx + 1) % n);
+        return candidate;
+      }
+    }
+    // no available from base sequence, produce a guaranteed-unique nickname
+    const unique = getUniqueNickname(used);
+    // if unique is based on a base name, advance the sequence start
+    const baseMatch = unique.match(new RegExp(`^(${sampleNicknames.join('|')})`));
+    if (baseMatch) {
+      const baseIdx = sampleNicknames.indexOf(baseMatch[1]);
+      if (baseIdx >= 0) setRandomSeqIndex((baseIdx + 1) % n);
+    }
+    return unique;
+  };
 
   // ベースになる本名ソース（ユーザー指定の候補）
   const baseRealNameSources = ['天音海砂', '高橋太一', '山口誠人', '桜井舞子', '鈴木一郎'];
@@ -28,7 +71,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
   };
 
   const fillRandom = () => {
-    const nick = sampleNicknames[Math.floor(Math.random() * sampleNicknames.length)];
+    const nick = chooseSequentialOrUniqueNickname();
     const real = generateRandomRealName();
     const newData = [...players];
     newData[currentPlayerIndex] = {
@@ -40,7 +83,7 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
   };
 
   const fillRandomNickOnly = () => {
-    const nick = sampleNicknames[Math.floor(Math.random() * sampleNicknames.length)];
+    const nick = chooseSequentialOrUniqueNickname();
     const newData = [...players];
     newData[currentPlayerIndex] = {
       ...newData[currentPlayerIndex],
@@ -138,6 +181,9 @@ export default function PlayerSetuppage({ players, setPlayers, onNext, onBack }:
                 />
                 <button type="button" className="dn-button" onClick={fillRandomNickOnly} style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>ランダム</button>
               </div>
+              {currentPlayerIndex === players.length - 1 && players.slice(0, players.length - 1).every((p) => p.nickname.trim() !== '') && (
+                <p className="player-setup__hint" style={{ color: 'var(--text-dim)' }}>※ ニックネーム固定</p>
+              )}
             </div>
 
             <div className="player-setup__group">
