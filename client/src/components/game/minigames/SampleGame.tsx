@@ -167,6 +167,7 @@ export default function SampleGame({ players, onFinish }: Props) {
         endTimerRef.current = null;
       }
     };
+    // 配列参照ではなくID列をキーにし、顔ぶれが変わったときだけリセットする
   }, [alivePlayers.map((p) => p.id).join(","), clearTimer]);
 
   const handleDummyFinish = () => {
@@ -512,6 +513,7 @@ const readyButtonStyle: React.CSSProperties = {
   fontWeight: 800,
   letterSpacing: "0.18em",
   fontSize: 17,
+  transition: "transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease",
 };
 
 const tapButtonStyle: React.CSSProperties = {
@@ -591,4 +593,5 @@ const finishButtonStyle: React.CSSProperties = {
   fontSize: 13,
   fontWeight: 700,
   letterSpacing: "0.08em",
+  transition: "background 150ms ease, color 150ms ease, border-color 150ms ease",
 };
