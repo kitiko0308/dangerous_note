@@ -146,7 +146,9 @@ export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
         <div
           style={{
             fontSize: 28,
-            fontWeight: 600,
+            fontWeight: 500,
+            fontFamily: 'var(--font-serif), "Yu Mincho", "Hiragino Mincho ProN", serif',
+            letterSpacing: '0.08em',
             color: secondsLeft < 30 ? '#ff5a5a' : 'var(--text-main)',
             opacity: secondsLeft <= 10 ? (isBlinkVisible ? 1 : 0.2) : 1,
             transition: secondsLeft <= 10 ? 'opacity 0.08s linear' : 'color 0.2s ease',

@@ -25,7 +25,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   >(null);
 
   const [lastEvents, setLastEvents] = useState<string[]>([
-    "ゲーム開始！最初のターンです。",
+    "最初のターンです。",
   ]);
   const [nightActionLogs, setNightActionLogs] = useState<string[]>([]);
   const [miniGameRanking, setMiniGameRanking] = useState<number[]>([]);
