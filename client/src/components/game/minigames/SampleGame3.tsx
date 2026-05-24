@@ -253,7 +253,7 @@ export default function SampleGame({ players, onFinish }: Props) {
         boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.02), 0 18px 40px rgba(0,0,0,0.44)',
       }}
     >
-      <h3 style={{ fontFamily: 'var(--font-serif), "Yu Mincho", serif', fontSize: 18, marginBottom: 6 }}>🎮 ミニゲーム：早押しチャレンジ</h3>
+      <h3 style={{ fontFamily: 'var(--font-serif), "Yu Mincho", serif', fontSize: 18, marginBottom: 6 }}>早押しチャレンジ</h3>
       <p style={{ marginTop: 8, color: "#ddd", fontFamily: 'var(--font-serif), "Yu Mincho", serif' }}>
         ボタンが赤から緑に変わったら、すぐに「押せ」を押して反応時間を競ってください。
       </p>
@@ -308,13 +308,13 @@ export default function SampleGame({ players, onFinish }: Props) {
             <p style={{ margin: 0, color: "#f5d565", fontWeight: 700 }}>
               <span
                 style={{
-                  fontFamily: "Garamond, 'Times New Roman', serif",
+                  fontFamily: 'var(--font-serif), "Yu Mincho", "Hiragino Mincho ProN", serif',
                   fontSize: 20,
                 }}
               >
                 {currentPlayer.nickname}
               </span>
-              <span style={{ marginLeft: 8, fontSize: 16, color: "#ebd79a" }}>
+              <span style={{ marginLeft: 8, fontSize: 16, color: "#fff" }}>
                 のターン
               </span>
             </p>
@@ -351,25 +351,28 @@ export default function SampleGame({ players, onFinish }: Props) {
                   onPointerLeave={() => setIsPressed(false)}
                   style={{
                     marginTop: "8px",
-                    width: 120,
-                    height: 120,
+                    width: 140,
+                    height: 140,
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: "#b71c1c",
-                    color: "#fff",
+                    background: 'radial-gradient(circle at 40% 35%, #ff5a5a 0%, #b71c1c 45%, #5a0d0d 100%)',
+                    color: "#fff3ec",
                     border: "none",
                     borderRadius: 999,
-                    fontSize: 16,
+                    fontSize: 20,
                     fontWeight: 800,
+                    fontFamily: 'var(--font-serif), "Yu Mincho", serif',
                     transform: isPressed ? "scale(0.96)" : "scale(1)",
                     boxShadow: isPressed
-                      ? "inset 0 6px 12px rgba(0,0,0,0.35)"
-                      : "0 10px 24px rgba(0,0,0,0.24)",
+                      ? "inset 0 8px 18px rgba(0,0,0,0.45)"
+                      : "0 18px 48px rgba(194,77,63,0.38), 0 0 40px rgba(194,77,63,0.18) inset",
+                    textShadow: '0 2px 8px rgba(0,0,0,0.45)',
                     transition:
-                      "transform 120ms ease, box-shadow 120ms ease, background-color 120ms",
+                      "transform 120ms ease, box-shadow 120ms ease, background 160ms",
                     touchAction: "manipulation",
                     cursor: "pointer",
+                    outline: 'none',
                   }}
                 >
                   待て
@@ -386,7 +389,7 @@ export default function SampleGame({ players, onFinish }: Props) {
                 <button
                   onClick={startRound}
                   className="title-menu__button title-menu__button--primary"
-                  style={{ minWidth: 180, padding: '10px 22px', borderRadius: 28, background: 'linear-gradient(180deg,#5a392e,#2f1a12)', color: '#f4e9e0', boxShadow: '0 8px 20px rgba(0,0,0,0.4)', outline: 'none', border: 'none' }}
+                  style={{ minWidth: 180, padding: '10px 22px', borderRadius: 28, background: 'linear-gradient(180deg,#5a392e,#2f1a12)', color: '#f4e9e0', boxShadow: '0 8px 20px rgba(0,0,0,0.4)', outline: 'none', border: 'none', fontFamily: 'var(--font-serif), "Yu Mincho", serif' }}
                 >
                   READY
                 </button>
@@ -409,25 +412,28 @@ export default function SampleGame({ players, onFinish }: Props) {
                   onPointerLeave={() => setIsPressed(false)}
                   style={{
                     marginTop: "8px",
-                    width: 120,
-                    height: 120,
+                    width: 140,
+                    height: 140,
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: "#2e7d32",
-                    color: "#e8f5e9",
+                    background: 'radial-gradient(circle at 35% 30%, #a8e6b8 0%, #2e7d32 45%, #11321a 100%)',
+                    color: "#eaffef",
                     border: "none",
                     borderRadius: 999,
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: 800,
+                    fontFamily: 'var(--font-serif), "Yu Mincho", serif',
                     transform: isPressed ? "scale(0.96)" : "scale(1)",
                     boxShadow: isPressed
-                      ? "inset 0 6px 12px rgba(0,0,0,0.35)"
-                      : "0 10px 24px rgba(0,0,0,0.24)",
+                      ? "inset 0 8px 18px rgba(0,0,0,0.45)"
+                      : "0 18px 48px rgba(46,125,50,0.28), 0 0 36px rgba(46,125,50,0.12) inset",
+                    textShadow: '0 2px 6px rgba(0,0,0,0.36)',
                     transition:
-                      "transform 120ms ease, box-shadow 120ms ease, background-color 120ms",
+                      "transform 120ms ease, box-shadow 120ms ease, background 160ms",
                     touchAction: "manipulation",
                     cursor: "pointer",
+                    outline: 'none',
                   }}
                 >
                   押せ
