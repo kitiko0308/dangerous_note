@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { PointerEvent } from "react";
+import appleImg from '../../../assets/img/apple2.png';
+import rotAppleImg from '../../../assets/img/rot_apple.png';
+import teImg from '../../../assets/img/te.png';
+import type { PointerEvent, MouseEvent } from "react";
 import type { Player } from "../../../types";
 
 type FinishPayload = {
@@ -26,22 +29,24 @@ type FallingItem = {
 
 const BOARD_WIDTH = 380;
 const BOARD_HEIGHT = 460;
-const CATCHER_WIDTH = 98;
-const CATCHER_HEIGHT = 18;
+const CATCHER_WIDTH = 140;
+const CATCHER_HEIGHT = 40;
 const CATCHER_Y = BOARD_HEIGHT - 44;
 const TURN_TIME_SECONDS = 20;
 const COUNTDOWN_START = 3;
 const ITEM_SIZE = 34;
+const ITEM_HITBOX_PADDING = 12; // shrink collision box inside the visible image (increased to make hitbox smaller)
+const BAD_ITEM_HITBOX_EXTRA = 12; // additional inward padding for bad items to make them harder to touch
 const SPAWN_BASE_INTERVAL = 520;
 
 const GOOD_ITEM_POOL = [
-  { icon: "🍎", points: 1, color: "#f87171" },
-  { icon: "⭐", points: 2, color: "#facc15" },
-  { icon: "💎", points: 3, color: "#60a5fa" },
+  { icon: appleImg, points: 1, color: "#f87171" },
+  { icon: appleImg, points: 2, color: "#facc15" },
+  { icon: appleImg, points: 3, color: "#60a5fa" },
 ];
 
 const BAD_ITEM = {
-  icon: "💣",
+  icon: rotAppleImg,
   points: 0,
   color: "#ef4444",
 };
@@ -50,7 +55,7 @@ const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
 const makeItem = (nextId: number, difficulty: number): FallingItem => {
-  // Aggressively higher bomb chance and stronger per-level increase
+  // Aggressively higher bad-item chance and stronger per-level increase
   const isBad = Math.random() < Math.min(0.85, 0.3 + difficulty * 0.08);
   const item = isBad
     ? BAD_ITEM
@@ -83,7 +88,8 @@ export default function SampleGame5({ players, onFinish }: Props) {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(TURN_TIME_SECONDS);
   const [score, setScore] = useState(0);
-  const [scores, setScores] = useState<Record<number, number>>({});
+  const [, setScores] = useState<Record<number, number>>({});
+  const [finishedOrder, setFinishedOrder] = useState<string[]>([]);
   const [items, setItems] = useState<FallingItem[]>([]);
   const [catcherX, setCatcherX] = useState((BOARD_WIDTH - CATCHER_WIDTH) / 2);
   const [showEndMessage, setShowEndMessage] = useState(false);
@@ -152,6 +158,7 @@ export default function SampleGame5({ players, onFinish }: Props) {
     setShowEndMessage(false);
     setIsDragging(false);
     setWasGameOver(false);
+    setFinishedOrder([]);
 
     if (rafRef.current !== null) {
       window.cancelAnimationFrame(rafRef.current);
@@ -249,6 +256,14 @@ export default function SampleGame5({ players, onFinish }: Props) {
 
     window.addEventListener("keydown", onKeyDown, { passive: false });
     window.addEventListener("keyup", onKeyUp);
+    // focus board so keyboard input is reliably received
+    try {
+      if (boardRef.current && typeof boardRef.current.focus === "function") {
+        boardRef.current.focus();
+      }
+    } catch (e) {
+      // ignore
+    }
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
@@ -308,6 +323,9 @@ export default function SampleGame5({ players, onFinish }: Props) {
     turnFinishedRef.current = true;
 
     clearActiveTimers();
+
+    // record the finished player's name in order
+    setFinishedOrder((prev) => [...prev, currentPlayer.nickname]);
 
     const finalScore = scoreRef.current;
     const finalScores = {
@@ -414,12 +432,15 @@ export default function SampleGame5({ players, onFinish }: Props) {
               const nextY = item.y + item.speed * (delta / 1000);
               const catcherLeft = catcherXRef.current;
               const catcherRight = catcherLeft + CATCHER_WIDTH;
-              const itemLeft = item.x;
-              const itemRight = item.x + item.size;
-              const overlapX = itemRight >= catcherLeft && itemLeft <= catcherRight;
-              // allow small vertical tolerance so near-misses can still be caught
-              const touchCatchLine =
-                nextY + item.size >= (CATCHER_Y - 10) && nextY <= (CATCHER_Y + CATCHER_HEIGHT + 10);
+              const pad = ITEM_HITBOX_PADDING + (item.kind === "bad" ? BAD_ITEM_HITBOX_EXTRA : 0);
+              const itemLeft = item.x + pad;
+              const itemRight = item.x + item.size - pad;
+              const overlapX = itemRight > catcherLeft && itemLeft < catcherRight;
+              // shrink vertical hit region; use a smaller tolerance for bad items
+              const verticalTolerance = item.kind === "bad" ? 4 : 10;
+              const top = nextY + pad;
+              const bottom = nextY + item.size - pad;
+              const touchCatchLine = bottom >= (CATCHER_Y - verticalTolerance) && top <= (CATCHER_Y + CATCHER_HEIGHT + verticalTolerance);
 
               if (overlapX && touchCatchLine) {
                 if (item.kind === "bad") {
@@ -465,6 +486,12 @@ export default function SampleGame5({ players, onFinish }: Props) {
 
   const handleBoardPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (!isDragging) return;
+    updateCatcherFromClientX(event.clientX);
+  };
+
+  const handleBoardMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+    // when not dragging (desktop hover), follow the cursor
+    if (isDragging) return;
     updateCatcherFromClientX(event.clientX);
   };
 
@@ -551,9 +578,10 @@ export default function SampleGame5({ players, onFinish }: Props) {
           </p>
 
           <div
-            ref={boardRef}
+            ref={boardRef} tabIndex={0}
             onPointerDown={handleBoardPointerDown}
             onPointerMove={handleBoardPointerMove}
+            onMouseMove={handleBoardMouseMove}
             onPointerUp={handleBoardPointerUp}
             onPointerLeave={handleBoardPointerUp}
             style={{
@@ -608,9 +636,6 @@ export default function SampleGame5({ players, onFinish }: Props) {
                   top: item.y,
                   width: item.size,
                   height: item.size,
-                  borderRadius: "50%",
-                  background: `radial-gradient(circle at 35% 35%, #fff 0%, ${item.color} 28%, rgba(0,0,0,0.15) 100%)`,
-                  boxShadow: `0 0 18px ${item.color}66`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -619,7 +644,11 @@ export default function SampleGame5({ players, onFinish }: Props) {
                   transform: "translateZ(0)",
                 }}
               >
-                {item.icon}
+                <img
+                  src={item.icon as string}
+                  alt={item.kind === "good" ? "apple" : "rot-apple"}
+                  style={{ width: item.size, height: item.size, objectFit: "contain" }}
+                />
               </div>
             ))}
 
@@ -630,22 +659,14 @@ export default function SampleGame5({ players, onFinish }: Props) {
                 top: CATCHER_Y,
                 width: CATCHER_WIDTH,
                 height: CATCHER_HEIGHT,
-                borderRadius: 999,
-                background:
-                  "linear-gradient(180deg, rgba(251,191,36,0.98) 0%, rgba(217,119,6,0.98) 100%)",
-                boxShadow: "0 0 16px rgba(251,191,36,0.35)",
-                border: "1px solid rgba(255,255,255,0.25)",
                 zIndex: 4,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#1f2937",
-                fontSize: 12,
-                fontWeight: 700,
                 cursor: "grab",
               }}
             >
-              すくう
+              <img src={teImg} alt="catcher" style={{ width: CATCHER_WIDTH, height: CATCHER_HEIGHT, objectFit: "contain" }} />
             </div>
 
             <div
@@ -678,6 +699,9 @@ export default function SampleGame5({ players, onFinish }: Props) {
             </div>
           ) : showEndMessage ? (
             <div style={{ marginTop: 16 }}>
+              <p style={{ fontSize: 20, margin: "0 0 6px", color: "#e8e0d4" }}>
+                {currentPlayer?.nickname} の結果
+              </p>
               <p style={{ fontSize: 38, margin: "8px 0", color: wasGameOver ? "#fca5a5" : "#fff" }}>
                 {endMessageLabel}
               </p>
@@ -705,27 +729,24 @@ export default function SampleGame5({ players, onFinish }: Props) {
       >
         <p style={{ margin: 0, color: "#aaa" }}>【現在の記録】</p>
         <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {alivePlayers.map((player) => {
-            const playerScore = scores[player.id] ?? (player.id === currentPlayer?.id ? score : 0);
-            return (
-              <span
-                key={player.id}
-                style={{
-                  padding: "5px 10px",
-                  backgroundColor: "rgba(255,255,255,0.06)",
-                  borderRadius: "14px",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "#e8e0d4",
-                  fontSize: 14,
-                }}
-              >
-                {player.nickname}: {playerScore}点
-              </span>
-            );
-          })}
+          {finishedOrder.map((name, idx) => (
+            <span
+              key={`${name}-${idx}`}
+              style={{
+                padding: "5px 10px",
+                backgroundColor: "rgba(255,255,255,0.06)",
+                borderRadius: "14px",
+                border: "1px solid rgba(255,255,255,0.08)",
+                color: "#e8e0d4",
+                fontSize: 14,
+              }}
+            >
+              {name}
+            </span>
+          ))}
         </div>
         <p style={{ margin: "10px 0 0", color: "#cbd5e1", fontSize: 13, lineHeight: 1.6 }}>
-          🍎 / ⭐ / 💎 は得点、💣 は拾うとその人のターンが即ゲームオーバーです。
+          🍎 は得点、腐った🍎は拾うとその人のターンが即ゲームオーバーです。
         </p>
       </div>
     </div>
