@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Player } from "../../../types";
 
 type FinishPayload = {
@@ -40,7 +40,7 @@ export default function SampleGame({ players, onFinish }: Props) {
     setCountdown(null);
   };
 
-  const finishCurrentTurn = () => {
+  const finishCurrentTurn = useCallback(() => {
     if (!currentPlayer) return;
 
     const nextResults = [
@@ -79,7 +79,7 @@ export default function SampleGame({ players, onFinish }: Props) {
       startNextTurn(currentTurnIndex + 1);
       endTimerRef.current = null;
     }, 3000);
-  };
+  }, [currentPlayer, turnResults, tapCount, currentTurnIndex, alivePlayers.length, onFinish]);
 
   useEffect(() => {
     if (!currentPlayer || isFinished || !isRunning) return;
@@ -95,7 +95,7 @@ export default function SampleGame({ players, onFinish }: Props) {
     }, 1000);
 
     return () => window.clearTimeout(timerId);
-  }, [currentPlayer, isFinished, timeLeft, isRunning]);
+  }, [currentPlayer, finishCurrentTurn, isFinished, timeLeft, isRunning]);
 
   useEffect(() => {
     if (countdown === null) return;
