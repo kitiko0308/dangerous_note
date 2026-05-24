@@ -238,8 +238,10 @@ export default function SampleGame({ players, onFinish }: Props) {
               </div>
             ) : countdown !== null ? (
               <div style={centerActionStyle}>
-                <p style={countdownStyle}>{countdown}</p>
-                <p style={standbyTextStyle}>STANDBY</p>
+                <div>
+                  <p style={countdownStyle}>{countdown}</p>
+                  <p style={standbyTextStyle}>STANDBY</p>
+                </div>
               </div>
             ) : !isRunning ? (
               <div style={centerActionStyle}>
@@ -323,7 +325,7 @@ const serifFont =
 
 const gameShellStyle: React.CSSProperties = {
   width: "100%",
-  padding: "clamp(16px, 2.4vw, 28px)",
+  padding: "clamp(10px, 1.6vw, 18px)",
   borderRadius: 18,
   background:
     "linear-gradient(180deg, rgba(28, 18, 13, 0.78), rgba(10, 7, 5, 0.86))",
@@ -339,38 +341,38 @@ const gameShellStyle: React.CSSProperties = {
 };
 
 const participantsPanelStyle: React.CSSProperties = {
-  padding: "18px 16px",
+  padding: "12px 14px",
   borderRadius: 12,
   background: "rgba(8, 7, 6, 0.68)",
   border: "1px solid rgba(255,255,255,0.055)",
-  marginBottom: 16,
+  marginBottom: 10,
 };
 
 const mainPanelStyle: React.CSSProperties = {
-  padding: "clamp(22px, 3vw, 34px) 18px",
+  padding: "clamp(16px, 2vw, 24px) 16px",
   borderRadius: 14,
   background:
     "linear-gradient(180deg, rgba(22, 18, 15, 0.82), rgba(12, 10, 8, 0.9))",
   border: "1px solid rgba(255,255,255,0.06)",
   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.035)",
-  marginBottom: 16,
+  marginBottom: 10,
 };
 
 const recordPanelStyle: React.CSSProperties = {
-  padding: "16px",
+  padding: "12px 14px",
   borderRadius: 12,
   background: "rgba(8, 7, 6, 0.68)",
   border: "1px solid rgba(255,255,255,0.055)",
-  marginBottom: 14,
+  marginBottom: 10,
   textAlign: "left",
 };
 
 const sectionLabelStyle: React.CSSProperties = {
   color: "rgba(222, 190, 151, 0.72)",
-  fontSize: 12,
+  fontSize: 11,
   letterSpacing: "0.18em",
   fontWeight: 700,
-  margin: "0 0 10px",
+  margin: "0 0 8px",
   fontFamily: serifFont,
 };
 
@@ -423,14 +425,14 @@ const nextPlayerStyle: React.CSSProperties = {
 const statusGridStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
-  gap: 12,
-  margin: "14px 0",
+  gap: 10,
+  margin: "10px 0",
   flexWrap: "wrap",
 };
 
 const statusBoxStyle: React.CSSProperties = {
-  minWidth: 104,
-  padding: "10px 14px",
+  minWidth: 96,
+  padding: "8px 12px",
   borderRadius: 12,
   background: "rgba(0,0,0,0.28)",
   border: "1px solid rgba(255,255,255,0.075)",
@@ -452,23 +454,23 @@ const statusValueStyle: React.CSSProperties = {
 };
 
 const descriptionStyle: React.CSSProperties = {
-  margin: "12px 0 0",
+  margin: "8px 0 0",
   color: "rgba(244,239,231,0.88)",
-  fontSize: "clamp(0.95rem, 1.6vw, 1.12rem)",
+  fontSize: "clamp(0.9rem, 1.4vw, 1rem)",
   letterSpacing: "0.04em",
 };
 
 const centerActionStyle: React.CSSProperties = {
-  marginTop: 18,
+  marginTop: 12,
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  minHeight: 96,
+  minHeight: 78,
 };
 
 const readyButtonStyle: React.CSSProperties = {
-  minWidth: 180,
-  padding: "15px 28px",
+  minWidth: 170,
+  padding: "13px 24px",
   borderRadius: 999,
   background:
     "linear-gradient(180deg, rgba(74,38,27,0.88), rgba(34,14,10,0.94))",
@@ -479,12 +481,12 @@ const readyButtonStyle: React.CSSProperties = {
   fontFamily: serifFont,
   fontWeight: 800,
   letterSpacing: "0.18em",
-  fontSize: 18,
+  fontSize: 17,
 };
 
 const tapButtonStyle: React.CSSProperties = {
-  width: 132,
-  height: 132,
+  width: 112,
+  height: 112,
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
@@ -495,7 +497,7 @@ const tapButtonStyle: React.CSSProperties = {
   color: "#fff3e7",
   border: "1px solid rgba(214, 91, 70, 0.58)",
   fontFamily: serifFont,
-  fontSize: 22,
+  fontSize: 20,
   fontWeight: 900,
   letterSpacing: "0.06em",
   transition:
@@ -550,13 +552,13 @@ const mutedTextStyle: React.CSSProperties = {
 
 const finishButtonStyle: React.CSSProperties = {
   marginTop: 0,
-  padding: "10px 18px",
+  padding: "8px 16px",
   minWidth: 220,
   borderRadius: 10,
   border: "1px solid",
   boxShadow: "0 8px 24px rgba(0,0,0,0.24)",
   fontFamily: serifFont,
-  fontSize: 14,
+  fontSize: 13,
   fontWeight: 700,
   letterSpacing: "0.08em",
 };
