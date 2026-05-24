@@ -114,6 +114,7 @@ export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
       }}
     >
       <h1 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: 8 }}>朝フェーズ</h1>
+      {turn === 1 && <p className="title-sub" style={{ marginBottom: 48 }}>今日の報告</p>}
       {turn > 1 && <p className="title-sub" style={{ marginBottom: 48 }}>夜明けの報告</p>}
       <p
         className="title-tagline"
@@ -145,7 +146,9 @@ export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
         <div
           style={{
             fontSize: 28,
-            fontWeight: 600,
+            fontWeight: 500,
+            fontFamily: 'var(--font-serif), "Yu Mincho", "Hiragino Mincho ProN", serif',
+            letterSpacing: '0.08em',
             color: secondsLeft < 30 ? '#ff5a5a' : 'var(--text-main)',
             opacity: secondsLeft <= 10 ? (isBlinkVisible ? 1 : 0.2) : 1,
             transition: secondsLeft <= 10 ? 'opacity 0.08s linear' : 'color 0.2s ease',
@@ -153,8 +156,34 @@ export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
         >
           {formatTime(secondsLeft)}
         </div>
-        <div style={{ width: '100%', maxWidth: 420, height: 10, background: 'rgba(255,255,255,0.08)', borderRadius: 6 }}>
-          <div style={{ width: `${progress}%`, height: '100%', background: 'var(--kira-red)', borderRadius: 6 }} />
+        <div
+          role="progressbar"
+          aria-valuenow={Math.round(progress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Morning phase progress: ${Math.round(progress)}%`}
+          style={{
+            width: '100%',
+            maxWidth: 420,
+            height: 14,
+            padding: 2,
+            background: 'linear-gradient(180deg, rgba(255, 243, 231, 0.18), rgba(56, 31, 22, 0.38))',
+            border: '1px solid rgba(232, 222, 209, 0.18)',
+            borderRadius: 999,
+            boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.12), 0 6px 18px rgba(0,0,0,0.28)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: `${progress}%`,
+              height: '100%',
+              borderRadius: 999,
+              background: 'linear-gradient(90deg, #8c2a24 0%, #c24d3f 45%, #f0b29b 100%)',
+              boxShadow: '0 0 14px rgba(194, 77, 63, 0.35), inset 0 1px 0 rgba(255,255,255,0.18)',
+              transition: 'width 0.35s ease, box-shadow 0.35s ease',
+            }}
+          />
         </div>
         {/* 一時停止ボタンは削除（タイマーは自動で動作） */}
       </div>
