@@ -54,7 +54,7 @@ const BAD_ITEM = {
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
-const makeItem = (nextId: number, difficulty: number): FallingItem => {
+const makeItem = (nextId: number, difficulty: number, boardWidth: number): FallingItem => {
   // Aggressively higher bad-item chance and stronger per-level increase
   const isBad = Math.random() < Math.min(0.85, 0.3 + difficulty * 0.08);
   const item = isBad
@@ -62,7 +62,7 @@ const makeItem = (nextId: number, difficulty: number): FallingItem => {
     : GOOD_ITEM_POOL[Math.floor(Math.random() * GOOD_ITEM_POOL.length)];
   // Much higher base speed and steeper difficulty scaling
   const speed = 210 + Math.random() * 110 + difficulty * 16;
-  const x = 12 + Math.random() * (BOARD_WIDTH - ITEM_SIZE - 24);
+  const x = 12 + Math.random() * (boardWidth - ITEM_SIZE - 24);
 
   return {
     id: nextId,
@@ -97,6 +97,8 @@ export default function SampleGame5({ players, onFinish }: Props) {
   const [wasGameOver, setWasGameOver] = useState(false);
 
   const boardRef = useRef<HTMLDivElement | null>(null);
+  const boardWidthRef = useRef<number>(BOARD_WIDTH);
+  const phaseRef = useRef<"idle" | "countdown" | "running" | "result">(phase);
   const rafRef = useRef<number | null>(null);
   const countdownRef = useRef<number | null>(null);
   const transitionTimerRef = useRef<number | null>(null);
@@ -121,12 +123,31 @@ export default function SampleGame5({ players, onFinish }: Props) {
   }, [catcherX]);
 
   useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
+
+  useEffect(() => {
     itemsRef.current = items;
   }, [items]);
 
   useEffect(() => {
     currentTurnIndexRef.current = currentTurnIndex;
   }, [currentTurnIndex]);
+
+  // measure board width and update on resize
+  useEffect(() => {
+    const updateBoardWidth = () => {
+      if (!boardRef.current) return;
+      const rect = boardRef.current.getBoundingClientRect();
+      boardWidthRef.current = rect.width || BOARD_WIDTH;
+      const nextX = clamp(catcherXRef.current, 8, boardWidthRef.current - CATCHER_WIDTH - 8);
+      catcherXRef.current = nextX;
+      setCatcherX(nextX);
+    };
+    updateBoardWidth();
+    window.addEventListener("resize", updateBoardWidth);
+    return () => window.removeEventListener("resize", updateBoardWidth);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -154,7 +175,7 @@ export default function SampleGame5({ players, onFinish }: Props) {
     setScore(0);
     setScores({});
     setItems([]);
-    setCatcherX((BOARD_WIDTH - CATCHER_WIDTH) / 2);
+    setCatcherX(((boardWidthRef.current || BOARD_WIDTH) - CATCHER_WIDTH) / 2);
     setShowEndMessage(false);
     setIsDragging(false);
     setWasGameOver(false);
@@ -178,7 +199,7 @@ export default function SampleGame5({ players, onFinish }: Props) {
     scoreRef.current = 0;
     scoresRef.current = {};
     itemsRef.current = [];
-    catcherXRef.current = (BOARD_WIDTH - CATCHER_WIDTH) / 2;
+    catcherXRef.current = ((boardWidthRef.current || BOARD_WIDTH) - CATCHER_WIDTH) / 2;
     nextItemIdRef.current = 1;
     turnFinishedRef.current = false;
     lastFrameRef.current = null;
@@ -194,7 +215,7 @@ export default function SampleGame5({ players, onFinish }: Props) {
     const nextX = clamp(
       localX - CATCHER_WIDTH / 2,
       8,
-      BOARD_WIDTH - CATCHER_WIDTH - 8,
+      rect.width - CATCHER_WIDTH - 8,
     );
 
     catcherXRef.current = nextX;
@@ -213,7 +234,7 @@ export default function SampleGame5({ players, onFinish }: Props) {
       if (keyLeftRef.current) dx -= moveSpeed * dt;
       if (keyRightRef.current) dx += moveSpeed * dt;
       if (dx !== 0) {
-        const nextX = clamp(catcherXRef.current + dx, 8, BOARD_WIDTH - CATCHER_WIDTH - 8);
+        const nextX = clamp(catcherXRef.current + dx, 8, (boardWidthRef.current || BOARD_WIDTH) - CATCHER_WIDTH - 8);
         catcherXRef.current = nextX;
         setCatcherX(nextX);
       }
@@ -234,6 +255,8 @@ export default function SampleGame5({ players, onFinish }: Props) {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      // only respond to keyboard when board has focus and game is running
+      if (!boardRef.current || document.activeElement !== boardRef.current || phaseRef.current !== "running") return;
       if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
         keyLeftRef.current = true;
         startKeyLoopIfNeeded();
@@ -245,6 +268,7 @@ export default function SampleGame5({ players, onFinish }: Props) {
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
+      if (!boardRef.current || document.activeElement !== boardRef.current || phaseRef.current !== "running") return;
       if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
         keyLeftRef.current = false;
         stopKeyLoopIfNeeded();
@@ -423,42 +447,47 @@ export default function SampleGame5({ players, onFinish }: Props) {
           const spawned: FallingItem[] = [];
           while (spawnAccumulatorRef.current >= spawnInterval) {
             spawnAccumulatorRef.current -= spawnInterval;
-            spawned.push(makeItem(nextItemIdRef.current++, difficulty));
+            spawned.push(makeItem(nextItemIdRef.current++, difficulty, boardWidthRef.current || BOARD_WIDTH));
           }
 
           let gainedScore = 0;
-          const nextItems = itemsRef.current
-            .map((item) => {
-              const nextY = item.y + item.speed * (delta / 1000);
-              const catcherLeft = catcherXRef.current;
-              const catcherRight = catcherLeft + CATCHER_WIDTH;
-              const pad = ITEM_HITBOX_PADDING + (item.kind === "bad" ? BAD_ITEM_HITBOX_EXTRA : 0);
-              const itemLeft = item.x + pad;
-              const itemRight = item.x + item.size - pad;
-              const overlapX = itemRight > catcherLeft && itemLeft < catcherRight;
-              // shrink vertical hit region; use a smaller tolerance for bad items
-              const verticalTolerance = item.kind === "bad" ? 4 : 10;
-              const top = nextY + pad;
-              const bottom = nextY + item.size - pad;
-              const touchCatchLine = bottom >= (CATCHER_Y - verticalTolerance) && top <= (CATCHER_Y + CATCHER_HEIGHT + verticalTolerance);
+          const survivors: FallingItem[] = [];
+          let badTouched = false;
+          for (const item of itemsRef.current) {
+            const nextY = item.y + item.speed * (delta / 1000);
+            const catcherLeft = catcherXRef.current;
+            const catcherRight = catcherLeft + CATCHER_WIDTH;
+            const pad = ITEM_HITBOX_PADDING + (item.kind === "bad" ? BAD_ITEM_HITBOX_EXTRA : 0);
+            const itemLeft = item.x + pad;
+            const itemRight = item.x + item.size - pad;
+            const overlapX = itemRight > catcherLeft && itemLeft < catcherRight;
+            const verticalTolerance = item.kind === "bad" ? 4 : 10;
+            const top = nextY + pad;
+            const bottom = nextY + item.size - pad;
+            const touchCatchLine = bottom >= (CATCHER_Y - verticalTolerance) && top <= (CATCHER_Y + CATCHER_HEIGHT + verticalTolerance);
 
-              if (overlapX && touchCatchLine) {
-                if (item.kind === "bad") {
-                  finishTurn(true);
-                  return null;
-                }
-                gainedScore += item.points;
-                return null;
+            if (overlapX && touchCatchLine) {
+              if (item.kind === "bad") {
+                badTouched = true;
+                break;
               }
+              gainedScore += item.points;
+              continue;
+            }
 
-              if (nextY > BOARD_HEIGHT + 40) {
-                return null;
-              }
+            if (nextY > BOARD_HEIGHT + 40) {
+              continue;
+            }
 
-              return { ...item, y: nextY };
-            })
-            .filter((item): item is FallingItem => item !== null)
-            .concat(spawned);
+            survivors.push({ ...item, y: nextY });
+          }
+
+          if (badTouched) {
+            finishTurn(true);
+            return;
+          }
+
+          const nextItems = survivors.concat(spawned);
 
           if (gainedScore > 0) {
             scoreRef.current += gainedScore;
