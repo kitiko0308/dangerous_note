@@ -386,7 +386,7 @@ export default function SampleGame({ players, onFinish }: Props) {
                 <button
                   onClick={startRound}
                   className="title-menu__button title-menu__button--primary"
-                  style={{ minWidth: 180, padding: '10px 22px', borderRadius: 28, background: 'linear-gradient(180deg,#5a392e,#2f1a12)', color: '#f4e9e0', boxShadow: '0 8px 20px rgba(0,0,0,0.4)' }}
+                  style={{ minWidth: 180, padding: '10px 22px', borderRadius: 28, background: 'linear-gradient(180deg,#5a392e,#2f1a12)', color: '#f4e9e0', boxShadow: '0 8px 20px rgba(0,0,0,0.4)', outline: 'none', border: 'none' }}
                 >
                   READY
                 </button>
