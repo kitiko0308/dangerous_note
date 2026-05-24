@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SampleGame from "./minigames/SampleGame";
 import SampleGame2 from "./minigames/SampleGame2";
 import SampleGame3 from "./minigames/SampleGame3";
@@ -20,19 +20,10 @@ type Props = {
 
 const ALL_GAME_INDICES = [0, 1, 2, 3];
 
-function isMobileDevice(): boolean {
-  return /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  );
-}
-
-function getAvailableGameIndices(): number[] {
-  if (isMobileDevice()) return ALL_GAME_INDICES;
-  return ALL_GAME_INDICES.filter((i) => i !== 1);
-}
-
-function selectGameIndex(playCounts: Record<number, number>): number {
-  const available = getAvailableGameIndices();
+function selectGameIndex(
+  playCounts: Record<number, number>,
+  available: number[],
+): number {
   const counts = available.map((i) => playCounts[i] ?? 0);
   const minCount = Math.min(...counts);
   const candidates = available.filter((i) => (playCounts[i] ?? 0) === minCount);
@@ -40,13 +31,21 @@ function selectGameIndex(playCounts: Record<number, number>): number {
 }
 
 export default function MiniGamePhase({ players, onNext, gamePlayCounts, onGamePlayed }: Props) {
+  const availableIndices = useMemo(
+    () =>
+      window.matchMedia("(pointer: coarse)").matches
+        ? ALL_GAME_INDICES
+        : ALL_GAME_INDICES.filter((i) => i !== 1),
+    [],
+  );
+
   const [selectedGameIndex, setSelectedGameIndex] = useState<number>(
-    () => selectGameIndex(gamePlayCounts),
+    () => selectGameIndex(gamePlayCounts, availableIndices),
   );
 
   useEffect(() => {
-    setSelectedGameIndex(selectGameIndex(gamePlayCounts));
-  }, [gamePlayCounts]);
+    setSelectedGameIndex(selectGameIndex(gamePlayCounts, availableIndices));
+  }, [gamePlayCounts, availableIndices]);
 
   const handleFinish = (results: number[] | MiniGameResults) => {
     onGamePlayed(selectedGameIndex);
@@ -68,16 +67,16 @@ export default function MiniGamePhase({ players, onNext, gamePlayCounts, onGameP
 
         <div style={gameCardStyle}>
           {selectedGameIndex === 0 && (
-            <SampleGame players={players} onFinish={(results) => handleFinish(results)} />
+            <SampleGame players={players} onFinish={handleFinish} />
           )}
           {selectedGameIndex === 1 && (
-            <SampleGame2 players={players} onFinish={(rankingIds) => handleFinish(rankingIds)} />
+            <SampleGame2 players={players} onFinish={handleFinish} />
           )}
           {selectedGameIndex === 2 && (
-            <SampleGame3 players={players} onFinish={(rankingIds) => handleFinish(rankingIds)} />
+            <SampleGame3 players={players} onFinish={handleFinish} />
           )}
           {selectedGameIndex === 3 && (
-            <SampleGame4 players={players} onFinish={(results) => handleFinish(results)} />
+            <SampleGame4 players={players} onFinish={handleFinish} />
           )}
         </div>
       </div>
