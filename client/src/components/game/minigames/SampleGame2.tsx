@@ -187,7 +187,7 @@ export default function SampleGame({ players, onFinish }: Props) {
           marginBottom: "1rem",
         }}
       >
-        🎮 ミニゲーム：振るゲーム
+        🎮 ミニゲーム：シャッフルゲーム
       </h3>
 
       <div

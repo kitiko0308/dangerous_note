@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SampleGame from "./minigames/SampleGame";
+import SampleGame2 from "./minigames/SampleGame2";
+import SampleGame3 from "./minigames/SampleGame3";
+import SampleGame4 from "./minigames/SampleGame4";
 import type { Player } from "../../types";
 import minigameBg from "../../assets/img/gamehaikei.png";
 
@@ -11,10 +14,47 @@ type MiniGameResults = {
 type Props = {
   players: Player[];
   onNext: (results?: MiniGameResults) => void;
+  gamePlayCounts: Record<number, number>;
+  onGamePlayed: (gameIndex: number) => void;
 };
 
-export default function MiniGamePhase({ players, onNext }: Props) {
-  const [selectedGame, _setSelectedGame] = useState<string>("sample");
+const ALL_GAME_INDICES = [0, 1, 2, 3];
+
+function selectGameIndex(
+  playCounts: Record<number, number>,
+  available: number[],
+): number {
+  const counts = available.map((i) => playCounts[i] ?? 0);
+  const minCount = Math.min(...counts);
+  const candidates = available.filter((i) => (playCounts[i] ?? 0) === minCount);
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+export default function MiniGamePhase({ players, onNext, gamePlayCounts, onGamePlayed }: Props) {
+  const availableIndices = useMemo(
+    () =>
+      window.matchMedia("(pointer: coarse)").matches
+        ? ALL_GAME_INDICES
+        : ALL_GAME_INDICES.filter((i) => i !== 1),
+    [],
+  );
+
+  const [selectedGameIndex, setSelectedGameIndex] = useState<number>(
+    () => selectGameIndex(gamePlayCounts, availableIndices),
+  );
+
+  useEffect(() => {
+    setSelectedGameIndex(selectGameIndex(gamePlayCounts, availableIndices));
+  }, [gamePlayCounts, availableIndices]);
+
+  const handleFinish = (results: number[] | MiniGameResults) => {
+    onGamePlayed(selectedGameIndex);
+    if (Array.isArray(results)) {
+      onNext({ rankingIds: results, taps: {} });
+    } else {
+      onNext(results);
+    }
+  };
 
   return (
     <div style={containerStyle}>
@@ -26,8 +66,17 @@ export default function MiniGamePhase({ players, onNext }: Props) {
         <h1 style={titleStyle}>ミニゲームフェーズ</h1>
 
         <div style={gameCardStyle}>
-          {selectedGame === "sample" && (
-            <SampleGame players={players} onFinish={(results) => onNext(results)} />
+          {selectedGameIndex === 0 && (
+            <SampleGame players={players} onFinish={handleFinish} />
+          )}
+          {selectedGameIndex === 1 && (
+            <SampleGame2 players={players} onFinish={handleFinish} />
+          )}
+          {selectedGameIndex === 2 && (
+            <SampleGame3 players={players} onFinish={handleFinish} />
+          )}
+          {selectedGameIndex === 3 && (
+            <SampleGame4 players={players} onFinish={handleFinish} />
           )}
         </div>
       </div>
