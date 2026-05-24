@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toFullWidth } from "../../utils/numberFormat";
 import kiraImg from "../../assets/img/kira_hito.png";
 import lImg from "../../assets/img/L_hito.png";
@@ -19,8 +19,6 @@ export default function RoleRevealPage({ players, onNext }: Props) {
     () => players[0]?.role ?? "villager",
   );
 
-  const currentPlayer = players[currentPlayerIndex];
-
   // Inject responsive CSS once to crop image bottoms on small screens
   const cropCss = `
     /* mobile: show more of the lower area while trimming a small bit from the top */
@@ -36,15 +34,40 @@ export default function RoleRevealPage({ players, onNext }: Props) {
     }
   `;
 
-  if (
-    typeof window !== "undefined" &&
-    !document.getElementById("role-reveal-crop-styles")
-  ) {
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const existingStyle = document.getElementById("role-reveal-crop-styles");
+    if (existingStyle) {
+      return;
+    }
+
     const style = document.createElement("style");
     style.id = "role-reveal-crop-styles";
     style.innerHTML = cropCss;
     document.head.appendChild(style);
+
+    return () => {
+      style.remove();
+    };
+  }, [cropCss]);
+
+  if (players.length === 0) {
+    return (
+      <div className="title-screen">
+        <div className="title-screen__grain" aria-hidden="true" />
+        <div className="title-screen__vignette" aria-hidden="true" />
+        <main className="title-content">
+          <h2 className="title-logo role-reveal__title">役職の確認</h2>
+          <p className="title-sub">プレイヤーがいません。</p>
+        </main>
+      </div>
+    );
   }
+
+  const currentPlayer = players[currentPlayerIndex];
 
   // previewRole は初期化で players[0] の役職に合わせるため、
   // isShowing の変化で同期させる useEffect は不要です。
