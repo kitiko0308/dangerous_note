@@ -28,7 +28,10 @@ export default function SampleGame({ players, onFinish }: Props) {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showEndMessage, setShowEndMessage] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+  const timerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const endTimerRef = useRef<number | null>(null);
+  const finishCurrentTurnRef = useRef<() => void>(() => {});
+  const tickRef = useRef<(remaining: number) => void>(() => {});
 
   const currentPlayer = alivePlayers[currentTurnIndex];
 
@@ -82,20 +85,49 @@ export default function SampleGame({ players, onFinish }: Props) {
   }, [currentPlayer, turnResults, tapCount, currentTurnIndex, alivePlayers.length, onFinish]);
 
   useEffect(() => {
+    finishCurrentTurnRef.current = finishCurrentTurn;
+  }, [finishCurrentTurn]);
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const tick = useCallback(
+    (remaining: number) => {
+      if (!currentPlayer || isFinished) {
+        return;
+      }
+
+      if (remaining <= 0) {
+        clearTimer();
+        setIsRunning(false);
+        finishCurrentTurnRef.current();
+        return;
+      }
+
+      setTimeLeft(remaining);
+      timerRef.current = window.setTimeout(() => {
+        tickRef.current(remaining - 1);
+      }, 1000);
+    },
+    [currentPlayer, clearTimer, isFinished],
+  );
+
+  useEffect(() => {
+    tickRef.current = tick;
+  }, [tick]);
+
+  useEffect(() => {
     if (!currentPlayer || isFinished || !isRunning) return;
 
-    if (timeLeft <= 0) {
-      setIsRunning(false);
-      finishCurrentTurn();
-      return;
-    }
+    clearTimer();
+    tick(timeLeft);
 
-    const timerId = window.setTimeout(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => window.clearTimeout(timerId);
-  }, [currentPlayer, finishCurrentTurn, isFinished, timeLeft, isRunning]);
+    return clearTimer;
+  }, [currentPlayer, clearTimer, isFinished, isRunning, tick, timeLeft]);
 
   useEffect(() => {
     if (countdown === null) return;
@@ -126,14 +158,16 @@ export default function SampleGame({ players, onFinish }: Props) {
     setIsRunning(false);
     setCountdown(null);
     setShowEndMessage(false);
+    clearTimer();
 
     return () => {
+      clearTimer();
       if (endTimerRef.current) {
         window.clearTimeout(endTimerRef.current);
         endTimerRef.current = null;
       }
     };
-  }, [alivePlayers.map((p) => p.id).join(",")]);
+  }, [alivePlayers.map((p) => p.id).join(","), clearTimer]);
 
   const handleDummyFinish = () => {
     if (
@@ -146,6 +180,7 @@ export default function SampleGame({ players, onFinish }: Props) {
       return;
     }
 
+    clearTimer();
     setIsRunning(false);
     finishCurrentTurn();
   };
@@ -263,10 +298,7 @@ export default function SampleGame({ players, onFinish }: Props) {
                     transform: isPressed ? "scale(0.92)" : "scale(1)",
                     boxShadow: isPressed
                       ? "inset 0 8px 18px rgba(0,0,0,0.55)"
-                      : `
-                        0 0 34px rgba(168, 48, 30, 0.36),
-                        0 14px 34px rgba(0,0,0,0.42)
-                      `,
+                      : "0 0 34px rgba(168, 48, 30, 0.36), 0 14px 34px rgba(0,0,0,0.42)",
                     opacity: tapButtonDisabled ? 0.7 : 1,
                     cursor: tapButtonDisabled ? "not-allowed" : "pointer",
                   }}
@@ -330,10 +362,8 @@ const gameShellStyle: React.CSSProperties = {
   background:
     "linear-gradient(180deg, rgba(28, 18, 13, 0.78), rgba(10, 7, 5, 0.86))",
   border: "1px solid rgba(205, 139, 92, 0.16)",
-  boxShadow: `
-    inset 0 1px 0 rgba(255,255,255,0.045),
-    0 18px 48px rgba(0,0,0,0.42)
-  `,
+  boxShadow:
+    "inset 0 1px 0 rgba(255,255,255,0.045), 0 18px 48px rgba(0,0,0,0.42)",
   color: "#f2eadf",
   textAlign: "center",
   backdropFilter: "blur(10px)",
