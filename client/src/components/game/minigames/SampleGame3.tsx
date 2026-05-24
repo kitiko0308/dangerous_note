@@ -244,32 +244,35 @@ export default function SampleGame({ players, onFinish }: Props) {
   return (
     <div
       style={{
-        backgroundColor: "#13232b",
-        padding: 30,
-        borderRadius: "8px",
+        padding: 34,
+        borderRadius: 14,
         textAlign: "center",
-        color: "white",
+        color: "#efe7db",
+        background: 'linear-gradient(180deg, rgba(0,0,0,0.44), rgba(0,0,0,0.28))',
+        border: '1px solid rgba(214,204,188,0.12)',
+        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.02), 0 18px 40px rgba(0,0,0,0.44)',
       }}
     >
-      <h3>🎮 ミニゲーム：早押しチャレンジ</h3>
-      <p style={{ marginTop: 8, color: "#ddd" }}>
+      <h3 style={{ fontFamily: 'var(--font-serif), "Yu Mincho", serif', fontSize: 18, marginBottom: 6 }}>🎮 ミニゲーム：早押しチャレンジ</h3>
+      <p style={{ marginTop: 8, color: "#ddd", fontFamily: 'var(--font-serif), "Yu Mincho", serif' }}>
         ボタンが赤から緑に変わったら、すぐに「押せ」を押して反応時間を競ってください。
       </p>
 
       <div
         style={{
           margin: "20px 0",
-          padding: "10px",
-          backgroundColor: "#111",
-          borderRadius: "5px",
+          padding: "12px",
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.18))',
+          borderRadius: 12,
+          border: '1px solid rgba(255,255,255,0.02)',
         }}
       >
-        <p style={{ color: "#aaa", marginBottom: "10px" }}>【今回の参加者】</p>
+        <p style={{ color: "#ddd", marginBottom: "8px", fontFamily: 'var(--font-serif), "Yu Mincho", serif' }}>参加者</p>
         <div
           style={{
             display: "flex",
             justifyContent: "center",
-            gap: "15px",
+            gap: "12px",
             flexWrap: "wrap",
           }}
         >
@@ -277,9 +280,11 @@ export default function SampleGame({ players, onFinish }: Props) {
             <span
               key={p.id}
               style={{
-                padding: "5px 10px",
-                backgroundColor: "#444",
-                borderRadius: "15px",
+                padding: "6px 12px",
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: "16px",
+                color: '#efe7db',
+                fontFamily: 'var(--font-serif), "Yu Mincho", serif',
               }}
             >
               {p.nickname}
@@ -291,9 +296,11 @@ export default function SampleGame({ players, onFinish }: Props) {
       <div
         style={{
           marginTop: "16px",
-          padding: "16px",
-          backgroundColor: "#1b1b1b",
-          borderRadius: "8px",
+          padding: "22px",
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.36), rgba(0,0,0,0.22))',
+          borderRadius: 12,
+          border: '1px solid rgba(214,204,188,0.12)',
+          boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.02)',
         }}
       >
         {currentPlayer ? (
@@ -379,8 +386,9 @@ export default function SampleGame({ players, onFinish }: Props) {
                 <button
                   onClick={startRound}
                   className="title-menu__button title-menu__button--primary"
+                  style={{ minWidth: 180, padding: '10px 22px', borderRadius: 28, background: 'linear-gradient(180deg,#5a392e,#2f1a12)', color: '#f4e9e0', boxShadow: '0 8px 20px rgba(0,0,0,0.4)' }}
                 >
-                  準備OK
+                  READY
                 </button>
               </div>
             ) : (
