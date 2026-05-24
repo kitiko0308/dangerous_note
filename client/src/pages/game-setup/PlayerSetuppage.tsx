@@ -3,6 +3,18 @@ import type { Player, Role } from "../../types";
 import { toFullWidth } from "../../utils/numberFormat";
 import aiImg from "../../assets/img/ai.png";
 
+const SAMPLE_NICKNAMES = ["いちか", "にの", "みく", "よつば", "いつき"];
+const BASE_REAL_NAME_SOURCES = [
+  "天音海砂",
+  "高橋太一",
+  "山口誠人",
+  "桜井舞子",
+  "鈴木一郎",
+];
+const REAL_NAME_CHAR_POOL = BASE_REAL_NAME_SOURCES.join("")
+  .split("")
+  .filter((c) => c.trim() !== "");
+
 type Props = {
   players: Player[];
   setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
@@ -17,24 +29,22 @@ export default function PlayerSetuppage({
   onBack,
 }: Props) {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-
-  const sampleNicknames = ["いちか", "にの", "みく", "よつば", "いつき"];
   const [randomSeqIndex, setRandomSeqIndex] = useState(0);
 
   const getUniqueNickname = (used: Set<string>) => {
     // try base names first
-    for (const name of sampleNicknames) {
+    for (const name of SAMPLE_NICKNAMES) {
       if (!used.has(name)) return name;
     }
     // if all base names are used, append numeric suffixes to make unique names
     for (let suffix = 2; suffix < 1000; suffix += 1) {
-      for (const base of sampleNicknames) {
+      for (const base of SAMPLE_NICKNAMES) {
         const candidate = `${base}${suffix}`;
         if (!used.has(candidate)) return candidate;
       }
     }
     // fallback (very unlikely)
-    return `${sampleNicknames[0]}${Date.now()}`;
+    return `${SAMPLE_NICKNAMES[0]}${Date.now()}`;
   };
 
   const chooseSequentialOrUniqueNickname = () => {
@@ -44,10 +54,10 @@ export default function PlayerSetuppage({
         .map((p, i) => (i === currentPlayerIndex ? "" : p.nickname.trim()))
         .filter((name) => name.length > 0),
     );
-    const n = sampleNicknames.length;
+    const n = SAMPLE_NICKNAMES.length;
     for (let offset = 0; offset < n; offset += 1) {
       const idx = (randomSeqIndex + offset) % n;
-      const candidate = sampleNicknames[idx];
+      const candidate = SAMPLE_NICKNAMES[idx];
       if (!used.has(candidate)) {
         // advance sequence start to next position after chosen
         setRandomSeqIndex((idx + 1) % n);
@@ -58,33 +68,22 @@ export default function PlayerSetuppage({
     const unique = getUniqueNickname(used);
     // if unique is based on a base name, advance the sequence start
     const baseMatch = unique.match(
-      new RegExp(`^(${sampleNicknames.join("|")})`),
+      new RegExp(`^(${SAMPLE_NICKNAMES.join("|")})`),
     );
     if (baseMatch) {
-      const baseIdx = sampleNicknames.indexOf(baseMatch[1]);
+      const baseIdx = SAMPLE_NICKNAMES.indexOf(baseMatch[1]);
       if (baseIdx >= 0) setRandomSeqIndex((baseIdx + 1) % n);
     }
     return unique;
   };
 
-  // ベースになる本名ソース（ユーザー指定の候補）
-  const baseRealNameSources = [
-    "天音海砂",
-    "高橋太一",
-    "山口誠人",
-    "桜井舞子",
-    "鈴木一郎",
-  ];
-  const realNameCharPool = baseRealNameSources
-    .join("")
-    .split("")
-    .filter((c) => c.trim() !== "");
-
   const generateRandomRealName = () => {
     let name = "";
     for (let i = 0; i < 4; i += 1) {
       name +=
-        realNameCharPool[Math.floor(Math.random() * realNameCharPool.length)];
+        REAL_NAME_CHAR_POOL[
+          Math.floor(Math.random() * REAL_NAME_CHAR_POOL.length)
+        ];
     }
     return name;
   };
@@ -323,9 +322,9 @@ export default function PlayerSetuppage({
             </button>
 
             <div className="player-setup__dots">
-              {players.map((_, i) => (
+              {players.map((player, i) => (
                 <div
-                  key={i}
+                  key={player.id ?? i}
                   className={
                     i === currentPlayerIndex
                       ? "player-setup__dot player-setup__dot--active"
