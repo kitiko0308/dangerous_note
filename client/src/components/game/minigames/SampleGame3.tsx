@@ -344,7 +344,7 @@ export default function SampleGame({ players, onFinish }: Props) {
               >
                 <button
                   onClick={() => handlePress(currentPlayer.id)}
-                  className="title-menu__button"
+                  className="title-menu__button sample-game3-button sample-game3-button--danger"
                   onPointerDown={() => setIsPressed(true)}
                   onPointerUp={() => setIsPressed(false)}
                   onPointerCancel={() => setIsPressed(false)}
@@ -372,7 +372,6 @@ export default function SampleGame({ players, onFinish }: Props) {
                       "transform 120ms ease, box-shadow 120ms ease, background 160ms",
                     touchAction: "manipulation",
                     cursor: "pointer",
-                    outline: 'none',
                   }}
                 >
                   待て
@@ -388,10 +387,10 @@ export default function SampleGame({ players, onFinish }: Props) {
               >
                 <button
                   onClick={startRound}
-                  className="title-menu__button title-menu__button--primary"
-                  style={{ minWidth: 180, padding: '10px 22px', borderRadius: 28, background: 'linear-gradient(180deg,#5a392e,#2f1a12)', color: '#f4e9e0', boxShadow: '0 8px 20px rgba(0,0,0,0.4)', outline: 'none', border: 'none', fontFamily: 'var(--font-serif), "Yu Mincho", serif' }}
+                  className="title-menu__button title-menu__button--primary sample-game3-button sample-game3-button--ready"
+                  style={{ minWidth: 180, padding: '10px 22px', borderRadius: 28, background: 'linear-gradient(180deg,#5a392e,#2f1a12)', color: '#f4e9e0', boxShadow: '0 8px 20px rgba(0,0,0,0.4)', border: 'none', fontFamily: 'var(--font-serif), "Yu Mincho", serif' }}
                 >
-                  READY
+                  準備OK
                 </button>
               </div>
             ) : (
@@ -405,7 +404,7 @@ export default function SampleGame({ players, onFinish }: Props) {
               >
                 <button
                   onClick={() => handlePress(currentPlayer.id)}
-                  className="title-menu__button title-menu__button--primary"
+                  className="title-menu__button title-menu__button--primary sample-game3-button sample-game3-button--go"
                   onPointerDown={() => setIsPressed(true)}
                   onPointerUp={() => setIsPressed(false)}
                   onPointerCancel={() => setIsPressed(false)}
@@ -433,7 +432,6 @@ export default function SampleGame({ players, onFinish }: Props) {
                       "transform 120ms ease, box-shadow 120ms ease, background 160ms",
                     touchAction: "manipulation",
                     cursor: "pointer",
-                    outline: 'none',
                   }}
                 >
                   押せ
