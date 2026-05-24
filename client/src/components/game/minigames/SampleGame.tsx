@@ -8,7 +8,7 @@ type FinishPayload = {
 
 type Props = {
   players: Player[];
-  onFinish: (payload: FinishPayload) => void; // ゲーム終了時に順位と得点マップを渡す
+  onFinish: (payload: FinishPayload) => void;
 };
 
 export default function SampleGame({ players, onFinish }: Props) {
@@ -16,6 +16,7 @@ export default function SampleGame({ players, onFinish }: Props) {
     () => players.filter((p) => p.isAlive),
     [players],
   );
+
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(5);
   const [tapCount, setTapCount] = useState(0);
@@ -40,9 +41,7 @@ export default function SampleGame({ players, onFinish }: Props) {
   };
 
   const finishCurrentTurn = () => {
-    if (!currentPlayer) {
-      return;
-    }
+    if (!currentPlayer) return;
 
     const nextResults = [
       ...turnResults,
@@ -52,6 +51,7 @@ export default function SampleGame({ players, onFinish }: Props) {
         taps: tapCount,
       },
     ];
+
     setTurnResults(nextResults);
 
     if (currentTurnIndex + 1 >= alivePlayers.length) {
@@ -67,12 +67,13 @@ export default function SampleGame({ players, onFinish }: Props) {
       return;
     }
 
-    // show "終了!" for 3s, then advance to next player's Ready state
     if (endTimerRef.current) {
       window.clearTimeout(endTimerRef.current);
       endTimerRef.current = null;
     }
+
     setShowEndMessage(true);
+
     endTimerRef.current = window.setTimeout(() => {
       setShowEndMessage(false);
       startNextTurn(currentTurnIndex + 1);
@@ -81,9 +82,7 @@ export default function SampleGame({ players, onFinish }: Props) {
   };
 
   useEffect(() => {
-    if (!currentPlayer || isFinished || !isRunning) {
-      return;
-    }
+    if (!currentPlayer || isFinished || !isRunning) return;
 
     if (timeLeft <= 0) {
       setIsRunning(false);
@@ -98,7 +97,6 @@ export default function SampleGame({ players, onFinish }: Props) {
     return () => window.clearTimeout(timerId);
   }, [currentPlayer, isFinished, timeLeft, isRunning]);
 
-  // countdown 3..2..1 -> start
   useEffect(() => {
     if (countdown === null) return;
 
@@ -115,17 +113,10 @@ export default function SampleGame({ players, onFinish }: Props) {
       setIsRunning(true);
       setTimeLeft(5);
     }, 600);
+
     return () => window.clearTimeout(id);
   }, [countdown]);
 
-  // NOTE: リーダーのルール指摘に対応
-  // alivePlayers は useMemo(..., [players]) の結果で、親コンポーネントが
-  // 毎レンダー新しい配列を渡す実装だと参照が変わります。
-  // その場合、この useEffect が意図せず発火して途中のゲーム進行が
-  // リセットされてしまう恐れがあります。
-  //
-  // 対策：配列参照ではなく「参加者のID列」をキーに使い、顔ぶれが
-  // 実際に変わったときだけリセットされるようにします。
   useEffect(() => {
     setCurrentTurnIndex(0);
     setTimeLeft(5);
@@ -142,12 +133,9 @@ export default function SampleGame({ players, onFinish }: Props) {
         endTimerRef.current = null;
       }
     };
-    // depend on stable key of alivePlayers (IDs concatenated)
   }, [alivePlayers.map((p) => p.id).join(",")]);
 
   const handleDummyFinish = () => {
-    // Only allow manual finish while the measurement is actively running.
-    // Prevents double-submission when '終了!' is showing or during countdown.
     if (
       !currentPlayer ||
       isFinished ||
@@ -158,7 +146,6 @@ export default function SampleGame({ players, onFinish }: Props) {
       return;
     }
 
-    // stop the running timer and record result
     setIsRunning(false);
     finishCurrentTurn();
   };
@@ -179,7 +166,6 @@ export default function SampleGame({ players, onFinish }: Props) {
 
   const handleReady = () => {
     if (!currentPlayer || isFinished) return;
-    // start 3..2..1 countdown
     setCountdown(3);
   };
 
@@ -199,206 +185,131 @@ export default function SampleGame({ players, onFinish }: Props) {
     !currentPlayer;
 
   return (
-    <div
-      style={{
-        backgroundColor: "#13232b",
-        padding: 30,
-        borderRadius: "8px",
-        textAlign: "center",
-        color: "white",
-      }}
-    >
-      <div
-        style={{
-          margin: "20px 0",
-          padding: "10px",
-          backgroundColor: "#111",
-          borderRadius: "5px",
-        }}
-      >
-        <p style={{ color: "#aaa", marginBottom: "10px" }}>【今回の参加者】</p>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "15px",
-            flexWrap: "wrap",
-          }}
-        >
+    <div style={gameShellStyle}>
+      <section style={participantsPanelStyle}>
+        <p style={sectionLabelStyle}>参加者</p>
+
+        <div style={chipWrapStyle}>
           {alivePlayers.map((p) => (
-            <span
-              key={p.id}
-              style={{
-                padding: "5px 10px",
-                backgroundColor: "#444",
-                borderRadius: "15px",
-              }}
-            >
+            <span key={p.id} style={playerChipStyle}>
               {p.nickname}
             </span>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div
-        style={{
-          marginTop: "16px",
-          padding: "16px",
-          backgroundColor: "#1b1b1b",
-          borderRadius: "8px",
-        }}
-      >
+      <section style={mainPanelStyle}>
         {currentPlayer ? (
           <>
-            <p style={{ margin: 0, color: "#f5d565", fontWeight: 700 }}>
-              <span
-                style={{
-                  fontFamily: "Garamond, 'Times New Roman', serif",
-                  fontSize: 20,
-                }}
-              >
-                {currentPlayer.nickname}
-              </span>
-              <span style={{ marginLeft: 8, fontSize: 16, color: "#ebd79a" }}>
-                のターン
-              </span>
-            </p>
-            <p style={{ margin: "8px 0 0", color: "#ddd" }}>
+            <p style={sectionLabelStyle}>現在の挑戦者</p>
+
+            <div style={turnTitleStyle}>
+              <span style={currentNameStyle}>{currentPlayer.nickname}</span>
+              <span style={turnTextStyle}>のターン</span>
+            </div>
+
+            <p style={nextPlayerStyle}>
               {alivePlayers[currentTurnIndex + 1]
                 ? `次は ${alivePlayers[currentTurnIndex + 1].nickname} のターン`
                 : "あなたが最後の番です"}
             </p>
-            <p style={{ margin: "12px 0 0", color: "#aaa" }}>
-              残り時間: {timeLeft}秒 / 連打数: {tapCount}
-            </p>
-            <p className="title-tagline" style={{ margin: "12px 0 0" }}>
-              5秒の間に連打して、1人ずつ記録するゲームです。
-            </p>
+
+            <div style={statusGridStyle}>
+              <div style={statusBoxStyle}>
+                <span style={statusLabelStyle}>TIME</span>
+                <strong style={statusValueStyle}>{timeLeft}</strong>
+              </div>
+
+              <div style={statusBoxStyle}>
+                <span style={statusLabelStyle}>COUNT</span>
+                <strong style={statusValueStyle}>{tapCount}</strong>
+              </div>
+            </div>
+
+            {!isRunning && countdown === null && !showEndMessage && (
+              <p style={descriptionStyle}>
+                5秒の間に連打して、1人ずつ記録するゲームです。
+              </p>
+            )}
 
             {showEndMessage ? (
-              <div style={{ marginTop: 16 }}>
-                <p style={{ fontSize: 48, margin: "8px 0", color: "#fff" }}>
-                  終了！
-                </p>
+              <div style={centerActionStyle}>
+                <p style={endMessageStyle}>終了！</p>
               </div>
             ) : countdown !== null ? (
-              <div style={{ marginTop: 16 }}>
-                <p style={{ fontSize: 48, margin: "8px 0", color: "#fff" }}>
-                  {countdown}
-                </p>
-                <p style={{ margin: 0, color: "#aaa" }}>スタンバイ…</p>
+              <div style={centerActionStyle}>
+                <p style={countdownStyle}>{countdown}</p>
+                <p style={standbyTextStyle}>STANDBY</p>
               </div>
             ) : !isRunning ? (
-              <div
-                style={{
-                  marginTop: "16px",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <button
-                  onClick={handleReady}
-                  className="title-menu__button title-menu__button--primary"
-                >
-                  準備OK
+              <div style={centerActionStyle}>
+                <button onClick={handleReady} style={readyButtonStyle}>
+                  READY
                 </button>
               </div>
             ) : (
-              <button
-                onClick={handleTap}
-                className="title-menu__button title-menu__button--primary"
-                disabled={tapButtonDisabled}
-                onPointerDown={() => setIsPressed(true)}
-                onPointerUp={() => setIsPressed(false)}
-                onPointerCancel={() => setIsPressed(false)}
-                onPointerLeave={() => setIsPressed(false)}
-                style={{
-                  marginTop: "16px",
-                  width: 120,
-                  height: 120,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: 0,
-                  fontSize: 20,
-                  fontWeight: 800,
-                  borderRadius: 999,
-                  transform: isPressed ? "scale(0.92)" : "scale(1)",
-                  boxShadow: isPressed
-                    ? "inset 0 6px 12px rgba(0,0,0,0.35)"
-                    : "0 10px 24px rgba(0,0,0,0.2)",
-                  transition:
-                    "transform 120ms ease, box-shadow 120ms ease, background-color 120ms",
-                  touchAction: "manipulation",
-                  opacity: tapButtonDisabled ? 0.72 : 1,
-                  cursor: tapButtonDisabled ? "not-allowed" : "pointer",
-                }}
-              >
-                連打！
-              </button>
+              <div style={centerActionStyle}>
+                <button
+                  onClick={handleTap}
+                  disabled={tapButtonDisabled}
+                  onPointerDown={() => setIsPressed(true)}
+                  onPointerUp={() => setIsPressed(false)}
+                  onPointerCancel={() => setIsPressed(false)}
+                  onPointerLeave={() => setIsPressed(false)}
+                  style={{
+                    ...tapButtonStyle,
+                    transform: isPressed ? "scale(0.92)" : "scale(1)",
+                    boxShadow: isPressed
+                      ? "inset 0 8px 18px rgba(0,0,0,0.55)"
+                      : `
+                        0 0 34px rgba(168, 48, 30, 0.36),
+                        0 14px 34px rgba(0,0,0,0.42)
+                      `,
+                    opacity: tapButtonDisabled ? 0.7 : 1,
+                    cursor: tapButtonDisabled ? "not-allowed" : "pointer",
+                  }}
+                >
+                  連打！
+                </button>
+              </div>
             )}
           </>
         ) : (
-          <p style={{ margin: 0, color: "#ddd" }}>参加者がいません。</p>
+          <p style={mutedTextStyle}>参加者がいません。</p>
         )}
-      </div>
-      <div
-        style={{
-          marginTop: "16px",
-          padding: "12px",
-          backgroundColor: "#111",
-          borderRadius: "5px",
-          textAlign: "left",
-        }}
-      >
-        <p style={{ margin: 0, color: "#aaa" }}>【測定済み】</p>
+      </section>
+
+      <section style={recordPanelStyle}>
+        <p style={sectionLabelStyle}>記録済み</p>
+
         {turnResults.length > 0 ? (
-          <div style={{ marginTop: 8, color: "#fff" }}>
-            <div
-              style={{
-                marginTop: 6,
-                display: "flex",
-                gap: 8,
-                flexWrap: "wrap",
-              }}
-            >
-              {turnResults.map((r) => (
-                <span
-                  key={r.id}
-                  style={{
-                    padding: "4px 8px",
-                    backgroundColor: "#333",
-                    borderRadius: 12,
-                    color: "#fff",
-                    fontSize: 14,
-                  }}
-                >
-                  {r.nickname}
-                </span>
-              ))}
-            </div>
+          <div style={recordWrapStyle}>
+            {turnResults.map((r) => (
+              <span key={r.id} style={recordChipStyle}>
+                {r.nickname}
+              </span>
+            ))}
           </div>
         ) : (
-          <p style={{ margin: "8px 0 0", color: "#666" }}>
-            まだ記録はありません。
-          </p>
+          <p style={mutedTextStyle}>まだ記録はありません。</p>
         )}
-      </div>
+      </section>
 
       <button
         onClick={handleDummyFinish}
-        className="title-menu__button"
         disabled={finishBtnDisabled}
         style={{
-          marginTop: "12px",
-          padding: "8px 12px",
-          fontSize: 14,
-          borderRadius: 6,
-          backgroundColor: finishBtnDisabled ? "#4f4f4f" : "#666",
-          color: finishBtnDisabled ? "#b9b1a7" : "#e8e1d5",
-          opacity: finishBtnDisabled ? 0.72 : 1,
+          ...finishButtonStyle,
+          background: finishBtnDisabled
+            ? "rgba(255,255,255,0.08)"
+            : "rgba(72, 38, 28, 0.72)",
+          color: finishBtnDisabled
+            ? "rgba(232,225,213,0.48)"
+            : "#f2eadf",
           cursor: finishBtnDisabled ? "not-allowed" : "pointer",
-          borderColor: "rgba(201, 199, 196, 0.34)",
+          borderColor: finishBtnDisabled
+            ? "rgba(255,255,255,0.12)"
+            : "rgba(214, 139, 92, 0.32)",
         }}
       >
         {isFinished ? "結果送信済み" : "このターンを終了して次へ"}
@@ -406,3 +317,246 @@ export default function SampleGame({ players, onFinish }: Props) {
     </div>
   );
 }
+
+const serifFont =
+  'var(--font-serif), "Yu Mincho", "Hiragino Mincho ProN", serif';
+
+const gameShellStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "clamp(16px, 2.4vw, 28px)",
+  borderRadius: 18,
+  background:
+    "linear-gradient(180deg, rgba(28, 18, 13, 0.78), rgba(10, 7, 5, 0.86))",
+  border: "1px solid rgba(205, 139, 92, 0.16)",
+  boxShadow: `
+    inset 0 1px 0 rgba(255,255,255,0.045),
+    0 18px 48px rgba(0,0,0,0.42)
+  `,
+  color: "#f2eadf",
+  textAlign: "center",
+  backdropFilter: "blur(10px)",
+  WebkitBackdropFilter: "blur(10px)",
+};
+
+const participantsPanelStyle: React.CSSProperties = {
+  padding: "18px 16px",
+  borderRadius: 12,
+  background: "rgba(8, 7, 6, 0.68)",
+  border: "1px solid rgba(255,255,255,0.055)",
+  marginBottom: 16,
+};
+
+const mainPanelStyle: React.CSSProperties = {
+  padding: "clamp(22px, 3vw, 34px) 18px",
+  borderRadius: 14,
+  background:
+    "linear-gradient(180deg, rgba(22, 18, 15, 0.82), rgba(12, 10, 8, 0.9))",
+  border: "1px solid rgba(255,255,255,0.06)",
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.035)",
+  marginBottom: 16,
+};
+
+const recordPanelStyle: React.CSSProperties = {
+  padding: "16px",
+  borderRadius: 12,
+  background: "rgba(8, 7, 6, 0.68)",
+  border: "1px solid rgba(255,255,255,0.055)",
+  marginBottom: 14,
+  textAlign: "left",
+};
+
+const sectionLabelStyle: React.CSSProperties = {
+  color: "rgba(222, 190, 151, 0.72)",
+  fontSize: 12,
+  letterSpacing: "0.18em",
+  fontWeight: 700,
+  margin: "0 0 10px",
+  fontFamily: serifFont,
+};
+
+const chipWrapStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
+const playerChipStyle: React.CSSProperties = {
+  padding: "6px 13px",
+  borderRadius: 999,
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.07))",
+  border: "1px solid rgba(255,255,255,0.1)",
+  color: "#f4efe7",
+  fontWeight: 700,
+  fontSize: 14,
+};
+
+const turnTitleStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "baseline",
+  gap: 8,
+  marginBottom: 10,
+};
+
+const currentNameStyle: React.CSSProperties = {
+  color: "#e6c46f",
+  fontFamily: serifFont,
+  fontSize: "clamp(1.1rem, 2vw, 1.35rem)",
+  fontWeight: 800,
+  letterSpacing: "0.08em",
+};
+
+const turnTextStyle: React.CSSProperties = {
+  color: "#e8d9bf",
+  fontSize: 15,
+  fontWeight: 700,
+};
+
+const nextPlayerStyle: React.CSSProperties = {
+  margin: "0 0 12px",
+  color: "rgba(244,239,231,0.76)",
+  fontSize: 14,
+};
+
+const statusGridStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "center",
+  gap: 12,
+  margin: "14px 0",
+  flexWrap: "wrap",
+};
+
+const statusBoxStyle: React.CSSProperties = {
+  minWidth: 104,
+  padding: "10px 14px",
+  borderRadius: 12,
+  background: "rgba(0,0,0,0.28)",
+  border: "1px solid rgba(255,255,255,0.075)",
+};
+
+const statusLabelStyle: React.CSSProperties = {
+  display: "block",
+  color: "rgba(222,190,151,0.68)",
+  fontSize: 10,
+  letterSpacing: "0.2em",
+  marginBottom: 4,
+};
+
+const statusValueStyle: React.CSSProperties = {
+  color: "#f4efe7",
+  fontSize: 24,
+  fontFamily: serifFont,
+  lineHeight: 1,
+};
+
+const descriptionStyle: React.CSSProperties = {
+  margin: "12px 0 0",
+  color: "rgba(244,239,231,0.88)",
+  fontSize: "clamp(0.95rem, 1.6vw, 1.12rem)",
+  letterSpacing: "0.04em",
+};
+
+const centerActionStyle: React.CSSProperties = {
+  marginTop: 18,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  minHeight: 96,
+};
+
+const readyButtonStyle: React.CSSProperties = {
+  minWidth: 180,
+  padding: "15px 28px",
+  borderRadius: 999,
+  background:
+    "linear-gradient(180deg, rgba(74,38,27,0.88), rgba(34,14,10,0.94))",
+  color: "#f5ecdf",
+  border: "1px solid rgba(214, 139, 92, 0.35)",
+  boxShadow: "0 12px 28px rgba(0,0,0,0.38)",
+  cursor: "pointer",
+  fontFamily: serifFont,
+  fontWeight: 800,
+  letterSpacing: "0.18em",
+  fontSize: 18,
+};
+
+const tapButtonStyle: React.CSSProperties = {
+  width: 132,
+  height: 132,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  borderRadius: "50%",
+  background:
+    "radial-gradient(circle at 50% 38%, rgba(144,52,36,0.96), rgba(54,16,12,0.98) 68%, rgba(18,8,6,1))",
+  color: "#fff3e7",
+  border: "1px solid rgba(214, 91, 70, 0.58)",
+  fontFamily: serifFont,
+  fontSize: 22,
+  fontWeight: 900,
+  letterSpacing: "0.06em",
+  transition:
+    "transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease",
+  touchAction: "manipulation",
+};
+
+const endMessageStyle: React.CSSProperties = {
+  color: "#f4efe7",
+  fontSize: 44,
+  margin: 0,
+  fontFamily: serifFont,
+  letterSpacing: "0.12em",
+};
+
+const countdownStyle: React.CSSProperties = {
+  color: "#fff",
+  fontSize: 54,
+  margin: 0,
+  fontFamily: serifFont,
+  textShadow: "0 0 24px rgba(210,80,60,0.45)",
+};
+
+const standbyTextStyle: React.CSSProperties = {
+  margin: "6px 0 0",
+  color: "rgba(222,190,151,0.72)",
+  fontSize: 12,
+  letterSpacing: "0.28em",
+};
+
+const recordWrapStyle: React.CSSProperties = {
+  marginTop: 8,
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const recordChipStyle: React.CSSProperties = {
+  padding: "5px 11px",
+  borderRadius: 999,
+  background: "rgba(255,255,255,0.075)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#f2eadf",
+  fontSize: 13,
+};
+
+const mutedTextStyle: React.CSSProperties = {
+  margin: "6px 0 0",
+  color: "rgba(244,239,231,0.46)",
+  fontSize: 14,
+};
+
+const finishButtonStyle: React.CSSProperties = {
+  marginTop: 0,
+  padding: "10px 18px",
+  minWidth: 220,
+  borderRadius: 10,
+  border: "1px solid",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.24)",
+  fontFamily: serifFont,
+  fontSize: 14,
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+};
