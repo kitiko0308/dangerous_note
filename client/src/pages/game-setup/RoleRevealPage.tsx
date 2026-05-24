@@ -3,6 +3,8 @@ import { toFullWidth } from '../../utils/numberFormat';
 import kiraImg from '../../assets/img/kira_hito.png';
 import lImg from '../../assets/img/L_hito.png';
 import siminnImg from '../../assets/img/siminn_hito.png';
+import aiBg from '../../assets/img/ai.png';
+import sunaarasiBg from '../../assets/img/sunaarasi.png';
 import type { Player } from '../../types';
 
 type Props = {
@@ -67,9 +69,9 @@ export default function RoleRevealPage({ players, onNext }: Props) {
     ? '彼は...'
     : `${currentPlayer.nickname} さんの役職は...`;
 
-  if (isVillager || isL || isKira) {
+    if (isVillager || isL || isKira) {
     return (
-      <div className="title-screen">
+      <div className="title-screen" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.12)), url(${aiBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="title-screen__grain" aria-hidden="true" />
         <div className="title-screen__vignette" aria-hidden="true" />
 
@@ -208,7 +210,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
 
   // isShowing が false の場合に表示される既存の簡易レイアウト
   return (
-    <div className="title-screen">
+  <div className="title-screen" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.12)), url(${aiBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="title-screen__grain" aria-hidden="true" />
       <div className="title-screen__vignette" aria-hidden="true" />
 
@@ -225,7 +227,7 @@ export default function RoleRevealPage({ players, onNext }: Props) {
           </h2>
           <p className="title-sub"><span style={{ color: '#dc2626' }}>{toFullWidth(currentPlayerIndex + 1)}</span>/ {toFullWidth(players.length)} </p>
 
-          <div className="dn-panel role-reveal__simple-panel">
+          <div className="dn-panel role-reveal__simple-panel" style={!isShowing ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)), url(${sunaarasiBg})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
             {!isShowing ? (
               <>
                 <p className="role-reveal-warning">
