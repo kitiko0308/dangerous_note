@@ -18,7 +18,6 @@ export default function MiniGameResultPhase({
   taps,
 }: Props) {
   const [isProcessed, setIsProcessed] = useState(false);
-  const [ranking, setRanking] = useState<Player[]>([]);
   const [eventLogs, setEventLogs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -34,7 +33,6 @@ export default function MiniGameResultPhase({
         : [...alivePlayers].sort(() => Math.random() - 0.5);
 
     if (newRanking.length === 0) {
-      setRanking([]);
       setEventLogs([]);
       setIsProcessed(true);
       return;
@@ -49,6 +47,7 @@ export default function MiniGameResultPhase({
 
       if (allEqual) {
         const lastRank = newRanking.length;
+
         newRanking.forEach((p) => {
           ranksById[p.id] = lastRank;
         });
@@ -74,7 +73,6 @@ export default function MiniGameResultPhase({
     const rankValues = Object.values(ranksById);
 
     if (rankValues.length === 0) {
-      setRanking(newRanking);
       setEventLogs([]);
       setIsProcessed(true);
       return;
@@ -89,9 +87,6 @@ export default function MiniGameResultPhase({
     const lastPlaceIds = Object.entries(ranksById)
       .filter(([, rank]) => rank === maxRank)
       .map(([id]) => Number(id));
-
-    const lastPlaceLabel =
-      lastPlaceIds.length > 1 ? "同率最下位の" : "最下位の";
 
     const participantIds = new Set(newRanking.map((p) => p.id));
     const newLogs: string[] = [];
@@ -144,7 +139,7 @@ export default function MiniGameResultPhase({
             .join("");
 
           newLogs.push(
-            `${lastPlaceLabel} ${p.nickname} の本名の一部「${maskedName}」が全員に公開された`,
+            `ミニゲーム敗北により、${p.nickname} の本名の一部「${maskedName}」が公開された`,
           );
         }
       }
@@ -152,12 +147,6 @@ export default function MiniGameResultPhase({
       return updatedPlayer;
     });
 
-    setRanking(
-      newRanking.map((p) => ({
-        ...p,
-        miniGameRank: ranksById[p.id] ?? newRanking.length,
-      })),
-    );
     setEventLogs(newLogs);
     setPlayers(updatedPlayers);
     setIsProcessed(true);
@@ -170,94 +159,140 @@ export default function MiniGameResultPhase({
       .join("");
 
   return (
-    <div style={containerStyle}>
-      <div style={overlayStyle} />
+    <>
+      <style>{`
+        @media (max-width: 720px) {
+          .mini-result-container {
+            padding: 8px 12px 18px;
+          }
 
-      <main style={contentStyle}>
-        <p style={labelStyle}>MINI GAME RESULT</p>
-        <h1 style={titleStyle}>ミニゲーム結果</h1>
+          .mini-result-content {
+            max-width: 100%;
+          }
 
-        {!isProcessed ? (
-          <div style={panelStyle}>
-            <p style={loadingStyle}>集計中...</p>
-          </div>
-        ) : (
-          <>
-            <section style={rankingPanelStyle}>
-              <p style={sectionLabelStyle}>RANKING</p>
+          .mini-result-title {
+            font-size: clamp(1.25rem, 7vw, 1.75rem);
+            margin-bottom: 10px;
+          }
 
-              {ranking.length > 0 ? (
-                <div style={rankingGridStyle}>
-                  {ranking.map((player, index) => {
-                    const rank = player.miniGameRank ?? index + 1;
-                    const tapCount = taps?.[player.id];
+          .mini-result-panel {
+            padding: 16px 14px;
+            border-radius: 14px;
+          }
 
-                    return (
+          .mini-result-player-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+          }
+
+          .mini-result-player-card {
+            padding: 12px 8px;
+          }
+
+          .mini-result-log {
+            font-size: 0.86rem;
+            letter-spacing: 0.04em;
+            line-height: 1.8;
+          }
+
+          .mini-result-button {
+            width: 100%;
+            max-width: 340px;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .mini-result-player-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .mini-result-label {
+            font-size: 9px;
+            letter-spacing: 0.32em;
+          }
+
+          .mini-result-section-label {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+          }
+        }
+      `}</style>
+
+      <div style={containerStyle} className="mini-result-container">
+        <div style={overlayStyle} />
+
+        <main style={contentStyle} className="mini-result-content">
+          <p style={labelStyle} className="mini-result-label">
+            MINI GAME RESULT
+          </p>
+
+          <h1 style={titleStyle} className="mini-result-title">
+            ミニゲーム結果
+          </h1>
+
+          {!isProcessed ? (
+            <div style={panelStyle} className="mini-result-panel">
+              <p style={loadingStyle}>集計中...</p>
+            </div>
+          ) : (
+            <>
+              <section style={infoPanelStyle} className="mini-result-panel">
+                <p style={sectionLabelStyle} className="mini-result-section-label">
+                  PUBLIC INFORMATION
+                </p>
+
+                {eventLogs.length > 0 ? (
+                  <ul style={logListStyle}>
+                    {eventLogs.map((log, i) => (
+                      <li key={i} style={logStyle} className="mini-result-log">
+                        {log}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p style={mutedTextStyle}>新たに公開された情報はありません。</p>
+                )}
+              </section>
+
+              <section style={playersPanelStyle} className="mini-result-panel">
+                <p style={sectionLabelStyle} className="mini-result-section-label">
+                  PLAYER INFO
+                </p>
+
+                <div style={playerGridStyle} className="mini-result-player-grid">
+                  {players
+                    .filter((p) => p.isAlive)
+                    .map((p) => (
                       <div
-                        key={player.id}
-                        style={{
-                          ...rankCardStyle,
-                          ...(rank === 1 ? firstRankCardStyle : {}),
-                        }}
+                        key={p.id}
+                        style={playerCardStyle}
+                        className="mini-result-player-card"
                       >
-                        <span style={rankStyle}>{rank}位</span>
-                        <strong style={rankNameStyle}>{player.nickname}</strong>
-                        {tapCount !== undefined && (
-                          <span style={scoreStyle}>{tapCount} 回</span>
-                        )}
+                        <strong style={playerNameStyle}>{p.nickname}</strong>
+                        <span style={realNameLabelStyle}>本名</span>
+                        <span style={maskedNameStyle}>{getMaskedName(p)}</span>
                       </div>
-                    );
-                  })}
+                    ))}
                 </div>
-              ) : (
-                <p style={mutedTextStyle}>順位データがありません。</p>
-              )}
-            </section>
+              </section>
 
-            <section style={infoPanelStyle}>
-              <p style={sectionLabelStyle}>PUBLIC INFORMATION</p>
-
-              {eventLogs.length > 0 ? (
-                <ul style={logListStyle}>
-                  {eventLogs.map((log, i) => (
-                    <li key={i} style={logStyle}>
-                      {log}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p style={mutedTextStyle}>新たに公開された情報はありません。</p>
-              )}
-            </section>
-
-            <section style={playersPanelStyle}>
-              <p style={sectionLabelStyle}>PLAYER INFO</p>
-
-              <div style={playerGridStyle}>
-                {players
-                  .filter((p) => p.isAlive)
-                  .map((p) => (
-                    <div key={p.id} style={playerCardStyle}>
-                      <strong style={playerNameStyle}>{p.nickname}</strong>
-                      <span style={realNameLabelStyle}>本名</span>
-                      <span style={maskedNameStyle}>{getMaskedName(p)}</span>
-                    </div>
-                  ))}
-              </div>
-            </section>
-
-            <button type="button" onClick={onNext} style={buttonStyle}>
-              投票フェーズへ進む
-            </button>
-          </>
-        )}
-      </main>
-    </div>
+              <button
+                type="button"
+                onClick={onNext}
+                style={buttonStyle}
+                className="mini-result-button"
+              >
+                投票フェーズへ進む
+              </button>
+            </>
+          )}
+        </main>
+      </div>
+    </>
   );
 }
 
-const serifFont =
-  'var(--font-serif), "Yu Mincho", "Hiragino Mincho ProN", serif';
+const serifFont = '"Yu Mincho", "Hiragino Mincho ProN", serif';
 
 const containerStyle: React.CSSProperties = {
   minHeight: "100svh",
@@ -286,13 +321,14 @@ const overlayStyle: React.CSSProperties = {
     )
   `,
   backdropFilter: "blur(0.5px)",
+  WebkitBackdropFilter: "blur(0.5px)",
 };
 
 const contentStyle: React.CSSProperties = {
   position: "relative",
   zIndex: 2,
   width: "100%",
-  maxWidth: "min(1120px, 96vw)",
+  maxWidth: "min(980px, 96vw)",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -317,30 +353,30 @@ const titleStyle: React.CSSProperties = {
 
 const panelStyle: React.CSSProperties = {
   width: "100%",
-  maxWidth: 760,
   borderRadius: 18,
   background: "rgba(10, 8, 6, 0.42)",
   border: "1px solid rgba(255,255,255,0.08)",
   backdropFilter: "blur(7px)",
+  WebkitBackdropFilter: "blur(7px)",
   padding: 24,
   textAlign: "center",
 };
 
-const rankingPanelStyle: React.CSSProperties = {
-  ...panelStyle,
-  maxWidth: 980,
-  marginBottom: 14,
-};
-
 const infoPanelStyle: React.CSSProperties = {
   ...panelStyle,
-  maxWidth: 820,
+  maxWidth: 860,
   marginBottom: 14,
+  background: "rgba(18, 8, 6, 0.52)",
+  border: "1px solid rgba(210, 120, 110, 0.14)",
+  boxShadow: `
+    0 10px 30px rgba(0,0,0,0.32),
+    0 0 30px rgba(120,20,20,0.08)
+  `,
 };
 
 const playersPanelStyle: React.CSSProperties = {
   ...panelStyle,
-  maxWidth: 820,
+  maxWidth: 860,
   marginBottom: 14,
 };
 
@@ -352,46 +388,6 @@ const sectionLabelStyle: React.CSSProperties = {
   textAlign: "center",
 };
 
-const rankingGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
-  gap: 12,
-};
-
-const rankCardStyle: React.CSSProperties = {
-  minHeight: 112,
-  borderRadius: 14,
-  background: "linear-gradient(180deg, rgba(255,255,255,0.065), rgba(0,0,0,0.28))",
-  border: "1px solid rgba(255,255,255,0.09)",
-  boxShadow: "0 10px 24px rgba(0,0,0,0.28)",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: 8,
-};
-
-const firstRankCardStyle: React.CSSProperties = {
-  border: "1px solid rgba(228,196,160,0.32)",
-  boxShadow: "0 0 24px rgba(228,196,160,0.12), 0 10px 28px rgba(0,0,0,0.34)",
-};
-
-const rankStyle: React.CSSProperties = {
-  color: "#d7b48b",
-  fontSize: "clamp(1.15rem, 2vw, 1.55rem)",
-  fontWeight: 700,
-};
-
-const rankNameStyle: React.CSSProperties = {
-  fontSize: "clamp(.95rem, 1.8vw, 1.2rem)",
-  letterSpacing: "0.08em",
-};
-
-const scoreStyle: React.CSSProperties = {
-  color: "rgba(255,255,255,0.62)",
-  fontSize: 13,
-};
-
 const logListStyle: React.CSSProperties = {
   listStyle: "none",
   padding: 0,
@@ -400,9 +396,9 @@ const logListStyle: React.CSSProperties = {
 
 const logStyle: React.CSSProperties = {
   color: "#f3aaa4",
-  lineHeight: 1.8,
-  letterSpacing: "0.06em",
-  fontSize: "clamp(.88rem, 1.6vw, 1rem)",
+  lineHeight: 1.9,
+  letterSpacing: "0.08em",
+  fontSize: "clamp(.9rem, 1.7vw, 1rem)",
 };
 
 const mutedTextStyle: React.CSSProperties = {
@@ -412,15 +408,22 @@ const mutedTextStyle: React.CSSProperties = {
 
 const playerGridStyle: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(112px, 1fr))",
-  gap: 10,
+  gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+  gap: 12,
+  width: "100%",
 };
 
 const playerCardStyle: React.CSSProperties = {
   borderRadius: 12,
-  background: "linear-gradient(180deg, rgba(255,255,255,0.045), rgba(0,0,0,0.28))",
+  background: `
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.045),
+      rgba(0,0,0,0.28)
+    )
+  `,
   border: "1px solid rgba(255,255,255,0.08)",
-  padding: "12px 10px",
+  padding: "14px 10px",
   textAlign: "center",
 };
 
