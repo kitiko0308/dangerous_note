@@ -157,6 +157,11 @@ export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
           {formatTime(secondsLeft)}
         </div>
         <div
+          role="progressbar"
+          aria-valuenow={Math.round(progress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Morning phase progress: ${Math.round(progress)}%`}
           style={{
             width: '100%',
             maxWidth: 420,
