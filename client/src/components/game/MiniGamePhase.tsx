@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import SampleGame from "./minigames/SampleGame";
 import SampleGame2 from "./minigames/SampleGame2";
 import SampleGame3 from "./minigames/SampleGame3";
@@ -40,10 +40,13 @@ function selectGameIndex(playCounts: Record<number, number>): number {
 }
 
 export default function MiniGamePhase({ players, onNext, gamePlayCounts, onGamePlayed }: Props) {
-  const selectedGameIndex = useMemo(
+  const [selectedGameIndex, setSelectedGameIndex] = useState<number>(
     () => selectGameIndex(gamePlayCounts),
-    [gamePlayCounts],
   );
+
+  useEffect(() => {
+    setSelectedGameIndex(selectGameIndex(gamePlayCounts));
+  }, [gamePlayCounts]);
 
   const handleFinish = (results: number[] | MiniGameResults) => {
     onGamePlayed(selectedGameIndex);
