@@ -1,6 +1,6 @@
 :root {
   --bg-dark: #0a0a0a;
-  --bg-panel: rgba(22,22,22,0.36);
+  --bg-panel: rgba(22, 22, 22, 0.36);
   --kira-red: #8a0303;
   --l-blue: #003366;
   --text-main: #e8e0d4;
@@ -23,7 +23,11 @@
   padding: 12px 24px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.2));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(0, 0, 0, 0.2)
+  );
   color: var(--text-main);
   font-family: var(--font-serif);
   cursor: pointer;
@@ -39,7 +43,11 @@
 
 .role-reveal-action-button:hover {
   border-color: rgba(245, 76, 76, 0.95);
-  background: linear-gradient(180deg, rgba(152, 17, 17, 0.28), rgba(30, 3, 3, 0.42));
+  background: linear-gradient(
+    180deg,
+    rgba(152, 17, 17, 0.28),
+    rgba(30, 3, 3, 0.42)
+  );
   box-shadow:
     0 0 15px rgba(199, 25, 25, 0.2),
     0 8px 20px rgba(0, 0, 0, 0.38);
@@ -48,7 +56,11 @@
 
 .dn-button-primary {
   border-color: var(--kira-red);
-  background: linear-gradient(180deg, rgba(138, 3, 3, 0.3), rgba(30, 3, 3, 0.5));
+  background: linear-gradient(
+    180deg,
+    rgba(138, 3, 3, 0.3),
+    rgba(30, 3, 3, 0.5)
+  );
 }
 
 /* Kira reveal large art */
@@ -62,11 +74,13 @@
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
-  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.6));
 }
 
 @media (max-width: 900px) {
-  .role-kira-art { display: none; }
+  .role-kira-art {
+    display: none;
+  }
 }
 
 /* L reveal large art */
@@ -80,11 +94,13 @@
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
-  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.6));
 }
 
 @media (max-width: 900px) {
-  .role-l-art { display: none; }
+  .role-l-art {
+    display: none;
+  }
 }
 
 /* Villager reveal large art */
@@ -98,11 +114,13 @@
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
-  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.6));
 }
 
 @media (max-width: 900px) {
-  .role-villager-art { display: none; }
+  .role-villager-art {
+    display: none;
+  }
 }
 
 /* Side panel image styles for L and Villager */
@@ -136,7 +154,11 @@
   font-size: 13px;
   letter-spacing: 0.12em;
   cursor: pointer;
-  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
   display: inline-block;
   margin-top: 0.6rem;
 }
@@ -165,22 +187,25 @@
   left: 18px;
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.35);
   color: var(--text-main);
   cursor: pointer;
   z-index: 5;
   font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
-  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+  transition:
+    transform 0.14s ease,
+    border-color 0.14s ease,
+    box-shadow 0.14s ease;
 }
 .panel-back-button:hover {
-  border-color: rgba(255,255,255,0.22);
+  border-color: rgba(255, 255, 255, 0.22);
   transform: translateY(-1px);
 }
 .panel-back-button:active {
   transform: translateY(1px);
-  border-color: rgba(255,255,255,0.44);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+  border-color: rgba(255, 255, 255, 0.44);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
 }
 
 /* 既存のスタイル */
@@ -386,7 +411,7 @@
   flex-direction: column;
   gap: 0.1rem;
   margin-top: 0;
-  order: 2;
+  order: 0;
 }
 
 .role-reveal__tabs {
@@ -411,6 +436,25 @@
   gap: 1rem;
   margin-top: 1.1rem;
   order: 1;
+}
+
+@media (min-width: 901px) {
+  .role-reveal__layout {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+  }
+
+  .role-reveal__art {
+    margin-left: 0;
+  }
+
+  .role-reveal__tabs {
+    justify-content: flex-start;
+  }
+
+  .role-reveal-tabs-hint {
+    text-align: left;
+  }
 }
 
 .role-reveal__card {
@@ -886,7 +930,9 @@
   background: var(--kira-red);
 }
 
-.kira-strong { color: var(--kira-red); }
+.kira-strong {
+  color: var(--kira-red);
+}
 
 @media (max-width: 640px) {
   .player-setup__panel {
@@ -894,12 +940,22 @@
     width: 96%;
   }
 
-  .player-setup__title { font-size: 1.8rem; }
-  .player-setup__input { padding: 12px; }
+  .player-setup__title {
+    font-size: 1.8rem;
+  }
+  .player-setup__input {
+    padding: 12px;
+  }
 }
 
 @media (max-width: 420px) {
-  .player-setup__panel { padding: 16px; }
-  .player-setup__title { font-size: 1.6rem; }
-  .player-setup__hint { font-size: 13px; }
+  .player-setup__panel {
+    padding: 16px;
+  }
+  .player-setup__title {
+    font-size: 1.6rem;
+  }
+  .player-setup__hint {
+    font-size: 13px;
+  }
 }

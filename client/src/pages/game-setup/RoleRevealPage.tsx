@@ -125,15 +125,10 @@ export default function RoleRevealPage({ players, onNext }: Props) {
 
           {/* 左画像 + 右パネルレイアウト */}
           <div className="role-reveal__layout">
-            {/* 右: 画像 */}
+            {/* 左: 画像 */}
             <div className="role-reveal__art">
               {isShowing && (
-                <p
-                  className="role-reveal-tabs-hint"
-                  style={{ transform: "translateX(75px)" }}
-                >
-                  ▼ 他の役職を確認する
-                </p>
+                <p className="role-reveal-tabs-hint">▼ 他の役職を確認する</p>
               )}
               {isShowing && (
                 <div className="role-reveal__tabs">
