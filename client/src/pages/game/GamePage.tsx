@@ -30,6 +30,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   const [nightActionLogs, setNightActionLogs] = useState<string[]>([]);
   const [miniGameRanking, setMiniGameRanking] = useState<number[]>([]);
   const [miniGameTaps, setMiniGameTaps] = useState<Record<number, number>>({});
+  const [gamePlayCounts, setGamePlayCounts] = useState<Record<number, number>>({});
   const hasEndedRef = useRef(false);
 
   
@@ -156,6 +157,13 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
     }
   };
 
+  const handleGamePlayed = (gameIndex: number) => {
+    setGamePlayCounts((prev) => ({
+      ...prev,
+      [gameIndex]: (prev[gameIndex] ?? 0) + 1,
+    }));
+  };
+
   return (
     <div style={{ padding: 20, color: 'white', maxWidth: '800px', margin: '0 auto' }}>
       <header style={{ borderBottom: '1px solid #555', paddingBottom: 20, marginBottom: 20, textAlign: 'center' }}>
@@ -201,7 +209,12 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
           <MorningPhase events={lastEvents} onNext={handleNextPhase} turn={turn} />
         )}
         {phase === "mini_game" && (
-          <MiniGamePhase players={players} onNext={handleNextPhase} />
+          <MiniGamePhase
+            players={players}
+            onNext={handleNextPhase}
+            gamePlayCounts={gamePlayCounts}
+            onGamePlayed={handleGamePlayed}
+          />
         )}
         {phase === "minigame_result" && (
           <MiniGameResultPhase
