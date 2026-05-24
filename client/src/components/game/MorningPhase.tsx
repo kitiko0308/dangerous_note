@@ -114,6 +114,7 @@ export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
       }}
     >
       <h1 className="title-logo" style={{ fontSize: '2.2rem', marginBottom: 8 }}>朝フェーズ</h1>
+      {turn === 1 && <p className="title-sub" style={{ marginBottom: 48 }}>今日の報告</p>}
       {turn > 1 && <p className="title-sub" style={{ marginBottom: 48 }}>夜明けの報告</p>}
       <p
         className="title-tagline"
