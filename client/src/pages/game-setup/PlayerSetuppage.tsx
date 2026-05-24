@@ -41,8 +41,8 @@ export default function PlayerSetuppage({
     // exclude current player's existing nickname so re-randomizing can keep base names available
     const used = new Set(
       players
-        .map((p, i) => (i === currentPlayerIndex ? "" : p.nickname))
-        .filter(Boolean),
+        .map((p, i) => (i === currentPlayerIndex ? "" : p.nickname.trim()))
+        .filter((name) => name.length > 0),
     );
     const n = sampleNicknames.length;
     for (let offset = 0; offset < n; offset += 1) {
@@ -140,7 +140,21 @@ export default function PlayerSetuppage({
       "l",
       ...Array(Math.max(players.length - 2, 0)).fill("villager"),
     ];
-    const shuffledRoles = [...roles].sort(() => Math.random() - 0.5);
+
+    // NOTE:
+    // Avoid using `sort(() => Math.random() - 0.5)` because it can produce biased
+    // distributions and relies on an inconsistent comparator. Use Fisher–Yates
+    // (Durstenfeld) shuffle to obtain an unbiased random permutation.
+    const shuffledRoles = (() => {
+      const out = [...roles];
+      for (let i = out.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = out[i];
+        out[i] = out[j];
+        out[j] = tmp;
+      }
+      return out;
+    })();
 
     const finalPlayers = players.map((p, i) => ({
       ...p,
@@ -163,6 +177,11 @@ export default function PlayerSetuppage({
   const realNameTrimmed = players[currentPlayerIndex].realName.trim();
   const realNameValid = realNameTrimmed.length === 4;
   const isInputValid = nickValid && realNameValid;
+
+  // use player's id to create stable, unique ids for form controls
+  const currentPlayerId = players[currentPlayerIndex]?.id ?? currentPlayerIndex;
+  const nicknameInputId = `nickname-${currentPlayerId}`;
+  const realnameInputId = `realname-${currentPlayerId}`;
 
   return (
     <div
@@ -201,13 +220,16 @@ export default function PlayerSetuppage({
             </p>
 
             <div className="player-setup__group">
-              <label className="player-setup__label">ニックネーム</label>
+              <label htmlFor={nicknameInputId} className="player-setup__label">
+                ニックネーム
+              </label>
               <p className="player-setup__hint">
                 <span style={{ color: "#dc2626" }}>偽りの名</span>
                 。油断すれば、命取りだ。
               </p>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <input
+                  id={nicknameInputId}
                   type="text"
                   value={players[currentPlayerIndex].nickname}
                   onChange={(e) =>
@@ -229,7 +251,9 @@ export default function PlayerSetuppage({
             </div>
 
             <div className="player-setup__group">
-              <label className="player-setup__label">本名</label>
+              <label htmlFor={realnameInputId} className="player-setup__label">
+                本名
+              </label>
               <p className="player-setup__hint">
                 <span style={{ color: "#dc2626" }}>真の名</span>
                 <span style={{ color: "var(--text-dim)" }}>
@@ -238,6 +262,7 @@ export default function PlayerSetuppage({
               </p>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <input
+                  id={realnameInputId}
                   type="text"
                   value={players[currentPlayerIndex].realName}
                   onChange={(e) =>
