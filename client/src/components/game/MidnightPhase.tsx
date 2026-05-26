@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Player, Item } from '../../types';
 import sinyaBg from '../../assets/img/sinya.png';
 
@@ -9,22 +9,65 @@ type Props = {
   onNext: () => void;
 };
 
+const villagerLogs = [
+  '廊下で物音を聞いた…しかし正体は分からなかった。',
+  '誰かが部屋を移動していた気がする。',
+  '監視を続けたが、有力な情報は得られなかった。',
+  '不自然な気配を感じたが、確証は持てない。',
+  '遠くで扉が閉まる音がした。',
+  'メモを整理した。',
+  '少し休もうとしたが、結局眠れなかった。',
+  '天井を眺めながら、しばらく考え込んでいた。',
+  '考え事をしていたら時間が過ぎていた。',
+  '静かすぎて逆に落ち着かなかった。',
+  '誰かの足音が聞こえた気がした。',
+  '画面をぼんやり眺めていたら、時間が過ぎていた。',
+  'TLを徘徊していたら、気づけばかなり時間が過ぎていた。',
+  '唐突にお腹がすき、深夜にカロリー爆弾を食べてしまった。',
+  '眠気を覚ますために冷たい水を飲んだ。',
+  '眠れず、意味もなく画面を何度も見返してしまった。',
+  '時計の音が妙に気になった。',
+  '何か忘れている気がして、しばらく考え込んでいた。',
+  '部屋の静けさに耐えきれず、少しだけ音楽を流した。',
+  '気を紛らわせるため、適当にメモを書き続けていた。',
+  '意味もなくスマホを開いては閉じるのを繰り返していた。',
+  '緊張のせいか、妙に喉が渇いていた。',
+  'ぼーっとしていたら、いつの間にか時間が過ぎていた。',
+  '誰かの気配を感じた気がしたが、気のせいだったかもしれない。',
+  '深夜テンションでどうでもいいことを考えてしまった。',
+  '不安になり、何度も鍵を確認してしまった。',
+  'なんとなく眠れず、ベッドに座ったまま過ごしていた。',
+  'ふと鏡を見たら、自分でも少し顔色が悪い気がした。',
+];
+
 export default function MidnightPhase({
   players,
   setPlayers,
   setNightActionLogs,
   onNext,
 }: Props) {
+  type ActionLog = { id: string; text: string };
+
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(() => {
     const firstAlive = players.findIndex((p) => p.isAlive);
     return firstAlive !== -1 ? firstAlive : 0;
   });
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [actionLogs, setActionLogs] = useState<string[]>([]);
+  const [actionLogs, setActionLogs] = useState<ActionLog[]>([]);
   const [usedActions, setUsedActions] = useState<string[]>([]);
   const [isLoadingAction, setIsLoadingAction] = useState(false);
 
+  const genLogId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  useEffect(() => {
+    if (currentPlayerIndex >= players.length || !players[currentPlayerIndex]?.isAlive) {
+      const firstAlive = players.findIndex((p) => p.isAlive);
+      setCurrentPlayerIndex(firstAlive !== -1 ? firstAlive : 0);
+    }
+  }, [players, currentPlayerIndex]);
+
   const currentPlayer = players[currentPlayerIndex];
+  if (!currentPlayer) return null;
 
   const handleNextPlayer = () => {
     if (isLoadingAction) return;
@@ -96,7 +139,7 @@ export default function MidnightPhase({
 
     setActionLogs((prev) => [
       ...prev,
-      `${target.nickname} の本名の一部は「${maskedName}」だと判明した。`,
+      { id: genLogId(), text: `${target.nickname} の本名の一部は「${maskedName}」だと判明した。` },
     ]);
     setUsedActions((prev) => [...prev, 'steal']);
     setIsLoadingAction(false);
@@ -115,7 +158,7 @@ export default function MidnightPhase({
       `恐ろしい事件が発生しました。${target.nickname} さんが心臓麻痺で亡くなりました。`,
     ]);
 
-    setActionLogs((prev) => [...prev, `${target.nickname} を始末した...。`]);
+    setActionLogs((prev) => [...prev, { id: genLogId(), text: `${target.nickname} を始末した...。` }]);
     setUsedActions((prev) => [...prev, 'kill']);
   };
 
@@ -126,9 +169,23 @@ export default function MidnightPhase({
     const rank = target.miniGameRank ?? '?';
     setActionLogs((prev) => [
       ...prev,
-      `${target.nickname} のミニゲーム順位は ${rank}位 だった。`,
+      { id: genLogId(), text: `${target.nickname} のミニゲーム順位は ${rank}位 だった。` },
     ]);
     setUsedActions((prev) => [...prev, 'rank_check']);
+  };
+
+  const handleVillagerAction = (targetId: number) => {
+    const target = players.find((p) => p.id === targetId);
+    if (!target) return;
+
+    const randomLog = villagerLogs[Math.floor(Math.random() * villagerLogs.length)];
+
+    setActionLogs((prev) => [
+      ...prev,
+      { id: genLogId(), text: `${target.nickname} を気にしながら夜を過ごした。${randomLog}` },
+    ]);
+
+    setUsedActions((prev) => [...prev, 'observe']);
   };
 
   const useItem = (item: Item, targetId?: number) => {
@@ -153,16 +210,16 @@ export default function MidnightPhase({
 
       setActionLogs((prev) => [
         ...prev,
-        `【死神の目】を使用。${target.nickname} の本名は「${target.realName}」だ！`,
+        { id: genLogId(), text: `【死神の目】を使用。${target.nickname} の本名は「${target.realName}」だ！` },
       ]);
     } else if (item === 'shortcake' && effectiveTargetId !== undefined) {
       const target = players.find((p) => p.id === effectiveTargetId);
       if (target) {
         setActionLogs((prev) => [
           ...prev,
-          `【ショートケーキ】を使用。${target.nickname} は ${
+          { id: genLogId(), text: `【ショートケーキ】を使用。${target.nickname} は ${
             target.role === 'kira' ? 'キラだ！' : 'キラではない。'
-          }`,
+          }` },
         ]);
       }
     }
@@ -196,9 +253,6 @@ export default function MidnightPhase({
   return (
     <>
       <style>{`
-        /* MidnightPhase responsive tweaks */
-        .midnight-panel { }
-
         .midnight-confirm-button,
         .midnight-action-button,
         .midnight-item-button,
@@ -231,8 +285,7 @@ export default function MidnightPhase({
           .midnight-panel { max-width: 92% !important; }
           .midnight-title { font-size: clamp(1.05rem, 6.5vw, 1.25rem) !important; }
         }
-      `}</style>
-      <style>{`
+
         @keyframes fadeInLog {
           from {
             opacity: 0;
@@ -257,7 +310,9 @@ export default function MidnightPhase({
       >
         <div style={panelStyle} className="midnight-panel">
           <p style={phaseLabelStyle}>MIDNIGHT PHASE</p>
-          <h2 style={titleStyle} className="midnight-title">深夜行動</h2>
+          <h2 style={titleStyle} className="midnight-title">
+            深夜行動
+          </h2>
           <p style={countStyle} className="midnight-count">
             {currentSurvivorNumber} / {totalSurvivors} 人目
           </p>
@@ -281,7 +336,7 @@ export default function MidnightPhase({
             <div style={actionAreaStyle}>
               <p style={roleStyle}>あなたの役職：{roleLabel}</p>
 
-              <div style={actionCardStyle}>
+              <div style={actionCardStyle} className="midnight-action-card">
                 {(actionLogs.length > 0 || isLoadingAction) && (
                   <div style={logBoxStyle}>
                     <p style={logTitleStyle}>ACTION LOG</p>
@@ -294,7 +349,7 @@ export default function MidnightPhase({
 
                     {actionLogs.map((log, i) => (
                       <p
-                        key={i}
+                        key={log.id}
                         style={{
                           ...logStyle,
                           opacity: 0,
@@ -302,7 +357,7 @@ export default function MidnightPhase({
                           animationDelay: `${i * 0.08}s`,
                         }}
                       >
-                        ✓ {log}
+                        ✓ {log.text}
                       </p>
                     ))}
                   </div>
@@ -349,18 +404,18 @@ export default function MidnightPhase({
                         const canKillNow = isFullyKnown && !hasAlreadyKilled;
 
                         return (
-                            <button
-                              type="button"
-                              key={p.id}
-                              onClick={() => handleKillAction(p.id)}
-                              disabled={!canKillNow}
-                              style={canKillNow ? killBtnStyle : disabledBtnStyle}
-                              className={canKillNow ? 'midnight-kill-button' : ''}
-                            >
-                              {p.nickname} の名前をノートに書く
-                              {hasAlreadyKilled && ' 済'}
-                              {!hasAlreadyKilled && !isFullyKnown && '（本名が不明です）'}
-                            </button>
+                          <button
+                            type="button"
+                            key={p.id}
+                            onClick={() => handleKillAction(p.id)}
+                            disabled={!canKillNow}
+                            style={canKillNow ? killBtnStyle : disabledBtnStyle}
+                            className={canKillNow ? 'midnight-kill-button' : ''}
+                          >
+                            {p.nickname} の名前をノートに書く
+                            {hasAlreadyKilled && ' 済'}
+                            {!hasAlreadyKilled && !isFullyKnown && '（本名が不明です）'}
+                          </button>
                         );
                       })}
 
@@ -379,7 +434,7 @@ export default function MidnightPhase({
                             .join('');
 
                           return (
-                              <div key={p.id} style={nameRowStyle} className="midnight-name-row">
+                            <div key={p.id} style={nameRowStyle} className="midnight-name-row">
                               <span>{p.nickname}</span>
                               <span style={secretNameStyle}>{combinedName}</span>
                             </div>
@@ -417,28 +472,47 @@ export default function MidnightPhase({
                     {players
                       .filter((p) => p.id !== currentPlayer.id && p.isAlive)
                       .map((p) => (
-                          <button
-                            type="button"
-                            key={p.id}
-                            onClick={() => handleLAction(p.id)}
-                            disabled={usedActions.includes('rank_check')}
-                            style={
-                              usedActions.includes('rank_check')
-                                ? disabledBtnStyle
-                                : actionBtnStyle
-                            }
-                            className="midnight-action-button"
-                          >
-                            {p.nickname} の順位を調査 {usedActions.includes('rank_check') && '済'}
-                          </button>
+                        <button
+                          type="button"
+                          key={p.id}
+                          onClick={() => handleLAction(p.id)}
+                          disabled={usedActions.includes('rank_check')}
+                          style={
+                            usedActions.includes('rank_check')
+                              ? disabledBtnStyle
+                              : actionBtnStyle
+                          }
+                          className="midnight-action-button"
+                        >
+                          {p.nickname} の順位を調査 {usedActions.includes('rank_check') && '済'}
+                        </button>
                       ))}
                   </div>
                 )}
 
                 {currentPlayer.role === 'villager' && (
-                  <p style={villagerTextStyle}>
-                    特にできることはありません。静かに夜を過ごしましょう。
-                  </p>
+                  <div style={sectionStyle}>
+                    <p style={sectionLabelStyle}>気になる相手を選んでください：</p>
+
+                    {players
+                      .filter((p) => p.id !== currentPlayer.id && p.isAlive)
+                      .map((p) => (
+                        <button
+                          type="button"
+                          key={p.id}
+                          onClick={() => handleVillagerAction(p.id)}
+                          disabled={usedActions.includes('observe')}
+                          style={
+                            usedActions.includes('observe')
+                              ? disabledBtnStyle
+                              : actionBtnStyle
+                          }
+                          className="midnight-action-button"
+                        >
+                          {p.nickname} を気にして過ごす {usedActions.includes('observe') && '済'}
+                        </button>
+                      ))}
+                  </div>
                 )}
               </div>
 
@@ -666,11 +740,6 @@ const itemNoticeStyle: React.CSSProperties = {
   color: '#d9c3ff',
   fontSize: 13,
   marginBottom: 0,
-};
-
-const villagerTextStyle: React.CSSProperties = {
-  textAlign: 'center',
-  lineHeight: 1.8,
 };
 
 const nextButtonStyle: React.CSSProperties = {
