@@ -33,8 +33,21 @@ export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }
   }, [alivePlayers, currentVoterIndex]);
 
   const currentVoter = alivePlayers[currentVoterIndex];
-  const currentVoterNumber = currentVoterIndex + 1;
   const totalVoters = alivePlayers.length;
+  const currentVoterNumber = totalVoters > 0 ? Math.min(currentVoterIndex + 1, totalVoters) : 0;
+
+  // If there are no alive players, render a safe fallback UI to avoid showing undefined values
+  if (totalVoters === 0) {
+    return (
+      <div className="voting-phase" style={containerStyle}>
+        <div style={cardStyle} className="vote-card">
+          <p style={labelStyle}>VOTING PHASE</p>
+          <h2 className="vote-title" style={titleStyle}>投票不可</h2>
+          <p style={descriptionStyle}>対象のプレイヤーがいません。</p>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (stage !== 'speech') return;
