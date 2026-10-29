@@ -11,7 +11,12 @@ type Props = {
   onFinish: (payload: FinishPayload) => void;
 };
 
-export default function SampleGame({ players, onFinish }: Props) {
+export default function SampleGame(props: Props) {
+  const participantKey = props.players.filter((p) => p.isAlive).map((p) => p.id).join(",");
+  return <GameRound key={participantKey} {...props} />;
+}
+
+function GameRound({ players, onFinish }: Props) {
   const alivePlayers = useMemo(
     () => players.filter((p) => p.isAlive),
     [players],
@@ -124,7 +129,9 @@ export default function SampleGame({ players, onFinish }: Props) {
     if (!currentPlayer || isFinished || !isRunning) return;
 
     clearTimer();
-    tick(timeLeft);
+    timerRef.current = window.setTimeout(() => {
+      tick(timeLeft - 1);
+    }, 1000);
 
     return clearTimer;
   }, [currentPlayer, clearTimer, isFinished, isRunning, tick, timeLeft]);
@@ -149,26 +156,10 @@ export default function SampleGame({ players, onFinish }: Props) {
     return () => window.clearTimeout(id);
   }, [countdown]);
 
-  useEffect(() => {
-    setCurrentTurnIndex(0);
-    setTimeLeft(5);
-    setTapCount(0);
-    setTurnResults([]);
-    setIsFinished(false);
-    setIsRunning(false);
-    setCountdown(null);
-    setShowEndMessage(false);
+  useEffect(() => () => {
     clearTimer();
-
-    return () => {
-      clearTimer();
-      if (endTimerRef.current) {
-        window.clearTimeout(endTimerRef.current);
-        endTimerRef.current = null;
-      }
-    };
-    // 配列参照ではなくID列をキーにし、顔ぶれが変わったときだけリセットする
-  }, [alivePlayers.map((p) => p.id).join(","), clearTimer]);
+    if (endTimerRef.current) window.clearTimeout(endTimerRef.current);
+  }, [clearTimer]);
 
   const handleDummyFinish = () => {
     if (

@@ -6,7 +6,12 @@ type Props = {
   onFinish: (rankingIds: number[]) => void;
 };
 
-export default function SampleGame({ players, onFinish }: Props) {
+export default function SampleGame(props: Props) {
+  const participantKey = props.players.filter((p) => p.isAlive).map((p) => p.id).join(",");
+  return <GameRound key={participantKey} {...props} />;
+}
+
+function GameRound({ players, onFinish }: Props) {
   const alivePlayers = useMemo(
     () => players.filter((p) => p.isAlive),
     [players],
@@ -39,37 +44,13 @@ export default function SampleGame({ players, onFinish }: Props) {
     };
   }, []);
 
-  // reset whenever participant set changes (use stable key)
-  useEffect(() => {
-    setCurrentTurnIndex(0);
-    setPhase("idle");
-    setIndicatorGreen(false);
-    setIsRunning(false);
-    setTurnResults([]);
-    setSuppressResults(false);
-
-    if (endTimerRef.current) {
-      window.clearTimeout(endTimerRef.current);
-      endTimerRef.current = null;
-    }
-
-    return () => {
-      if (endTimerRef.current) {
-        window.clearTimeout(endTimerRef.current);
-        endTimerRef.current = null;
-      }
-    };
-    // depend on stable key of alivePlayers
-  }, [alivePlayers.map((p) => p.id).join(",")]);
-
-  const startRound = () => {
+  const startRound = (delay: number) => {
     // show red immediately and schedule green after a short random delay
     setPhase("waiting");
     setIndicatorGreen(false);
     goTimeRef.current = null;
     setIsRunning(false);
 
-    const delay = 1000 + Math.floor(Math.random() * 2001); // 1000-3000ms
     if (timerRef.current) window.clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(() => {
       goTimeRef.current = Date.now();
@@ -84,14 +65,12 @@ export default function SampleGame({ players, onFinish }: Props) {
     }, delay);
   };
 
-  const handlePress = (playerId: number) => {
+  const handlePress = (playerId: number, now: number) => {
     const current = alivePlayers[currentTurnIndex];
     if (!current || playerId !== current.id) return; // only current player can respond
 
     // ignore repeated presses once recorded or after finish
     if (!isRunning && phase !== "go" && phase !== "waiting") return;
-
-    const now = Date.now();
 
     if (phase === "waiting" && !goTimeRef.current) {
       // early press -> false start
@@ -343,7 +322,7 @@ export default function SampleGame({ players, onFinish }: Props) {
                 }}
               >
                 <button
-                  onClick={() => handlePress(currentPlayer.id)}
+                  onClick={() => handlePress(currentPlayer.id, Date.now())}
                   className="title-menu__button sample-game3-button sample-game3-button--danger"
                   onPointerDown={() => setIsPressed(true)}
                   onPointerUp={() => setIsPressed(false)}
@@ -386,7 +365,7 @@ export default function SampleGame({ players, onFinish }: Props) {
                 }}
               >
                 <button
-                  onClick={startRound}
+                  onClick={() => startRound(1000 + Math.floor(Math.random() * 2001))}
                   className="title-menu__button title-menu__button--primary sample-game3-button sample-game3-button--ready"
                   style={{ minWidth: 180, padding: '10px 22px', borderRadius: 28, background: 'linear-gradient(180deg,#5a392e,#2f1a12)', color: '#f4e9e0', boxShadow: '0 8px 20px rgba(0,0,0,0.4)', border: 'none', fontFamily: 'var(--font-serif), "Yu Mincho", serif' }}
                 >
@@ -403,7 +382,7 @@ export default function SampleGame({ players, onFinish }: Props) {
                 }}
               >
                 <button
-                  onClick={() => handlePress(currentPlayer.id)}
+                  onClick={() => handlePress(currentPlayer.id, Date.now())}
                   className="title-menu__button title-menu__button--primary sample-game3-button sample-game3-button--go"
                   onPointerDown={() => setIsPressed(true)}
                   onPointerUp={() => setIsPressed(false)}

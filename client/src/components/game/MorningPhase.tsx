@@ -6,8 +6,9 @@ type Props = {
   onNext: () => void;
   turn?: number;
 };
+const TOTAL_SECONDS = 60 * 5; // 5分
+
 export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
-  const TOTAL_SECONDS = 60 * 5; // 5分
   const showMorningPhase = true;
   const [secondsLeft, setSecondsLeft] = useState<number>(TOTAL_SECONDS);
   const [isBlinkVisible, setIsBlinkVisible] = useState<boolean>(true);
@@ -24,8 +25,6 @@ export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
   useEffect(() => {
     if (!showMorningPhase) return;
     if (intervalRef.current) return;
-
-    setSecondsLeft(TOTAL_SECONDS);
 
     intervalRef.current = window.setInterval(() => {
       setSecondsLeft(prev => {
@@ -50,32 +49,17 @@ export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
     };
   }, [showMorningPhase]);
 
+  const isBlinking = secondsLeft <= 10;
   useEffect(() => {
-    if (!showMorningPhase) return;
-
-    if (secondsLeft <= 10) {
-      if (blinkRef.current) return;
-
-      blinkRef.current = window.setInterval(() => {
-        setIsBlinkVisible(prev => !prev);
-      }, 250);
-      return () => {
-        if (blinkRef.current) {
-          clearInterval(blinkRef.current);
-          blinkRef.current = null;
-        }
-        setIsBlinkVisible(true);
-      };
-    }
-
-    setIsBlinkVisible(true);
-    if (blinkRef.current) {
-      clearInterval(blinkRef.current);
+    if (!isBlinking) return;
+    blinkRef.current = window.setInterval(() => {
+      setIsBlinkVisible(prev => !prev);
+    }, 250);
+    return () => {
+      if (blinkRef.current) clearInterval(blinkRef.current);
       blinkRef.current = null;
-    }
-
-    return undefined;
-  }, [secondsLeft, showMorningPhase]);
+    };
+  }, [isBlinking]);
 
   useEffect(() => {
     if (!showMorningPhase) return;
@@ -234,8 +218,6 @@ export default function MorningPhase({ events, onNext, turn = 1 }: Props) {
           ))}
         </ul>
       </div>
-
-
 
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 120, marginTop: 6 }}>
         <button

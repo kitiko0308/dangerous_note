@@ -11,7 +11,7 @@ type Props = {
 type VoteTarget = number | null;
 type VoteStage = 'normal' | 'speech' | 'revote';
 
-export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }: Props) {
+export default function VotingPhase({ players, onVote }: Props) {
   const alivePlayers = useMemo(
     () => players.filter((player) => player.isAlive),
     [players],
@@ -25,16 +25,25 @@ export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }
   const [tieCandidateIds, setTieCandidateIds] = useState<number[]>([]);
   const [speechTimeLeft, setSpeechTimeLeft] = useState(60);
 
-  useEffect(() => {
-    if (currentVoterIndex >= alivePlayers.length) {
-      setCurrentVoterIndex(alivePlayers.length > 0 ? Math.max(0, alivePlayers.length - 1) : 0);
-      setIsConfirmed(false);
-    }
-  }, [alivePlayers, currentVoterIndex]);
+  if (currentVoterIndex >= alivePlayers.length && currentVoterIndex !== 0) {
+    setCurrentVoterIndex(Math.max(0, alivePlayers.length - 1));
+    setIsConfirmed(false);
+  }
 
   const currentVoter = alivePlayers[currentVoterIndex];
   const totalVoters = alivePlayers.length;
   const currentVoterNumber = totalVoters > 0 ? Math.min(currentVoterIndex + 1, totalVoters) : 0;
+
+  useEffect(() => {
+    if (stage !== 'speech') return;
+    if (speechTimeLeft <= 0) return;
+
+    const timerId = window.setTimeout(() => {
+      setSpeechTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => window.clearTimeout(timerId);
+  }, [stage, speechTimeLeft]);
 
   // If there are no alive players, render a safe fallback UI to avoid showing undefined values
   if (totalVoters === 0) {
@@ -48,17 +57,6 @@ export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }
       </div>
     );
   }
-
-  useEffect(() => {
-    if (stage !== 'speech') return;
-    if (speechTimeLeft <= 0) return;
-
-    const timerId = window.setTimeout(() => {
-      setSpeechTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => window.clearTimeout(timerId);
-  }, [stage, speechTimeLeft]);
 
   const getMaskedName = (player: Player) => {
     const revealedSet = new Set(player.revealedChars);
@@ -321,7 +319,7 @@ export default function VotingPhase({ players, setPlayers: _setPlayers, onVote }
             </p>
 
             <p style={countStyle}>
-              投票者：{currentVoter?.nickname}　{currentVoterNumber} / {totalVoters}
+              投票者：{currentVoter?.nickname}{'\u3000'}{currentVoterNumber} / {totalVoters}
             </p>
 
             <div className="vote-grid" style={playerGridStyle}>

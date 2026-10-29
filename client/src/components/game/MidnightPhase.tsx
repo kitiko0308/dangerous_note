@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Player, Item } from '../../types';
 import sinyaBg from '../../assets/img/sinya.png';
 
@@ -59,12 +59,11 @@ export default function MidnightPhase({
 
   const genLogId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-  useEffect(() => {
-    if (currentPlayerIndex >= players.length || !players[currentPlayerIndex]?.isAlive) {
-      const firstAlive = players.findIndex((p) => p.isAlive);
-      setCurrentPlayerIndex(firstAlive !== -1 ? firstAlive : 0);
-    }
-  }, [players, currentPlayerIndex]);
+  if (currentPlayerIndex >= players.length || !players[currentPlayerIndex]?.isAlive) {
+    const firstAlive = players.findIndex((p) => p.isAlive);
+    const nextIndex = firstAlive !== -1 ? firstAlive : 0;
+    if (nextIndex !== currentPlayerIndex) setCurrentPlayerIndex(nextIndex);
+  }
 
   const currentPlayer = players[currentPlayerIndex];
   if (!currentPlayer) return null;
@@ -174,11 +173,9 @@ export default function MidnightPhase({
     setUsedActions((prev) => [...prev, 'rank_check']);
   };
 
-  const handleVillagerAction = (targetId: number) => {
+  const handleVillagerAction = (targetId: number, randomLog: string) => {
     const target = players.find((p) => p.id === targetId);
     if (!target) return;
-
-    const randomLog = villagerLogs[Math.floor(Math.random() * villagerLogs.length)];
 
     setActionLogs((prev) => [
       ...prev,
@@ -188,7 +185,7 @@ export default function MidnightPhase({
     setUsedActions((prev) => [...prev, 'observe']);
   };
 
-  const useItem = (item: Item, targetId?: number) => {
+  const handleUseItem = (item: Item, targetId?: number) => {
     let effectiveTargetId = targetId;
 
     if (item === 'death_note_eye') {
@@ -383,7 +380,7 @@ export default function MidnightPhase({
                       !usedActions.includes('death_note_eye') && (
                         <button
                           type="button"
-                          onClick={() => useItem('death_note_eye')}
+                          onClick={() => handleUseItem('death_note_eye')}
                           style={itemBtnStyle}
                           className="midnight-item-button"
                         >
@@ -457,7 +454,7 @@ export default function MidnightPhase({
                               <button
                                 type="button"
                                 key={p.id}
-                                onClick={() => useItem('shortcake', p.id)}
+                                onClick={() => handleUseItem('shortcake', p.id)}
                                 style={itemBtnStyle}
                                 className="midnight-item-button"
                               >
@@ -500,7 +497,7 @@ export default function MidnightPhase({
                         <button
                           type="button"
                           key={p.id}
-                          onClick={() => handleVillagerAction(p.id)}
+                          onClick={() => handleVillagerAction(p.id, villagerLogs[Math.floor(Math.random() * villagerLogs.length)])}
                           disabled={usedActions.includes('observe')}
                           style={
                             usedActions.includes('observe')

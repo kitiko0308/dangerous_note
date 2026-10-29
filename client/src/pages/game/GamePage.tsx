@@ -20,7 +20,7 @@ export default function GamePage({ players, setPlayers, onEnd }: Props) {
   const [turn, setTurn] = useState(1);
   const [phase, setPhase] = useState<GamePhase>("morning");
   const [exiledPlayerId, setExiledPlayerId] = useState<number | null>(null);
-  const [_lastExiledPlayerName, setLastExiledPlayerName] = useState<
+  const [, setLastExiledPlayerName] = useState<
     string | null
   >(null);
 

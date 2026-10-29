@@ -16,6 +16,7 @@ export default function RulesPage({ onBack }: Props) {
   const [page, setPage] = useState(0);
   const [direction, setDirection] = useState<Direction>('next');
   const [dragX, setDragX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
   const pages = [
@@ -133,6 +134,7 @@ export default function RulesPage({ onBack }: Props) {
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     touchStartX.current = e.touches[0].clientX;
+    setIsDragging(true);
   };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -143,6 +145,7 @@ export default function RulesPage({ onBack }: Props) {
   const resetDrag = () => {
     setDragX(0);
     touchStartX.current = null;
+    setIsDragging(false);
   };
 
   const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -245,8 +248,8 @@ export default function RulesPage({ onBack }: Props) {
       <div style={bookFrameStyle}>
         <div
           style={{
-            transform: `translateX(${limitedDrag}px) scale(${touchStartX.current !== null ? 0.98 : 1})`,
-            transition: touchStartX.current !== null ? 'none' : '0.25s ease',
+            transform: `translateX(${limitedDrag}px) scale(${isDragging ? 0.98 : 1})`,
+            transition: isDragging ? 'none' : '0.25s ease',
           }}
         >
           {pages[page]}

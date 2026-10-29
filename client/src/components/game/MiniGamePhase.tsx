@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import SampleGame from "./minigames/SampleGame";
 import SampleGame2 from "./minigames/SampleGame2";
 import SampleGame3 from "./minigames/SampleGame3";
@@ -30,7 +30,12 @@ function selectGameIndex(
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
-export default function MiniGamePhase({ players, onNext, gamePlayCounts, onGamePlayed }: Props) {
+export default function MiniGamePhase(props: Props) {
+  const countsKey = ALL_GAME_INDICES.map((i) => props.gamePlayCounts[i] ?? 0).join(",");
+  return <MiniGameRound key={countsKey} {...props} />;
+}
+
+function MiniGameRound({ players, onNext, gamePlayCounts, onGamePlayed }: Props) {
   const availableIndices = useMemo(
     () =>
       window.matchMedia("(pointer: coarse)").matches
@@ -39,13 +44,9 @@ export default function MiniGamePhase({ players, onNext, gamePlayCounts, onGameP
     [],
   );
 
-  const [selectedGameIndex, setSelectedGameIndex] = useState<number>(
+  const [selectedGameIndex] = useState<number>(
     () => selectGameIndex(gamePlayCounts, availableIndices),
   );
-
-  useEffect(() => {
-    setSelectedGameIndex(selectGameIndex(gamePlayCounts, availableIndices));
-  }, [gamePlayCounts, availableIndices]);
 
   const handleFinish = (results: number[] | MiniGameResults) => {
     onGamePlayed(selectedGameIndex);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Player } from "../../../types";
 import sinigamiImg from "../../../assets/img/sinigami.png";
 import appleImg from "../../../assets/img/apple.png";
@@ -39,7 +39,12 @@ const getNextObstacleGap = (difficultyLevel: number) => {
   return minGap + Math.random() * (maxGap - minGap);
 };
 
-export default function SampleGame({ players, onFinish }: Props) {
+export default function SampleGame(props: Props) {
+  const participantKey = props.players.filter((p) => p.isAlive).map((p) => p.id).join(",");
+  return <GameRound key={participantKey} {...props} />;
+}
+
+function GameRound({ players, onFinish }: Props) {
   const alivePlayers = useMemo(
     () => players.filter((player) => player.isAlive),
     [players],
@@ -57,7 +62,14 @@ export default function SampleGame({ players, onFinish }: Props) {
   const [showEndMessage, setShowEndMessage] = useState(false);
   const [jumpOffset, setJumpOffset] = useState(0);
   const [obstacleKind, setObstacleKind] = useState<ObstacleKind>("ground");
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isTouchDevice] = useState(() => {
+    const isTouch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+    try {
+      return Boolean(window.matchMedia?.("(pointer: coarse)").matches || isTouch);
+    } catch {
+      return isTouch;
+    }
+  });
 
   const rafRef = useRef<number | null>(null);
   const jumpTimerRef = useRef<number | null>(null);
@@ -79,39 +91,6 @@ export default function SampleGame({ players, onFinish }: Props) {
         window.clearTimeout(transitionTimerRef.current);
     };
   }, []);
-
-  useEffect(() => {
-    setCurrentTurnIndex(0);
-    setPhase("idle");
-    setIsJumping(false);
-    setDistance(0);
-    setSpeed(160);
-    setObstacleX(OBSTACLE_START_X);
-    setTurnResults([]);
-    setShowEndMessage(false);
-    setJumpOffset(0);
-    setObstacleKind("ground");
-    obstacleXRef.current = OBSTACLE_START_X;
-    obstacleKindRef.current = "ground";
-    distanceRef.current = 0;
-    speedRef.current = 160;
-    jumpingRef.current = false;
-    runningRef.current = false;
-    lastFrameRef.current = null;
-
-    if (rafRef.current !== null) {
-      window.cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-    if (jumpTimerRef.current !== null) {
-      window.clearTimeout(jumpTimerRef.current);
-      jumpTimerRef.current = null;
-    }
-    if (transitionTimerRef.current !== null) {
-      window.clearTimeout(transitionTimerRef.current);
-      transitionTimerRef.current = null;
-    }
-  }, [alivePlayers.map((player) => player.id).join(",")]);
 
   const endTurn = (hitObstacle: boolean) => {
     const currentPlayer = alivePlayers[currentTurnIndex];
@@ -276,7 +255,7 @@ export default function SampleGame({ players, onFinish }: Props) {
     rafRef.current = window.requestAnimationFrame(tick);
   };
 
-  const handleJump = () => {
+  const handleJump = useCallback(() => {
     if (!runningRef.current || isJumping) return;
 
     setIsJumping(true);
@@ -292,7 +271,7 @@ export default function SampleGame({ players, onFinish }: Props) {
       jumpingRef.current = false;
       jumpTimerRef.current = null;
     }, JUMP_DURATION_MS);
-  };
+  }, [isJumping]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -306,20 +285,7 @@ export default function SampleGame({ players, onFinish }: Props) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [phase, isJumping]);
-
-  useEffect(() => {
-    const isTouch =
-      typeof navigator !== "undefined" &&
-      (navigator.maxTouchPoints > 0 || "ontouchstart" in window);
-    try {
-      const mq = window.matchMedia && window.matchMedia("(pointer: coarse)");
-      if (mq && mq.matches) setIsTouchDevice(true);
-      else setIsTouchDevice(Boolean(isTouch));
-    } catch (e) {
-      setIsTouchDevice(Boolean(isTouch));
-    }
-  }, []);
+  }, [handleJump]);
 
   const currentPlayer = alivePlayers[currentTurnIndex];
 

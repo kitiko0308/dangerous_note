@@ -247,12 +247,12 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   >
                     <h3 className="role-reveal__section-title">勝利条件</h3>
                     <p className="role-reveal__rule">
-                      ♦　
+                      ♦{'\u3000'}
                       <span style={{ color: "#dc2626" }}>追放されなければ</span>
                       勝利する。
                     </p>
                     <p className="role-reveal__rule role-reveal__rule--spaced">
-                      　　ただし、5ターン以内に誰も殺せなかった場合は敗北する。
+                      {'\u3000'}{'\u3000'}ただし、5ターン以内に誰も殺せなかった場合は敗北する。
                     </p>
                   </div>
 
@@ -263,28 +263,28 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   >
                     <h3 className="role-reveal__section-title">能力</h3>
                     <p className="role-reveal__rule">
-                      ♦　<span style={{ color: "#ffffff" }}>毎晩</span>
+                      ♦{'\u3000'}<span style={{ color: "#ffffff" }}>毎晩</span>
                       、ランダムで1人の本名の
                       <span style={{ color: "#dc2626" }}>一文字を知る</span>
                       ことができる。
                     </p>
                     <p className="role-reveal__rule role-reveal__rule--spaced">
-                      ♦　ミニゲームで
+                      ♦{'\u3000'}ミニゲームで
                       <span style={{ color: "#ffffff" }}>1位</span>
                       になった場合、アイテム{" "}
                       <span>
-                        <span style={{ color: "#ffffff" }}>【　</span>
+                        <span style={{ color: "#ffffff" }}>【{'\u3000'}</span>
                         <span style={{ color: accentColor }}>死神の目</span>
-                        <span style={{ color: "#ffffff" }}>　】</span>
+                        <span style={{ color: "#ffffff" }}>{'\u3000'}】</span>
                       </span>{" "}
                       を入手できる。
                     </p>
                     <p className="role-reveal__rule role-reveal__rule--spaced">
-                      　　
+                      {'\u3000'}{'\u3000'}
                       <span>
-                        <span style={{ color: "#ffffff" }}>【　</span>
+                        <span style={{ color: "#ffffff" }}>【{'\u3000'}</span>
                         <span style={{ color: accentColor }}>死神の目</span>
-                        <span style={{ color: "#ffffff" }}>　】</span>
+                        <span style={{ color: "#ffffff" }}>{'\u3000'}】</span>
                       </span>{" "}
                       を使用すると、その夜にランダムで1人の
                       <span style={{ color: "#dc2626" }}>本名を知る</span>
@@ -301,11 +301,11 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   >
                     <h3 className="role-reveal__section-title">勝利条件</h3>
                     <p className="role-reveal__rule">
-                      ♦　<span style={{ color: "#3b82f6" }}>キラを追放</span>
+                      ♦{'\u3000'}<span style={{ color: "#3b82f6" }}>キラを追放</span>
                       する。
                     </p>
                     <p className="role-reveal__rule role-reveal__rule--spaced">
-                      ♦　キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。
+                      ♦{'\u3000'}キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。
                     </p>
                   </div>
 
@@ -316,29 +316,29 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   >
                     <h3 className="role-reveal__section-title">能力</h3>
                     <p className="role-reveal__rule">
-                      ♦　毎晩、プレイヤー1人の、その日のミニゲームの
+                      ♦{'\u3000'}毎晩、プレイヤー1人の、その日のミニゲームの
                       <span style={{ color: "#3b82f6" }}>「順位」を調査</span>
                       できる。
                     </p>
                     <p className="role-reveal__rule role-reveal__rule--spaced">
-                      ♦　昼のミニゲームで1位になったとき、アイテム{" "}
+                      ♦{'\u3000'}昼のミニゲームで1位になったとき、アイテム{" "}
                       <span>
-                        <span style={{ color: "#ffffff" }}>【　</span>
+                        <span style={{ color: "#ffffff" }}>【{'\u3000'}</span>
                         <span style={{ color: accentColor }}>
                           ショートケーキ
                         </span>
-                        <span style={{ color: "#ffffff" }}>　】</span>
+                        <span style={{ color: "#ffffff" }}>{'\u3000'}】</span>
                       </span>{" "}
                       を入手できる。
                     </p>
                     <p className="role-reveal__rule role-reveal__rule--spaced">
-                      　　
+                      {'\u3000'}{'\u3000'}
                       <span>
-                        <span style={{ color: "#ffffff" }}>【　</span>
+                        <span style={{ color: "#ffffff" }}>【{'\u3000'}</span>
                         <span style={{ color: accentColor }}>
                           ショートケーキ
                         </span>
-                        <span style={{ color: "#ffffff" }}>　】</span>
+                        <span style={{ color: "#ffffff" }}>{'\u3000'}】</span>
                       </span>{" "}
                       を使用すると、任意のプレイヤー1人を指名し、その人が
                       <span style={{ color: "#3b82f6" }}>キラか</span>
@@ -356,11 +356,11 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   >
                     <h3 className="role-reveal__section-title">勝利条件</h3>
                     <p className="role-reveal__rule">
-                      ♦　<span style={{ color: "#22c55e" }}>キラを追放</span>
+                      ♦{'\u3000'}<span style={{ color: "#22c55e" }}>キラを追放</span>
                       する。
                     </p>
                     <p className="role-reveal__rule role-reveal__rule--spaced">
-                      ♦　キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。
+                      ♦{'\u3000'}キラが5ターン以内に誰も裁けなかった場合、市民陣営の勝利となる。
                     </p>
                   </div>
 
@@ -371,14 +371,14 @@ export default function RoleRevealPage({ players, onNext }: Props) {
                   >
                     <h3 className="role-reveal__section-title">能力</h3>
                     <p className="role-reveal__rule">
-                      ♦　特殊能力は
+                      ♦{'\u3000'}特殊能力は
                       <span style={{ color: "#22c55e" }}>持たない</span>。
                     </p>
                     <p className="role-reveal__rule role-reveal__rule--spaced">
-                      ♦　夜の行動では「休む」を選択する。
+                      ♦{'\u3000'}夜の行動では「休む」を選択する。
                     </p>
                     <p className="role-reveal__rule role-reveal__rule--spaced">
-                      ♦　話し合いと投票でキラ（敵）を追放へ導く。
+                      ♦{'\u3000'}話し合いと投票でキラ（敵）を追放へ導く。
                     </p>
                   </div>
                 </>

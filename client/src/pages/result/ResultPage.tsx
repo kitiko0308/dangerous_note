@@ -13,6 +13,32 @@ export type ResultData = {
 };
 type Props = { resultData?: ResultData; result?: GameResult; players?: Player[]; onBack?: () => void; turn?: number };
 
+function PortraitInner({ isMobile, portrait, charLabel, showCitizen, portraitTitleSize, portraitNickLabelSize, portraitNickValueSize, ac, kira, kiraPlayer, citizenPlayers, lPlayer }: { isMobile?: boolean; portrait: string; charLabel: string; showCitizen: boolean;
+  portraitTitleSize: number; portraitNickLabelSize: number; portraitNickValueSize: number;
+  ac: string; kira: boolean; kiraPlayer?: PlayerData; citizenPlayers: PlayerData[]; lPlayer?: PlayerData; }) {
+  return (
+    <div style={{ position: isMobile ? 'relative' : 'relative', overflow: 'hidden', background: '#080808', border: '1px solid rgba(255,255,255,.05)', height: isMobile ? 360 : '100%' }}>
+      <img src={portrait} alt={charLabel} style={{ position: 'absolute', top: showCitizen ? '-1%' : '-2%', left: showCitizen ? (isMobile ? '-11%' : '-13%') : (isMobile ? '-12%' : '-14%'), width: showCitizen ? (isMobile ? '122%' : '126%') : (isMobile ? '124%' : '128%'), height: showCitizen ? (isMobile ? '122%' : '126%') : (isMobile ? '124%' : '128%'), objectFit: 'contain', objectPosition: 'center top' }} />
+      <div style={{ position: 'absolute', inset: 0, background: isMobile ? 'linear-gradient(to top, #000 0%, rgba(0,0,0,.66) 24%, rgba(0,0,0,.18) 48%, transparent 72%)' : 'linear-gradient(to top, #000 0%, rgba(0,0,0,.7) 25%, rgba(0,0,0,.2) 50%, transparent 70%)' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, textAlign: 'center', paddingBottom: isMobile ? 14 : 16, zIndex: 2 }}>
+        <div style={{ fontSize: isMobile ? portraitTitleSize + 2 : portraitTitleSize, fontWeight: 900, textShadow: `0 0 24px ${ac}aa, 0 2px 8px rgba(0,0,0,.9)`, marginBottom: 4, lineHeight: 1 }}>{charLabel}</div>
+        <div style={{ fontSize: portraitNickLabelSize, letterSpacing: '.3em', color: '#9ca3af', marginBottom: 2 }}>ニックネーム</div>
+        {kira ? (
+          <div style={{ fontSize: portraitNickValueSize, letterSpacing: '.1em', color: '#fff', fontWeight: 500 }}>{kiraPlayer?.nickname || 'キラ'}</div>
+        ) : showCitizen ? (
+          <div style={{ fontSize: portraitNickValueSize - 1, letterSpacing: '.1em', color: '#fff', fontWeight: 500, lineHeight: 1.6 }}>
+            {citizenPlayers.map((cp, i) => (
+              <span key={cp.name}>{cp.nickname}{i < citizenPlayers.length - 1 ? '、' : ''}</span>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: portraitNickValueSize, letterSpacing: '.1em', color: '#fff', fontWeight: 500 }}>{lPlayer?.nickname || 'L'}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ===== メインコンポーネント ===== */
 export default function ResultPage({ resultData, result, players, onBack, turn }: Props) {
   const resolvedTurn = resultData?.turn ?? turn ?? 0;
@@ -114,29 +140,6 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
 
   const hasOnBack = typeof onBack === 'function';
 
-  // 内部の Portrait コンポーネント（ファイル外は変更しない制約のためローカル定義）
-  const PortraitInner: React.FC<{ isMobile?: boolean }> = ({ isMobile }) => (
-    <div style={{ position: isMobile ? 'relative' : 'relative', overflow: 'hidden', background: '#080808', border: '1px solid rgba(255,255,255,.05)', height: isMobile ? 360 : '100%' }}>
-      <img src={portrait} alt={charLabel} style={{ position: 'absolute', top: showCitizen ? '-1%' : '-2%', left: showCitizen ? (isMobile ? '-11%' : '-13%') : (isMobile ? '-12%' : '-14%'), width: showCitizen ? (isMobile ? '122%' : '126%') : (isMobile ? '124%' : '128%'), height: showCitizen ? (isMobile ? '122%' : '126%') : (isMobile ? '124%' : '128%'), objectFit: 'contain', objectPosition: 'center top' }} />
-      <div style={{ position: 'absolute', inset: 0, background: isMobile ? 'linear-gradient(to top, #000 0%, rgba(0,0,0,.66) 24%, rgba(0,0,0,.18) 48%, transparent 72%)' : 'linear-gradient(to top, #000 0%, rgba(0,0,0,.7) 25%, rgba(0,0,0,.2) 50%, transparent 70%)' }} />
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, textAlign: 'center', paddingBottom: isMobile ? 14 : 16, zIndex: 2 }}>
-        <div style={{ fontSize: isMobile ? portraitTitleSize + 2 : portraitTitleSize, fontWeight: 900, textShadow: `0 0 24px ${ac}aa, 0 2px 8px rgba(0,0,0,.9)`, marginBottom: 4, lineHeight: 1 }}>{charLabel}</div>
-        <div style={{ fontSize: portraitNickLabelSize, letterSpacing: '.3em', color: '#9ca3af', marginBottom: 2 }}>ニックネーム</div>
-        {kira ? (
-          <div style={{ fontSize: portraitNickValueSize, letterSpacing: '.1em', color: '#fff', fontWeight: 500 }}>{kiraPlayer?.nickname || 'キラ'}</div>
-        ) : showCitizen ? (
-          <div style={{ fontSize: portraitNickValueSize - 1, letterSpacing: '.1em', color: '#fff', fontWeight: 500, lineHeight: 1.6 }}>
-            {citizenPlayers.map((cp, i) => (
-              <span key={cp.name}>{cp.nickname}{i < citizenPlayers.length - 1 ? '、' : ''}</span>
-            ))}
-          </div>
-        ) : (
-          <div style={{ fontSize: portraitNickValueSize, letterSpacing: '.1em', color: '#fff', fontWeight: 500 }}>{lPlayer?.nickname || 'L'}</div>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <div style={{ minHeight: '100vh', background: '#060606', color: '#e5e5e5', position: 'relative', overflow: 'hidden', fontFamily: '"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif' }}>
       <style>{`
@@ -213,7 +216,7 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
                   [`border${h==='left'?'Left':'Right'}`]:'1px solid rgba(255,255,255,.3)' }}/>;
               })}
               <div style={{ flex:1,position:'relative',overflow:'hidden',background:'#080808',border:'1px solid rgba(255,255,255,.05)' }}>
-                <PortraitInner />
+                <PortraitInner portrait={portrait} charLabel={charLabel} showCitizen={showCitizen} portraitTitleSize={portraitTitleSize} portraitNickLabelSize={portraitNickLabelSize} portraitNickValueSize={portraitNickValueSize} ac={ac} kira={kira} kiraPlayer={kiraPlayer} citizenPlayers={citizenPlayers} lPlayer={lPlayer} />
               </div>
             </div>
           </div>
@@ -223,7 +226,7 @@ export default function ResultPage({ resultData, result, players, onBack, turn }
 
             <div className="r-mobile-portrait" style={{ display:'none',width:'100%',maxWidth:610,border:'1px solid rgba(255,255,255,.12)',background:'rgba(0,0,0,.76)',padding:6,marginBottom:16,boxShadow:`0 0 30px ${ac}24`,position:'relative' }}>
               <div style={{ position:'relative' }}>
-                <PortraitInner isMobile />
+                <PortraitInner isMobile portrait={portrait} charLabel={charLabel} showCitizen={showCitizen} portraitTitleSize={portraitTitleSize} portraitNickLabelSize={portraitNickLabelSize} portraitNickValueSize={portraitNickValueSize} ac={ac} kira={kira} kiraPlayer={kiraPlayer} citizenPlayers={citizenPlayers} lPlayer={lPlayer} />
               </div>
             </div>
 
